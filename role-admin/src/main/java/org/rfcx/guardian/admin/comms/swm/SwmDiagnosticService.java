@@ -80,7 +80,6 @@ public class SwmDiagnosticService extends Service {
                         if (app.swmUtils.power.getOn() && app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
                             if (!app.swmUtils.isInFlight) {
                                 app.swmUtils.isInFlight = true;
-                                app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
                                 SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
                                 SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
                                 Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();

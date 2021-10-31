@@ -26,7 +26,6 @@ import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
 import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.sbd.SbdMessageDb;
 import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
-import org.rfcx.guardian.admin.comms.swm.SwmDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.network.ADBStateSetService;
@@ -342,7 +341,6 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
 		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
-		this.rfcxSvc.addService( SwmDispatchTimeoutService.SERVICE_NAME, SwmDispatchTimeoutService.class);
 		this.rfcxSvc.addService( SwmDiagnosticService.SERVICE_NAME, SwmDiagnosticService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);

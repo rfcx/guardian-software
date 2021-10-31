@@ -75,14 +75,11 @@ public class SwmDispatchService extends Service {
 			app = (RfcxGuardian) getApplication();
 
 			try {
-
 				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				List<String[]> swmQueuedForDispatch = app.swmMessageDb.dbSwmQueued.getRowsInOrderOfTimestamp();
 
 				for (String[] swmForDispatch : swmQueuedForDispatch) {
-
-
 					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					// if swarm is on and in working period then do all of these
@@ -102,7 +99,6 @@ public class SwmDispatchService extends Service {
 
 								if (!app.swmUtils.isInFlight) {
 									app.swmUtils.isInFlight = true;
-									app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
 
 									// update queue between Guardian and Swarm
 									app.swmUtils.updateQueueMessagesFromSwarm(app.swmUtils.getApi().getUnsentMessages());

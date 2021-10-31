@@ -67,84 +67,55 @@ public class SwmDispatchCycleService extends Service {
         @Override
         public void run() {
             SwmDispatchCycleService swmDispatchCycleInstance = SwmDispatchCycleService.this;
-
             app = (RfcxGuardian) getApplication();
 
+            if (!app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+                Log.i(logTag, "Swarm is disabled");
+                return;
+            }
+
             app.rfcxSvc.reportAsActive(SERVICE_NAME);
+            Log.i(logTag, "Setting up Swarm");
+            app.swmUtils.setupSwmUtils();
 
-            if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+            while (swmDispatchCycleInstance.runFlag) {
 
-                int cyclesSinceLastActivity = 0;
-                int powerOffAfterThisManyInactiveCycles = 6;
-
-                app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-                app.swmUtils.setupSwmUtils();
-
-                while (swmDispatchCycleInstance.runFlag) {
-
-                    try {
-
-                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                        Thread.sleep(swmDispatchCycleDuration);
-
-                        // check for satellite on/off hours and enable/disable swarm tile accordingly
-                        if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
-                            if (!app.swmUtils.isInFlight) {
-                                // to kill the process before calling PO command
-                                app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-                                app.swmUtils.getPower().setOn(false);
-                            }
-
-                            // power on if power is off but in working period
-                        } else if (!app.swmUtils.getPower().getOn()) {
-                            app.swmUtils.getPower().setOn(true);
-
-                            // swarm is on and in working period
-                        } else {
-                            if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
-
-                                // let's add something that checks and eventually powers off the satellite board if not used for a little while
-                                if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-                                    app.swmUtils.getPower().setOn(true); //app.swmUtils.setPower(false);
-                                }
-                                cyclesSinceLastActivity++;
-
-
-                            } else if (!app.swmUtils.isInFlight) {
-
-                                boolean isAbleToSend = app.swmUtils.getPower().getOn();
-
-                                if (!isAbleToSend) {
-                                    Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
-                                    app.swmUtils.getPower().setOn(true);
-                                    isAbleToSend = app.swmUtils.getPower().getOn();
-                                }
-
-                                if (!isAbleToSend) {
-                                    Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
-                                } else {
-                                    app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-                                    cyclesSinceLastActivity = 0;
-                                }
-
-                            } else {
-                                app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-                                cyclesSinceLastActivity = 0;
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        RfcxLog.logExc(logTag, e);
-                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                        swmDispatchCycleInstance.runFlag = false;
-                    }
+                app.rfcxSvc.reportAsActive(SERVICE_NAME);
+                try {
+                    Thread.sleep(swmDispatchCycleDuration);
+                    trigger();
+                } catch (Exception e) {
+                    RfcxLog.logExc(logTag, e);
+                    break;
                 }
             }
 
             app.rfcxSvc.setRunState(SERVICE_NAME, false);
             swmDispatchCycleInstance.runFlag = false;
             Log.v(logTag, "Stopping service: " + logTag);
+        }
+
+        private void trigger() {
+            // Check if Swarm should be OFF due to prefs
+            if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+                Log.d(logTag, "Swarm is OFF at this time");
+                app.swmUtils.getPower().setOn(false);
+                return;
+            }
+
+            // Check if Swarm should be OFF due to inactivity
+            int queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages().size();
+            int queuedInDatabase = app.swmMessageDb.dbSwmQueued.getCount();
+            if (queuedOnSwarm == 0 && queuedInDatabase == 0) {
+                Log.d(logTag, "Swarm is OFF due to inactivity");
+                app.swmUtils.getPower().setOn(false);
+                return;
+            }
+
+            // Make sure it is on and dispatching
+            app.swmUtils.getPower().setOn(true);
+            Log.d(logTag, "Swarm is ON");
+            app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
         }
     }
 
