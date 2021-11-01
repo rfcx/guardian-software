@@ -147,7 +147,7 @@ public class SwmDispatchCycleService extends Service {
 
                         // getting unsent message count from Swarm
                         int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-                        if (unsentMessageNumbers < 50) {
+                        if (unsentMessageNumbers < 30) {
                             // send message
                             String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
                             if (swmMessageId != null) {
