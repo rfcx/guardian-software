@@ -8,6 +8,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
+import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -115,9 +116,9 @@ public class SwmDispatchCycleService extends Service {
             app.swmUtils.getPower().setOn(true);
 
             // Check if Swarm should be OFF due to inactivity
-            int queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages().size();
+            List<SwmUnsentMsg> queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages();
             int queuedInDatabase = app.swmMessageDb.dbSwmQueued.getCount();
-            if (queuedOnSwarm == 0 && queuedInDatabase == 0) {
+            if (queuedOnSwarm != null && queuedOnSwarm.size() == 0 && queuedInDatabase == 0) {
                 Log.d(logTag, "Swarm is OFF due to inactivity");
                 app.swmUtils.getPower().setOn(false);
                 return;

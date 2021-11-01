@@ -62,7 +62,7 @@ class SwmApi(private val connection: SwmConnection) {
 
     fun getRTBackground(): SwmRTBackgroundResponse? {
         // Set the background rate to 1s and wait 1.5s to get a result
-        val result = connection.executeWithoutTimeout(Command.RT.name, "2").filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
+        val result = connection.execute(Command.RT.name, "2", 2).filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
             Log.d("RfcxSwmCommand", "RT Res=$payload")
             "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { match ->
                 val (rssi) = match.destructured
