@@ -163,7 +163,7 @@ public class SwmMessageDb {
 		}
 
 		public List<String[]> getUnsentMessagesToSwarmInOrderOfTimestamp() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, C_SWM_MESSAGE_ID + " = null", null, C_TIMESTAMP+" ASC");
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, C_SWM_MESSAGE_ID + " IS NULL", null, C_TIMESTAMP+" ASC");
 		}
 
 		public int deleteSingleRowByMessageId(String message_id) {
