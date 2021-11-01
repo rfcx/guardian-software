@@ -27,9 +27,6 @@ class SwmUtils(private val context: Context) {
     lateinit var power: SwmPower
     lateinit var api: SwmApi
 
-    @kotlin.jvm.JvmField
-    var isInFlight = false
-
     fun setupSwmUtils() {
         Log.d(logTag, "X")
         power = SwmPower(context)
@@ -68,9 +65,6 @@ class SwmUtils(private val context: Context) {
 
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
-        const val sendCmdTimeout: Long = 70000
-        const val prepCmdTimeout: Long = 2500
-        const val powerCycleAfterThisManyConsecutiveDeliveryFailures = 5
 
         // Scheduling Tools
         @kotlin.jvm.JvmStatic
@@ -112,27 +106,6 @@ class SwmUtils(private val context: Context) {
             val clearBefore = Date(timeStamp.toLong())
             app.swmMetaDb.dbSwmDiagnostic.clearRowsBefore(clearBefore)
             return 1
-        }
-
-        @kotlin.jvm.JvmStatic
-        fun findRunningSerialProcessIds(busyBoxBin: String): IntArray {
-            val processIds: MutableList<Int> = ArrayList()
-            if (!FileUtils.exists(busyBoxBin)) {
-                Log.e(
-                    logTag,
-                    "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system."
-                )
-            } else {
-                val processScan =
-                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps -ef | grep /dev/ttyMT")
-                for (scanRtrn in processScan) {
-                    if (scanRtrn.contains("microcom") || scanRtrn.contains("stty")) {
-                        val processId = scanRtrn.substring(0, scanRtrn.indexOf("root"))
-                        processIds.add(processId.toInt())
-                    }
-                }
-            }
-            return ArrayUtils.ListToIntArray(processIds)
         }
     }
 }
