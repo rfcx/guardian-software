@@ -30,16 +30,12 @@ class SwmUtils(private val context: Context) {
     @kotlin.jvm.JvmField
     var isInFlight = false
 
-    @kotlin.jvm.JvmField
-    var consecutiveDeliveryFailureCount = 0
-
     fun setupSwmUtils() {
         Log.d(logTag, "X")
         power = SwmPower(context)
         Log.d(logTag, "Y")
         api = SwmApi(SwmConnection(SwmUartShell()))
         Log.d(logTag, "Z")
-        app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
@@ -90,7 +86,7 @@ class SwmUtils(private val context: Context) {
                 val msgId = DeviceSmsUtils.generateMessageId()
                 app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, msgId)
                 if (triggerDispatchService) {
-                    app.rfcxSvc.triggerService(SwmDispatchService.SERVICE_NAME, false)
+                    app.rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, false)
                 }
             }
             return isQueued

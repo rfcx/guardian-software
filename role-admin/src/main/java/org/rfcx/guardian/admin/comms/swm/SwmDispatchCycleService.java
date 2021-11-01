@@ -6,8 +6,14 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
+import java.util.List;
 
 public class SwmDispatchCycleService extends Service {
 
@@ -20,7 +26,7 @@ public class SwmDispatchCycleService extends Service {
     private boolean runFlag = false;
     private SwmDispatchCycleSvc swmDispatchCycleSvc;
 
-    private final long swmDispatchCycleDuration = 15000;
+    private final long swmDispatchCycleDuration = 30000;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -96,7 +102,7 @@ public class SwmDispatchCycleService extends Service {
             Log.v(logTag, "Stopping service: " + logTag);
         }
 
-        private void trigger() {
+        private void trigger() throws InterruptedException {
             // Check if Swarm should be OFF due to prefs
             if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
                 Log.d(logTag, "Swarm is OFF at this time");
@@ -104,20 +110,93 @@ public class SwmDispatchCycleService extends Service {
                 return;
             }
 
+            // Make sure it is on and dispatching
+            Log.d(logTag, "Swarm is ON");
+            app.swmUtils.getPower().setOn(true);
+
             // Check if Swarm should be OFF due to inactivity
-//            int queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages().size();
+            int queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages().size();
             int queuedInDatabase = app.swmMessageDb.dbSwmQueued.getCount();
-//            if (queuedOnSwarm == 0 && queuedInDatabase == 0) {
-            if (queuedInDatabase == 0) {
+            if (queuedOnSwarm == 0 && queuedInDatabase == 0) {
                 Log.d(logTag, "Swarm is OFF due to inactivity");
-//                app.swmUtils.getPower().setOn(false);
+                app.swmUtils.getPower().setOn(false);
                 return;
             }
 
-            // Make sure it is on and dispatching
-            app.swmUtils.getPower().setOn(true);
-            Log.d(logTag, "Swarm is ON");
-            app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
+            getDiagnostics();
+            updateQueueBetweenGuardianAndSwarm();
+            sendQueuedMessages();
+        }
+
+        private void sendQueuedMessages() throws InterruptedException {
+            List<String[]> swmQueuedForDispatch = app.swmMessageDb.dbSwmQueued.getUnsentMessagesToSwarmInOrderOfTimestamp();
+
+            for (String[] swmForDispatch : swmQueuedForDispatch) {
+
+                // only proceed with dispatch process if there is a valid queued swm message in the database
+                if (swmForDispatch[0] != null) {
+
+                    long sendAtOrAfter = Long.parseLong(swmForDispatch[1]);
+                    long rightNow = System.currentTimeMillis();
+
+                    if (sendAtOrAfter <= rightNow) {
+
+                        String msgId = swmForDispatch[4];
+                        String msgBody = swmForDispatch[3];
+
+                        // getting unsent message count from Swarm
+                        int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
+                        if (unsentMessageNumbers < 20) {
+                            // send message
+                            String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
+                            if (swmMessageId != null) {
+                                app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
+
+                                String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+                                Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
+                                RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+                            }
+                        }
+                        Thread.sleep(333);
+                    }
+                }
+            }
+        }
+
+        private void updateQueueBetweenGuardianAndSwarm() {
+            app.swmUtils.updateQueueMessagesFromSwarm(app.swmUtils.getApi().getUnsentMessages());
+        }
+
+        private void getDiagnostics() {
+            SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
+            SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
+            Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
+
+            Integer rssiBackground = null;
+            if (rtBackground != null) {
+                rssiBackground = rtBackground.getRssi();
+            }
+
+            Integer rssiSat = null;
+            Integer snr = null;
+            Integer fdev = null;
+            String time = null;
+            String satId = null;
+            if (rtSatellite != null) {
+                if (rtSatellite.getRssi() != 0) rssiSat = rtSatellite.getRssi();
+                if (rtSatellite.getSignalToNoiseRatio() != 0)
+                    snr = rtSatellite.getSignalToNoiseRatio();
+                if (rtSatellite.getFrequencyDeviation() != 0)
+                    fdev = rtSatellite.getFrequencyDeviation();
+                if (!rtSatellite.getPacketTimestamp().equals("1970-01-01 00:00:00"))
+                    time = rtSatellite.getPacketTimestamp();
+                if (!rtSatellite.getSatelliteId().equals("0x000000"))
+                    satId = rtSatellite.getSatelliteId();
+            }
+
+            if (rtBackground != null || rtSatellite != null) {
+                app.swmMetaDb.dbSwmDiagnostic.insert(rssiBackground, rssiSat, snr, fdev, time, satId, unsentMessageNumbers);
+            }
         }
     }
 

@@ -2,9 +2,7 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
-import org.rfcx.guardian.admin.comms.swm.SwmDiagnosticService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
-import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
 import org.rfcx.guardian.admin.comms.swm.SwmMetaDb;
 import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
 import org.rfcx.guardian.admin.companion.CompanionSocketService;
@@ -339,9 +337,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
 		this.rfcxSvc.addService( SbdDispatchTimeoutService.SERVICE_NAME, SbdDispatchTimeoutService.class);
 
-		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
 		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
-		this.rfcxSvc.addService( SwmDiagnosticService.SERVICE_NAME, SwmDiagnosticService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
 		this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
