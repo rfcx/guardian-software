@@ -79,11 +79,12 @@ public class SwmDispatchCycleService extends Service {
             app.swmUtils.setupSwmUtils();
 
             while (swmDispatchCycleInstance.runFlag) {
-
                 app.rfcxSvc.reportAsActive(SERVICE_NAME);
                 try {
-                    Thread.sleep(swmDispatchCycleDuration);
+                    Log.d(logTag, "Trigger");
                     trigger();
+                    Log.d(logTag, "Sleep");
+                    Thread.sleep(swmDispatchCycleDuration);
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e);
                     break;
@@ -104,11 +105,12 @@ public class SwmDispatchCycleService extends Service {
             }
 
             // Check if Swarm should be OFF due to inactivity
-            int queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages().size();
+//            int queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages().size();
             int queuedInDatabase = app.swmMessageDb.dbSwmQueued.getCount();
-            if (queuedOnSwarm == 0 && queuedInDatabase == 0) {
+//            if (queuedOnSwarm == 0 && queuedInDatabase == 0) {
+            if (queuedInDatabase == 0) {
                 Log.d(logTag, "Swarm is OFF due to inactivity");
-                app.swmUtils.getPower().setOn(false);
+//                app.swmUtils.getPower().setOn(false);
                 return;
             }
 

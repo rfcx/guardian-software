@@ -34,8 +34,11 @@ class SwmUtils(private val context: Context) {
     var consecutiveDeliveryFailureCount = 0
 
     fun setupSwmUtils() {
+        Log.d(logTag, "X")
         power = SwmPower(context)
+        Log.d(logTag, "Y")
         api = SwmApi(SwmConnection(SwmUartShell()))
+        Log.d(logTag, "Z")
         app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
