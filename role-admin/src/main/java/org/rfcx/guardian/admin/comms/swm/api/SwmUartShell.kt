@@ -43,6 +43,6 @@ class SwmUartShell(
     }
 
     private fun makeSerialPortSetupCommand(): String {
-        return "$busyboxBin timeout 1 $busyboxBin stty -F $ttyPath $baudRate cs8 -cstopb -parenb"
+        return "$busyboxBin timeout 1 $busyboxBin stty -F $ttyPath $baudRate cs8 -cstopb -parenb -echo -onlcr"
     }
 }
