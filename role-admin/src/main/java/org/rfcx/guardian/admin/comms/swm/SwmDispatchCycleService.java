@@ -147,17 +147,19 @@ public class SwmDispatchCycleService extends Service {
 
                         // getting unsent message count from Swarm
                         int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-                        if (unsentMessageNumbers < 30) {
-                            // send message
-                            String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
-                            if (swmMessageId != null) {
-                                app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
-
-                                String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
-                                Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
-                                RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
-                            }
+                        if (unsentMessageNumbers > 30) {
+                            return;
                         }
+                        // send message
+                        String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
+                        if (swmMessageId != null) {
+                            app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
+
+                            String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+                            Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
+                            RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+                        }
+
                         Thread.sleep(333);
                     }
                 }

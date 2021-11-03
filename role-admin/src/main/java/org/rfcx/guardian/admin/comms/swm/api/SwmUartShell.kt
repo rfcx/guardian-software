@@ -38,11 +38,11 @@ class SwmUartShell(
     }
 
     private fun makeTtyCommand(input: String, timeout: Int = 1): String {
-//        return "echo -n '${input}\\r' | $busyboxBin timeout 1 $busyboxBin microcom -t ${timeout}000 -s $baudRate $ttyPath"
-        return "echo -n '${input}\\r' > $ttyPath | $busyboxBin timeout $timeout /system/bin/cat $ttyPath"
+//        return "echo -n '${input}\\r' | $busyboxBin timeout $timeout $busyboxBin microcom -s $baudRate $ttyPath"
+        return "echo -n '${input}\\r' > $ttyPath | $busyboxBin timeout $timeout /system/bin/cat < $ttyPath"
     }
 
     private fun makeSerialPortSetupCommand(): String {
-        return "$busyboxBin timeout 1 $busyboxBin stty -F $ttyPath $baudRate cs8 -cstopb -parenb -echo -onlcr"
+        return "$busyboxBin stty -F $ttyPath $baudRate -echo -onlcr cs8 -cstopb -parenb"
     }
 }
