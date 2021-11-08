@@ -122,11 +122,10 @@ public class SwmDispatchCycleService extends Service {
         private void sendQueuedMessages() throws InterruptedException {
 
             int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-            if (unsentMessageNumbers > 0) {
-                return;
-            }
+            if (unsentMessageNumbers > 0) return;
 
             String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
+            if (latestMessageForQueue[4] == null) return;
 
             for (String[] swmForDispatch : app.swmMessageDb.dbSwmQueued.getUnsentMessagesInOrderOfTimestampAndWithinGroupId(latestMessageForQueue[4])) {
 
