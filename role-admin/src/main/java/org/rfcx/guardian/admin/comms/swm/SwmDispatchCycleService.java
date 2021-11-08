@@ -27,7 +27,7 @@ public class SwmDispatchCycleService extends Service {
     private boolean runFlag = false;
     private SwmDispatchCycleSvc swmDispatchCycleSvc;
 
-    private final long swmDispatchCycleDuration = 30000;
+    private final long swmDispatchCycleDuration = 120000;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -121,9 +121,15 @@ public class SwmDispatchCycleService extends Service {
 
         //TODO: sent only one group of segments at the time and queue the latest one if swarm unsent messages is 0.
         private void sendQueuedMessages() throws InterruptedException {
-            List<String[]> swmQueuedForDispatch = app.swmMessageDb.dbSwmQueued.getUnsentMessagesToSwarmInOrderOfTimestamp();
 
-            for (String[] swmForDispatch : swmQueuedForDispatch) {
+            int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
+            if (unsentMessageNumbers > 0) {
+                return;
+            }
+
+            String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
+
+            for (String[] swmForDispatch : app.swmMessageDb.dbSwmQueued.getUnsentMessagesInOrderOfTimestampAndWithinGroupId(latestMessageForQueue[4])) {
 
                 // only proceed with dispatch process if there is a valid queued swm message in the database
                 if (swmForDispatch[0] != null) {
@@ -136,11 +142,6 @@ public class SwmDispatchCycleService extends Service {
                         String msgId = swmForDispatch[4];
                         String msgBody = swmForDispatch[3];
 
-                        // getting unsent message count from Swarm
-                        int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-                        if (unsentMessageNumbers > 30) {
-                            return;
-                        }
                         // send message
                         String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
                         if (swmMessageId != null) {
@@ -148,11 +149,11 @@ public class SwmDispatchCycleService extends Service {
                                     Long.parseLong(swmForDispatch[1]),
                                     swmForDispatch[2],
                                     msgBody,
+                                    swmForDispatch[4],
                                     msgId,
                                     swmMessageId
                             );
                             app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
-
 
                             String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
                             Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");

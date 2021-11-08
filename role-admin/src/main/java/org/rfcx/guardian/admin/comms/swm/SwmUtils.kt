@@ -52,6 +52,7 @@ class SwmUtils(private val context: Context) {
         @kotlin.jvm.JvmStatic
         fun addScheduledSwmToQueue(
             sendAtOrAfter: Long,
+            groupId: String?,
             msgPayload: String?,
             context: Context,
             triggerDispatchService: Boolean
@@ -60,7 +61,7 @@ class SwmUtils(private val context: Context) {
             if (msgPayload != null && !msgPayload.equals("", ignoreCase = true)) {
                 val app = context.applicationContext as RfcxGuardian
                 val msgId = DeviceSmsUtils.generateMessageId()
-                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, msgId)
+                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, groupId, msgId)
                 if (triggerDispatchService) {
                     app.rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, false)
                 }

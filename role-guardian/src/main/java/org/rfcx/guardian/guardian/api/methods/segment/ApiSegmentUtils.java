@@ -442,7 +442,7 @@ public class ApiSegmentUtils {
 					int segId = Integer.parseInt(segmentRow[2]);
 
 					if (	(msgProtocol.equalsIgnoreCase("sms") && app.apiSmsUtils.queueSmsToApiToSendImmediately(segBody))
-						||	(msgProtocol.equalsIgnoreCase("swm") && app.apiSatUtils.queueSatMsgToApiToSendImmediately(segBody, "swm"))
+						||	(msgProtocol.equalsIgnoreCase("swm") && app.apiSatUtils.queueSatMsgToApiToSendImmediately(groupId, segBody, "swm"))
 						||	(msgProtocol.equalsIgnoreCase("sbd") && app.apiSatUtils.queueSatMsgToApiToSendImmediately(segBody, "sbd"))
 						) {
 
