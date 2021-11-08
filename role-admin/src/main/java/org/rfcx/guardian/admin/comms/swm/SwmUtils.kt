@@ -45,24 +45,6 @@ class SwmUtils(private val context: Context) {
         return true
     }
 
-    fun updateQueueMessagesFromSwarm(swmUnsentMessages: List<SwmUnsentMsg>?) {
-        val swarmMessageIdQueues = swmUnsentMessages?.map { it.messageId } ?: return
-        val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows.filter { it.getOrNull(5) != null }
-        Log.d(logTag, "Swarm queue: ${swarmMessageIdQueues.size}  Guardian queue: ${guardianMessageIdQueues.size}")
-        for (guardianMessage in guardianMessageIdQueues) {
-            if (!swarmMessageIdQueues.contains(guardianMessage[5])) {
-                app.swmMessageDb.dbSwmSent.insert(
-                    guardianMessage[1].toLong(),
-                    guardianMessage[2],
-                    guardianMessage[3],
-                    guardianMessage[4],
-                    guardianMessage[5]
-                )
-                app.swmMessageDb.dbSwmQueued.deleteSingleRowBySwmMessageId(guardianMessage[5])
-            }
-        }
-    }
-
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
 

@@ -115,20 +115,11 @@ public class SwmDispatchCycleService extends Service {
             Log.d(logTag, "Swarm is ON");
             app.swmUtils.getPower().setOn(true);
 
-            // Check if Swarm should be OFF due to inactivity
-            List<SwmUnsentMsg> queuedOnSwarm = app.swmUtils.getApi().getUnsentMessages();
-            int queuedInDatabase = app.swmMessageDb.dbSwmQueued.getCount();
-            if (queuedOnSwarm != null && queuedOnSwarm.size() == 0 && queuedInDatabase == 0) {
-                Log.d(logTag, "Swarm is OFF due to inactivity");
-                app.swmUtils.getPower().setOn(false);
-                return;
-            }
-
             getDiagnostics();
-            updateQueueBetweenGuardianAndSwarm();
             sendQueuedMessages();
         }
 
+        //TODO: sent only one group of segments at the time and queue the latest one if swarm unsent messages is 0.
         private void sendQueuedMessages() throws InterruptedException {
             List<String[]> swmQueuedForDispatch = app.swmMessageDb.dbSwmQueued.getUnsentMessagesToSwarmInOrderOfTimestamp();
 
@@ -153,21 +144,27 @@ public class SwmDispatchCycleService extends Service {
                         // send message
                         String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
                         if (swmMessageId != null) {
-                            app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
+                            app.swmMessageDb.dbSwmSent.insert(
+                                    Long.parseLong(swmForDispatch[1]),
+                                    swmForDispatch[2],
+                                    msgBody,
+                                    msgId,
+                                    swmMessageId
+                            );
+                            app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
+
 
                             String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
                             Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
                             RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+                        } else {
+                            return;
                         }
 
                         Thread.sleep(333);
                     }
                 }
             }
-        }
-
-        private void updateQueueBetweenGuardianAndSwarm() {
-            app.swmUtils.updateQueueMessagesFromSwarm(app.swmUtils.getApi().getUnsentMessages());
         }
 
         private void getDiagnostics() {

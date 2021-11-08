@@ -12,7 +12,7 @@ class SwmApi(private val connection: SwmConnection) {
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
     fun transmitData(msgStr: String): String? {
-        val results = connection.executeWithoutTimeout(Command.TD.name, msgStr)
+        val results = connection.execute(Command.TD.name, msgStr)
         val regex = "OK,(-?[0-9]+)".toRegex()
         val firstMatchResult = results.mapNotNull { regex.find(it) }.firstOrNull()
         return firstMatchResult?.let { match ->
