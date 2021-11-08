@@ -119,7 +119,6 @@ public class SwmDispatchCycleService extends Service {
             sendQueuedMessages();
         }
 
-        //TODO: sent only one group of segments at the time and queue the latest one if swarm unsent messages is 0.
         private void sendQueuedMessages() throws InterruptedException {
 
             int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
