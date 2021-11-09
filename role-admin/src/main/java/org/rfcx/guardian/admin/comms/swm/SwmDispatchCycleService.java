@@ -182,15 +182,14 @@ public class SwmDispatchCycleService extends Service {
             String time = null;
             String satId = null;
             if (rtSatellite != null) {
-                if (rtSatellite.getRssi() != 0) rssiSat = rtSatellite.getRssi();
-                if (rtSatellite.getSignalToNoiseRatio() != 0)
-                    snr = rtSatellite.getSignalToNoiseRatio();
-                if (rtSatellite.getFrequencyDeviation() != 0)
-                    fdev = rtSatellite.getFrequencyDeviation();
-                if (!rtSatellite.getPacketTimestamp().equals("1970-01-01 00:00:00"))
-                    time = rtSatellite.getPacketTimestamp();
-                if (!rtSatellite.getSatelliteId().equals("0x000000"))
-                    satId = rtSatellite.getSatelliteId();
+                if (app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.getPacketTimestamp())) {
+                    Log.d(logTag, "Saving Satellite Packet");
+                    if (rtSatellite.getRssi() != 0) rssiSat = rtSatellite.getRssi();
+                    if (rtSatellite.getSignalToNoiseRatio() != 0) snr = rtSatellite.getSignalToNoiseRatio();
+                    if (rtSatellite.getFrequencyDeviation() != 0) fdev = rtSatellite.getFrequencyDeviation();
+                    if (!rtSatellite.getPacketTimestamp().equals("1970-01-01 00:00:00")) time = rtSatellite.getPacketTimestamp();
+                    if (!rtSatellite.getSatelliteId().equals("0x000000")) satId = rtSatellite.getSatelliteId();
+                }
             }
 
             if (rtBackground != null || rtSatellite != null) {

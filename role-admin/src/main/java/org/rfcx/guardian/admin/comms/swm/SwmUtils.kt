@@ -47,7 +47,7 @@ class SwmUtils(private val context: Context) {
     }
 
     fun isLastSatellitePacketAllowToSave(lastDate: String): Boolean {
-        val minRange = 1000 * 60 * 3
+        val minRange = 1000 * 60 * 3 // 3 minutes to save
         val lastTime = DateTimeUtils.getDateFromStringUTC(lastDate).time
         val currentTime = DateTimeUtils.getCurrentTimeInUTC()
         Log.d(logTag, "$currentTime $lastTime")
