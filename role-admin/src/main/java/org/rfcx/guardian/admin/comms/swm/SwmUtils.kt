@@ -28,18 +28,12 @@ class SwmUtils(private val context: Context) {
     lateinit var power: SwmPower
     lateinit var api: SwmApi
 
-    @kotlin.jvm.JvmField
-    var isInFlight = false
-
-    @kotlin.jvm.JvmField
-    var consecutiveDeliveryFailureCount = 0
-
     fun setupSwmUtils() {
+        Log.d(logTag, "X")
         power = SwmPower(context)
-        isInFlight = true
+        Log.d(logTag, "Y")
         api = SwmApi(SwmConnection(SwmUartShell()))
-        isInFlight = false
-        app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
+        Log.d(logTag, "Z")
     }
 
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
@@ -61,34 +55,14 @@ class SwmUtils(private val context: Context) {
         return true
     }
 
-    fun updateQueueMessagesFromSwarm(swmUnsentMessages: List<SwmUnsentMsg>?) {
-        val swarmMessageIdQueues = swmUnsentMessages?.map { it.messageId } ?: return
-        val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows.filter { it.getOrNull(5) != null }
-        Log.d(logTag, "Swarm queue: ${swarmMessageIdQueues.size}  Guardian queue: ${guardianMessageIdQueues.size}")
-        for (guardianMessage in guardianMessageIdQueues) {
-            if (!swarmMessageIdQueues.contains(guardianMessage[5])) {
-                app.swmMessageDb.dbSwmSent.insert(
-                    guardianMessage[1].toLong(),
-                    guardianMessage[2],
-                    guardianMessage[3],
-                    guardianMessage[4],
-                    guardianMessage[5]
-                )
-                app.swmMessageDb.dbSwmQueued.deleteSingleRowBySwmMessageId(guardianMessage[5])
-            }
-        }
-    }
-
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
-        const val sendCmdTimeout: Long = 70000
-        const val prepCmdTimeout: Long = 2500
-        const val powerCycleAfterThisManyConsecutiveDeliveryFailures = 5
 
         // Scheduling Tools
         @kotlin.jvm.JvmStatic
         fun addScheduledSwmToQueue(
             sendAtOrAfter: Long,
+            groupId: String?,
             msgPayload: String?,
             context: Context,
             triggerDispatchService: Boolean
@@ -97,9 +71,9 @@ class SwmUtils(private val context: Context) {
             if (msgPayload != null && !msgPayload.equals("", ignoreCase = true)) {
                 val app = context.applicationContext as RfcxGuardian
                 val msgId = DeviceSmsUtils.generateMessageId()
-                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, msgId)
+                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, groupId, msgId)
                 if (triggerDispatchService) {
-                    app.rfcxSvc.triggerService(SwmDispatchService.SERVICE_NAME, false)
+                    app.rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, false)
                 }
             }
             return isQueued
@@ -125,27 +99,6 @@ class SwmUtils(private val context: Context) {
             val clearBefore = Date(timeStamp.toLong())
             app.swmMetaDb.dbSwmDiagnostic.clearRowsBefore(clearBefore)
             return 1
-        }
-
-        @kotlin.jvm.JvmStatic
-        fun findRunningSerialProcessIds(busyBoxBin: String): IntArray {
-            val processIds: MutableList<Int> = ArrayList()
-            if (!FileUtils.exists(busyBoxBin)) {
-                Log.e(
-                    logTag,
-                    "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system."
-                )
-            } else {
-                val processScan =
-                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps -ef | grep /dev/ttyMT")
-                for (scanRtrn in processScan) {
-                    if (scanRtrn.contains("microcom") || scanRtrn.contains("stty")) {
-                        val processId = scanRtrn.substring(0, scanRtrn.indexOf("root"))
-                        processIds.add(processId.toInt())
-                    }
-                }
-            }
-            return ArrayUtils.ListToIntArray(processIds)
         }
     }
 }

@@ -105,6 +105,12 @@ public class ApiPingJsonUtils {
 			if (systemNetwork.length() > 0) { jsonObj.put("network", systemNetwork); }
 		}
 
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm")) {
+			String swmDiagnostic = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "database_get_all_rows",
+					"swm_diagnostic", app.getResolver()));
+			if (swmDiagnostic.length() > 0) { jsonObj.put("swm", swmDiagnostic); }
+		}
+
 		if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "meta")) {
 			jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(jsonObj, Math.max(includeAssetBundleCount, 1), false);
 			includePurgedAssetList = true;

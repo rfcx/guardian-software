@@ -19,7 +19,9 @@ class SwmUartShell(
         if (!FileUtils.exists(busyboxBin)) {
             Log.e(logTag, "Busybox binary not found on system")
         }
+        Log.d(logTag, "ZZZ")
         ShellCommands.executeCommandAsRoot(makeSerialPortSetupCommand(), false)
+        Log.d(logTag, "ZZ")
     }
 
     /**
@@ -36,10 +38,11 @@ class SwmUartShell(
     }
 
     private fun makeTtyCommand(input: String, timeout: Int = 1): String {
-        return "echo -n '${input}\\r' | $busyboxBin microcom -t ${timeout}000 -s $baudRate $ttyPath"
+//        return "echo -n '${input}\\r' | $busyboxBin timeout $timeout $busyboxBin microcom -s $baudRate $ttyPath"
+        return "echo -n '${input}\\r' > $ttyPath | $busyboxBin timeout $timeout /system/bin/cat < $ttyPath"
     }
 
     private fun makeSerialPortSetupCommand(): String {
-        return "$busyboxBin stty -F $ttyPath $baudRate cs8 -cstopb -parenb"
+        return "$busyboxBin stty -F $ttyPath $baudRate -echo -onlcr cs8 -cstopb -parenb"
     }
 }

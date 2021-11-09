@@ -206,8 +206,9 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
                 String[] swmQueue = TextUtils.split(pathSeg,"\\|");
                 long swmSendAt = Long.parseLong(swmQueue[0]);
-                String swmPayload = swmQueue[1];
-                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmPayload, app.getApplicationContext(), false);
+                String swmGroupId = swmQueue[1];
+                String swmPayload = swmQueue[2];
+                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, app.getApplicationContext(), false);
                 return RfcxComm.getProjectionCursor(appRole, "swm_queue", new Object[]{ swmSendAt+"|"+swmPayload, null, System.currentTimeMillis()});
 
 
