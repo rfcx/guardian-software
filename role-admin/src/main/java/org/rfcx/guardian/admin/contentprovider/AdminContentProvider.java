@@ -204,8 +204,9 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
                 String[] swmQueue = TextUtils.split(pathSeg,"\\|");
                 long swmSendAt = Long.parseLong(swmQueue[0]);
-                String swmPayload = swmQueue[1];
-                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmPayload, app.getApplicationContext(), false);
+                String swmGroupId = swmQueue[1];
+                String swmPayload = swmQueue[2];
+                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, app.getApplicationContext(), false);
                 return RfcxComm.getProjectionCursor(appRole, "swm_queue", new Object[]{ swmSendAt+"|"+swmPayload, null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_latest", null)) { logFuncVal = "sms_latest";
@@ -272,6 +273,9 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
+                } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"swm_diagnostic", SwmUtils.getSwmMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
+
                 } else {
                     return null;
                 }
@@ -335,6 +339,9 @@ public class AdminContentProvider extends ContentProvider {
 
                 } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("swm_diagnostic")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SwmUtils.deleteSwmMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 }
 

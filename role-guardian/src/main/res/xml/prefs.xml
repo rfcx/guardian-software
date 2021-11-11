@@ -229,6 +229,13 @@
 		android:defaultValue="@string/prefs_value_default_api_ping_schedule_off_hours" />
 
 	<EditTextPreference
+		android:key="api_satellite_off_hours"
+		android:title="api_satellite_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_satellite_off_hours" />
+
+	<EditTextPreference
 		android:key="api_checkin_publish_schedule_off_hours"
 		android:title="api_checkin_publish_schedule_off_hours"
 		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"

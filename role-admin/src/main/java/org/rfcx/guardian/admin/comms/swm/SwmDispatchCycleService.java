@@ -6,137 +6,197 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
-import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
+import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.util.List;
+
 public class SwmDispatchCycleService extends Service {
 
-	public static final String SERVICE_NAME = "SwmDispatchCycle";
+    public static final String SERVICE_NAME = "SwmDispatchCycle";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchCycleService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private SwmDispatchCycleSvc swmDispatchCycleSvc;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchCycleService");
 
-	private final long swmDispatchCycleDuration = 15000;
+    private RfcxGuardian app;
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.swmDispatchCycleSvc = new SwmDispatchCycleSvc();
-		app = (RfcxGuardian) getApplication();
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.swmDispatchCycleSvc.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.swmDispatchCycleSvc.interrupt();
-		this.swmDispatchCycleSvc = null;
-	}
-	
-	
-	private class SwmDispatchCycleSvc extends Thread {
-		
-		public SwmDispatchCycleSvc() { super("SwmDispatchCycleService-SwmDispatchCycleSvc"); }
-		
-		@Override
-		public void run() {
-			SwmDispatchCycleService swmDispatchCycleInstance = SwmDispatchCycleService.this;
-			
-			app = (RfcxGuardian) getApplication();
+    private boolean runFlag = false;
+    private SwmDispatchCycleSvc swmDispatchCycleSvc;
 
-			app.rfcxSvc.reportAsActive(SERVICE_NAME);
+    private final long swmDispatchCycleDuration = 120000;
 
-			if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
-				int cyclesSinceLastActivity = 0;
-				int powerOffAfterThisManyInactiveCycles = 6;
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.swmDispatchCycleSvc = new SwmDispatchCycleSvc();
+        app = (RfcxGuardian) getApplication();
+    }
 
-				ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
-				app.swmUtils.setupSwmUtils();
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Log.v(logTag, "Starting service: " + logTag);
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.swmDispatchCycleSvc.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-				while (swmDispatchCycleInstance.runFlag) {
-
-					try {
-
-						app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-						Thread.sleep(swmDispatchCycleDuration);
-
-						if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
-
-							// let's add something that checks and eventually powers off the satellite board if not used for a little while
-							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-								app.swmUtils.setPower(false);
-							}
-							cyclesSinceLastActivity++;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.swmDispatchCycleSvc.interrupt();
+        this.swmDispatchCycleSvc = null;
+    }
 
 
-						} else if (!app.swmUtils.isInFlight) {
+    private class SwmDispatchCycleSvc extends Thread {
 
-							boolean isAbleToSend = app.swmUtils.isPowerOn();
+        public SwmDispatchCycleSvc() {
+            super("SwmDispatchCycleService-SwmDispatchCycleSvc");
+        }
 
-							if (!isAbleToSend) {
-								Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
-								app.swmUtils.setPower(true);
-								isAbleToSend = app.swmUtils.isPowerOn();
-							}
+        @Override
+        public void run() {
+            SwmDispatchCycleService swmDispatchCycleInstance = SwmDispatchCycleService.this;
+            app = (RfcxGuardian) getApplication();
 
-							if (!isAbleToSend) {
-								Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
-							} else if (!app.swmUtils.isNetworkAvailable()) {
-								Log.e(logTag, "Swarm Network is not available. Unable to proceed with SWM send...");
-							} else {
-								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-								cyclesSinceLastActivity = 0;
-							}
+            if (!app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+                Log.i(logTag, "Swarm is disabled");
+                return;
+            }
 
-						} else {
+            app.rfcxSvc.reportAsActive(SERVICE_NAME);
+            Log.i(logTag, "Setting up Swarm");
+            app.swmUtils.setupSwmUtils();
 
-							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-							cyclesSinceLastActivity = 0;
+            while (swmDispatchCycleInstance.runFlag) {
+                app.rfcxSvc.reportAsActive(SERVICE_NAME);
+                try {
+                    Log.d(logTag, "Trigger");
+                    trigger();
+                    Log.d(logTag, "Sleep");
+                    Thread.sleep(swmDispatchCycleDuration);
+                } catch (Exception e) {
+                    RfcxLog.logExc(logTag, e);
+                    break;
+                }
+            }
 
-						}
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            swmDispatchCycleInstance.runFlag = false;
+            Log.v(logTag, "Stopping service: " + logTag);
+        }
 
-					} catch (Exception e) {
-						RfcxLog.logExc(logTag, e);
-						app.rfcxSvc.setRunState(SERVICE_NAME, false);
-						swmDispatchCycleInstance.runFlag = false;
-					}
-				}
-			}
+        private void trigger() throws InterruptedException {
+            // Check if Swarm should be OFF due to prefs
+            if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+                Log.d(logTag, "Swarm is OFF at this time");
+                app.swmUtils.getPower().setOn(false);
+                return;
+            }
 
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			swmDispatchCycleInstance.runFlag = false;
-			Log.v(logTag, "Stopping service: "+logTag);
-		}
-	}
+            // Make sure it is on and dispatching
+            Log.d(logTag, "Swarm is ON");
+            app.swmUtils.getPower().setOn(true);
 
-	
+            getDiagnostics();
+            sendQueuedMessages();
+        }
+
+        private void sendQueuedMessages() throws InterruptedException {
+
+            int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
+            if (unsentMessageNumbers > 0) return;
+
+            String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
+            if (latestMessageForQueue[4] == null) return;
+
+            for (String[] swmForDispatch : app.swmMessageDb.dbSwmQueued.getUnsentMessagesInOrderOfTimestampAndWithinGroupId(latestMessageForQueue[4])) {
+
+                // only proceed with dispatch process if there is a valid queued swm message in the database
+                if (swmForDispatch[0] != null) {
+
+                    long sendAtOrAfter = Long.parseLong(swmForDispatch[1]);
+                    long rightNow = System.currentTimeMillis();
+
+                    if (sendAtOrAfter <= rightNow) {
+
+                        String msgId = swmForDispatch[4];
+                        String msgBody = swmForDispatch[3];
+
+                        // send message
+                        String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
+                        if (swmMessageId != null) {
+                            app.swmMessageDb.dbSwmSent.insert(
+                                    Long.parseLong(swmForDispatch[1]),
+                                    swmForDispatch[2],
+                                    msgBody,
+                                    swmForDispatch[4],
+                                    msgId,
+                                    swmMessageId
+                            );
+                            app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
+
+                            String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+                            Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
+                            RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+                        } else {
+                            return;
+                        }
+
+                        Thread.sleep(333);
+                    }
+                }
+            }
+        }
+
+        private void getDiagnostics() {
+            SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
+            SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
+            Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
+
+            Integer rssiBackground = null;
+            if (rtBackground != null) {
+                rssiBackground = rtBackground.getRssi();
+            }
+
+            Integer rssiSat = null;
+            Integer snr = null;
+            Integer fdev = null;
+            String time = null;
+            String satId = null;
+            if (rtSatellite != null) {
+                if (app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.getPacketTimestamp())) {
+                    Log.d(logTag, "Saving Satellite Packet");
+                    if (rtSatellite.getRssi() != 0) rssiSat = rtSatellite.getRssi();
+                    if (rtSatellite.getSignalToNoiseRatio() != 0) snr = rtSatellite.getSignalToNoiseRatio();
+                    if (rtSatellite.getFrequencyDeviation() != 0) fdev = rtSatellite.getFrequencyDeviation();
+                    if (!rtSatellite.getPacketTimestamp().equals("1970-01-01 00:00:00")) time = rtSatellite.getPacketTimestamp();
+                    if (!rtSatellite.getSatelliteId().equals("0x000000")) satId = rtSatellite.getSatelliteId();
+                }
+            }
+
+            if (rtBackground != null || rtSatellite != null) {
+                app.swmMetaDb.dbSwmDiagnostic.insert(rssiBackground, rssiSat, snr, fdev, time, satId, unsentMessageNumbers);
+            }
+        }
+    }
+
+
 }
