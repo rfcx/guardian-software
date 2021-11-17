@@ -250,7 +250,7 @@ public class DbUtils {
 
 	public void deleteRowsWithinValuesByOneColumn(String tableName, String queryColumnName, String[] queryColumnValues) {
 		SQLiteDatabase db = openDb();
-		String joinedValues = TextUtils.join(", ", queryColumnValues);
+		String joinedValues = "'" + TextUtils.join("','", queryColumnValues) + "'";
 		try {
 			db.execSQL("DELETE FROM " + tableName + " WHERE " + queryColumnName + " IN (" + joinedValues + ")");
 		} catch (Exception e) {

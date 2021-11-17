@@ -131,7 +131,7 @@ public class SwmMessageDb {
 		}
 
 		public List<String[]> getUnsentMessagesInOrderOfTimestampAndWithinGroupId(String groupId) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",0,4) = ?", new String[] { groupId }, C_TIMESTAMP+" ASC");
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,4) = '" + groupId + "'", null, C_TIMESTAMP+" ASC");
 		}
 
 		public String[] getLatestRow() {
@@ -139,7 +139,7 @@ public class SwmMessageDb {
 		}
 
 		public ArrayList<String> getGroupIdsBefore(Date date) {
-			List<String[]> result = this.dbUtils.getRows(TABLE, new String[] { C_GROUP_ID }, " WHERE " + C_CREATED_AT + "<=" + date.getTime() + "GROUP BY " + C_GROUP_ID, null, null);
+			List<String[]> result = this.dbUtils.getRows(TABLE, new String[] { C_GROUP_ID }, C_CREATED_AT + "<=" + date.getTime() + " GROUP BY " + C_GROUP_ID, null, null);
 			ArrayList<String> groupIds = new ArrayList<>();
 			for (String[] item: result) {
 				groupIds.add(item[0]);
