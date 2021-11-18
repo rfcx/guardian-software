@@ -74,9 +74,9 @@ public class CompanionPingJsonUtils {
 			includeMeasuredAt = true;
 		}
 
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm_background")) {
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm_network")) {
 			String swmRssi = getConcatMetaField(app.swmMetaDb.dbSwmDiagnostic.getLatestRowAsJsonArray());
-			if (swmRssi.length() > 0) { jsonObj.put("swm_background", swmRssi); }
+			if (swmRssi.length() > 0) { jsonObj.put("swm_network", swmRssi); }
 			includeMeasuredAt = true;
 		}
 
