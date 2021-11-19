@@ -105,7 +105,7 @@ public class ApiPingJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm")) {
-			String swmDiagnostic = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "database_get_all_rows",
+			String swmDiagnostic = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values",
 					"swm_diagnostic", app.getResolver()));
 			if (swmDiagnostic.length() > 0) { jsonObj.put("swm", swmDiagnostic); }
 		}

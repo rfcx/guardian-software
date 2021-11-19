@@ -2,7 +2,9 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.comms.swm.SwmUtils;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
@@ -238,7 +240,10 @@ public class AdminContentProvider extends ContentProvider {
                     } else if (pathSeg.equalsIgnoreCase("system_network")) {
                         momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network");
 
+                    } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
+                        momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
                     }
+
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e);
                 }
