@@ -18,6 +18,8 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils
 
 import android.text.TextUtils
 import org.rfcx.guardian.admin.comms.swm.control.SwmPower
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse
 import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg
 
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
@@ -29,11 +31,8 @@ class SwmUtils(private val context: Context) {
     lateinit var api: SwmApi
 
     fun setupSwmUtils() {
-        Log.d(logTag, "X")
         power = SwmPower(context)
-        Log.d(logTag, "Y")
         api = SwmApi(SwmConnection(SwmUartShell()))
-        Log.d(logTag, "Z")
     }
 
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
@@ -53,6 +52,60 @@ class SwmUtils(private val context: Context) {
         Log.d(logTag, "$currentTime $lastTime")
         if (currentTime - lastTime > minRange) return false
         return true
+    }
+
+    fun getMomentaryConcatDiagnosticValuesAsJsonArray(): JSONArray {
+        saveDiagnostic()
+        val swmDiagnosticJSONarr = JSONArray()
+        val rssi = app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull
+        if (rssi.length > 0) {
+            val diagnosticJson = JSONObject()
+            diagnosticJson.put("swm", rssi)
+            swmDiagnosticJSONarr.put(diagnosticJson)
+        }
+        return swmDiagnosticJSONarr
+    }
+
+    fun saveDiagnostic() {
+        val rtBackground = api.getRTBackground()
+        val rtSatellite = api.getRTSatellite()
+        val unsentMessageNumbers = api.getNumberOfUnsentMessages()
+
+        var rssiBackground: Int? = null
+        if (rtBackground != null) {
+            rssiBackground = rtBackground.rssi
+        }
+
+        var rssiSat: Int? = null
+        var snr: Int? = null
+        var fdev: Int? = null
+        var time: String? = null
+        var satId: String? = null
+        if (rtSatellite != null) {
+            if (app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.packetTimestamp)) {
+                Log.d(logTag, "Saving Satellite Packet")
+                if (rtSatellite.packetTimestamp != "1970-01-01 00:00:00") time =
+                    rtSatellite.packetTimestamp
+                if (time != null) {
+                    if (rtSatellite.rssi != 0) rssiSat = rtSatellite.rssi
+                    if (rtSatellite.signalToNoiseRatio != 0) snr = rtSatellite.signalToNoiseRatio
+                    if (rtSatellite.frequencyDeviation != 0) fdev = rtSatellite.frequencyDeviation
+                    if (rtSatellite.satelliteId != "0x000000") satId = rtSatellite.satelliteId
+                }
+            }
+        }
+
+        if (rtBackground != null || rtSatellite != null) {
+            app.swmMetaDb.dbSwmDiagnostic.insert(
+                rssiBackground,
+                rssiSat,
+                snr,
+                fdev,
+                time,
+                satId,
+                unsentMessageNumbers
+            )
+        }
     }
 
     companion object {

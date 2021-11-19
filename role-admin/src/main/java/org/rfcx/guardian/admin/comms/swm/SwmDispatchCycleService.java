@@ -172,34 +172,7 @@ public class SwmDispatchCycleService extends Service {
         }
 
         private void getDiagnostics() {
-            SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
-            SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
-            Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-
-            Integer rssiBackground = null;
-            if (rtBackground != null) {
-                rssiBackground = rtBackground.getRssi();
-            }
-
-            Integer rssiSat = null;
-            Integer snr = null;
-            Integer fdev = null;
-            String time = null;
-            String satId = null;
-            if (rtSatellite != null) {
-                if (app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.getPacketTimestamp())) {
-                    Log.d(logTag, "Saving Satellite Packet");
-                    if (rtSatellite.getRssi() != 0) rssiSat = rtSatellite.getRssi();
-                    if (rtSatellite.getSignalToNoiseRatio() != 0) snr = rtSatellite.getSignalToNoiseRatio();
-                    if (rtSatellite.getFrequencyDeviation() != 0) fdev = rtSatellite.getFrequencyDeviation();
-                    if (!rtSatellite.getPacketTimestamp().equals("1970-01-01 00:00:00")) time = rtSatellite.getPacketTimestamp();
-                    if (!rtSatellite.getSatelliteId().equals("0x000000")) satId = rtSatellite.getSatelliteId();
-                }
-            }
-
-            if (rtBackground != null || rtSatellite != null) {
-                app.swmMetaDb.dbSwmDiagnostic.insert(rssiBackground, rssiSat, snr, fdev, time, satId, unsentMessageNumbers);
-            }
+            app.swmUtils.saveDiagnostic();
         }
     }
 
