@@ -32,7 +32,6 @@ public class ShellCommands {
 	}
 	
 	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot, boolean stripWhitespace) {
-		Log.i(logTag, "executeCommandInShell: start");
 
 		List<String> outputLines = new ArrayList<String>();
 
@@ -45,19 +44,16 @@ public class ShellCommands {
 			BufferedReader shellReader = new BufferedReader (new InputStreamReader(shellProcess.getInputStream()));
 
 			for (String commandLine : commandLines) {
-				Log.i(logTag, "executeCommandInShell: write: " + commandLine);
 				shellOutput.writeBytes(customEscapeActions(commandLine, false) + "\n");
 			}
 			shellOutput.writeBytes("exit\n");
 			shellOutput.flush();
 			shellOutput.close();
-			Log.i(logTag, "executeCommandInShell: waitFor");
 			shellProcess.waitFor();
 
 			if (shellReader != null) {
 				String shellLineContent;
 				while ((shellLineContent = shellReader.readLine()) != null) {
-					Log.i(logTag, "executeCommandInShell: read: " + shellLineContent);
 					String thisLine = shellLineContent;
 					// TODO Refactor strip whitespace to a separate function, only called where required
 					if (stripWhitespace) {
@@ -69,7 +65,6 @@ public class ShellCommands {
 				}
 			}
 			shellProcess.destroy();
-			Log.i(logTag, "executeCommandInShell: end");
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 	    }

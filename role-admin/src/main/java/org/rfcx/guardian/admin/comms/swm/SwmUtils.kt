@@ -29,11 +29,8 @@ class SwmUtils(private val context: Context) {
     lateinit var api: SwmApi
 
     fun setupSwmUtils() {
-        Log.d(logTag, "X")
         power = SwmPower(context)
-        Log.d(logTag, "Y")
         api = SwmApi(SwmConnection(SwmUartShell()))
-        Log.d(logTag, "Z")
     }
 
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {

@@ -41,7 +41,7 @@ public class SwmMessageDb {
                 .append(", ").append(C_TIMESTAMP).append(" TEXT")
                 .append(", ").append(C_ADDRESS).append(" TEXT")
                 .append(", ").append(C_BODY).append(" TEXT")
-				.append(", ").append(C_GROUP_ID).append(" TEXT")
+                .append(", ").append(C_GROUP_ID).append(" TEXT")
                 .append(", ").append(C_MESSAGE_ID).append(" TEXT")
                 .append(", ").append(C_SWM_MESSAGE_ID).append(" TEXT")
                 .append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
