@@ -65,7 +65,7 @@ public class AssetDownloadUtils {
 						+"\"sample_rate\":\"8000\","
 						+"\"input_gain\":\"1.0\","
 						+"\"window_size\":\"3.5000\","
-						+"\"step_size\":\"1\","
+						+"\"step_size\":\"3.5000\","
 						+"\"classifications\":\"elephas_maximus,environment\","
 						+"\"classifications_filter_threshold\":\"0.99,1.00\""
 						+"}"
