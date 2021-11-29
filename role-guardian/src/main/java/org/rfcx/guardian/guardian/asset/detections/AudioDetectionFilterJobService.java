@@ -111,9 +111,9 @@ public class AudioDetectionFilterJobService extends Service {
 //						}
 //						filterRow = filters.get(filterId);
 
-						String[] allowedClassifications = new String[] { "chainsaw" };
-						double filterConfidenceMinThreshold = 0.95;
-						double filterConfidenceMinCountPerMinute = 4;
+						String[] allowedClassifications = new String[] { "chainsaw", "elephas_maximus" };
+						double filterConfidenceMinThreshold = 0.99;
+						double filterConfidenceMinCountPerMinute = 3;
 						int detectionSigFigs = 2;
 
 

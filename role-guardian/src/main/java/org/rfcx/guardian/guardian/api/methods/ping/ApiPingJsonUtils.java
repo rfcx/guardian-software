@@ -113,6 +113,8 @@ public class ApiPingJsonUtils {
 		if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "detections")) {
 			jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, Math.max(includeAssetBundleCount, 1), false);
 			includePurgedAssetList = true;
+			//remove this after asset exchange log is working for detections
+			app.audioDetectionDb.dbFiltered.clearRowsBefore(new Date());
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {

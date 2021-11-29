@@ -25,7 +25,7 @@ public class SmsDispatchService extends Service {
 	private boolean runFlag = false;
 	private SmsDispatch smsDispatch;
 
-	private long forcedPauseBetweenEachDispatch = 3333;
+	private long forcedPauseBetweenEachDispatch = 5000;
 
 	@Override
 	public IBinder onBind(Intent intent) {

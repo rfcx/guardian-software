@@ -2,6 +2,7 @@ package org.rfcx.guardian.classify.utils;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -135,6 +136,8 @@ public class AudioClassifyUtils {
 			}
 			jsonDetections.put(classifierClassifications[j], classArr);
 		}
+
+		Log.e(logTag, jsonDetections.toString());
 
 		jsonObj.put("detections", jsonDetections);
 		return jsonObj;

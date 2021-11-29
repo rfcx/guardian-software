@@ -60,6 +60,7 @@ public class AudioDetectionJsonUtils {
 
 			// if the bundle already contains max number of snapshots, stop here
 			if (dtcnIds.length() >= maxDtcnRowsToBundle) { break; }
+
 		}
 
 		if (dtcnList.size() > 0) {

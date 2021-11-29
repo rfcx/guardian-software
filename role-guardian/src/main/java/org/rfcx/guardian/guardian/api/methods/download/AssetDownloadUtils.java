@@ -31,25 +31,66 @@ public class AssetDownloadUtils {
 
 	public void createDummyRow() {
 
+//				app.assetDownloadDb.dbQueued.insert(
+//				"classifier",
+//				"1637739334295",
+//				"331e7a8c2453c9ca27c61be6018d9f4098d9c366",
+//				"http",
+//				"http://192.168.1.102:8080/cdn/tflite/asianelephant_v5.tflite.gz",
+//				13635432,
+//				"tflite",
+//				"{"
+//						+"\"classifier_name\":\"asianelephant\","
+//						+"\"classifier_version\":\"5\","
+//						+"\"sample_rate\":\"8000\","
+//						+"\"input_gain\":\"1.0\","
+//						+"\"window_size\":\"3.5000\","
+//						+"\"step_size\":\"1\","
+//						+"\"classifications\":\"asianelephant,environment\","
+//						+"\"classifications_filter_threshold\":\"0.99,1.00\""
+//						+"}"
+//		);
+
 		app.assetDownloadDb.dbQueued.insert(
 				"classifier",
-				"1617208867756",
-				"accfb018701e52696835c9d1c02600a67a228db1",
+				"1637901613151",
+				"0055c8ae66c17aa16c269ac94de968c7f625a33f",
 				"http",
-				"https://rfcx-install.s3.eu-west-1.amazonaws.com/rfcx-guardian/guardian-asset-classifier/1617208867756.tflite.gz",
-				12465841,
+				"http://192.168.43.107:8080/cdn/tflite/asia-elephant-edge_v1.tflite.gz",
+				13629113,
 				"tflite",
 				"{"
-						+"\"classifier_name\":\"chainsaw\","
-						+"\"classifier_version\":\"5\","
-						+"\"sample_rate\":\"12000\","
+						+"\"classifier_name\":\"asia-elephant-edge\","
+						+"\"classifier_version\":\"1\","
+						+"\"sample_rate\":\"8000\","
 						+"\"input_gain\":\"1.0\","
-						+"\"window_size\":\"0.9750\","
+						+"\"window_size\":\"3.5000\","
 						+"\"step_size\":\"1\","
-						+"\"classifications\":\"chainsaw,environment\","
-						+"\"classifications_filter_threshold\":\"0.95,1.00\""
+						+"\"classifications\":\"elephas_maximus,environment\","
+						+"\"classifications_filter_threshold\":\"0.99,1.00\""
 						+"}"
-				);
+		);
+
+//		app.assetDownloadDb.dbQueued.insert(
+//				"classifier",
+//				"1617208867756",
+//				"accfb018701e52696835c9d1c02600a67a228db1",
+//				"http",
+//				"http://192.168.1.102:8080/cdn/tflite/chainsaw_v5.tflite.gz",
+//			//	"https://rfcx-install.s3.eu-west-1.amazonaws.com/rfcx-guardian/guardian-asset-classifier/1617208867756.tflite.gz",
+//				12465841,
+//				"tflite",
+//				"{"
+//						+"\"classifier_name\":\"chainsaw\","
+//						+"\"classifier_version\":\"5\","
+//						+"\"sample_rate\":\"12000\","
+//						+"\"input_gain\":\"1.0\","
+//						+"\"window_size\":\"0.9750\","
+//						+"\"step_size\":\"1\","
+//						+"\"classifications\":\"chainsaw,environment\","
+//						+"\"classifications_filter_threshold\":\"0.95,1.00\""
+//						+"}"
+//				);
 
 
 //		app.assetDownloadDb.dbQueued.insert(
@@ -57,7 +98,7 @@ public class AssetDownloadUtils {
 //				"1617208867757",
 //				"5ad4aafdf92cbb4c2fc795962548a711581273aa",
 //				"http",
-//				"http://192.168.0.179:8080/cdn/tflite/chainsaw_v2.tflite.gz",
+//				"http://192.168.1.102:8080/cdn/tflite/chainsaw_v2.tflite.gz",
 //				12500443,
 //				"tflite",
 //				"{"
