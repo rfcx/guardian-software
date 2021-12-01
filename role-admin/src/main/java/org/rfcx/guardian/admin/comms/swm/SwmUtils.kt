@@ -21,22 +21,16 @@ import org.rfcx.guardian.admin.comms.swm.control.SwmPower
 import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg
 
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
+import kotlin.math.log
 
 class SwmUtils(private val context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
     lateinit var power: SwmPower
     lateinit var api: SwmApi
 
-    @kotlin.jvm.JvmField
-    var isInFlight = false
-
-    @kotlin.jvm.JvmField
-    var consecutiveDeliveryFailureCount = 0
-
     fun setupSwmUtils() {
         power = SwmPower(context)
         api = SwmApi(SwmConnection(SwmUartShell()))
-        app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
@@ -49,34 +43,23 @@ class SwmUtils(private val context: Context) {
         return true
     }
 
-    fun updateQueueMessagesFromSwarm(swmUnsentMessages: List<SwmUnsentMsg>?) {
-        val swarmMessageIdQueues = swmUnsentMessages?.map { it.messageId } ?: return
-        val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows.filter { it.getOrNull(5) != null }
-        Log.d(logTag, "Swarm queue: ${swarmMessageIdQueues.size}  Guardian queue: ${guardianMessageIdQueues.size}")
-        for (guardianMessage in guardianMessageIdQueues) {
-            if (!swarmMessageIdQueues.contains(guardianMessage[5])) {
-                app.swmMessageDb.dbSwmSent.insert(
-                    guardianMessage[1].toLong(),
-                    guardianMessage[2],
-                    guardianMessage[3],
-                    guardianMessage[4],
-                    guardianMessage[5]
-                )
-                app.swmMessageDb.dbSwmQueued.deleteSingleRowBySwmMessageId(guardianMessage[5])
-            }
-        }
+    fun isLastSatellitePacketAllowToSave(lastDate: String): Boolean {
+        val minRange = 1000 * 60 * 3 // 3 minutes to save
+        val lastTime = DateTimeUtils.getDateFromStringUTC(lastDate).time
+        val currentTime = DateTimeUtils.getCurrentTimeInUTC()
+        Log.d(logTag, "$currentTime $lastTime")
+        if (currentTime - lastTime > minRange) return false
+        return true
     }
 
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
-        const val sendCmdTimeout: Long = 70000
-        const val prepCmdTimeout: Long = 2500
-        const val powerCycleAfterThisManyConsecutiveDeliveryFailures = 5
 
         // Scheduling Tools
         @kotlin.jvm.JvmStatic
         fun addScheduledSwmToQueue(
             sendAtOrAfter: Long,
+            groupId: String?,
             msgPayload: String?,
             context: Context,
             triggerDispatchService: Boolean
@@ -85,9 +68,9 @@ class SwmUtils(private val context: Context) {
             if (msgPayload != null && !msgPayload.equals("", ignoreCase = true)) {
                 val app = context.applicationContext as RfcxGuardian
                 val msgId = DeviceSmsUtils.generateMessageId()
-                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, msgId)
+                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, groupId, msgId)
                 if (triggerDispatchService) {
-                    app.rfcxSvc.triggerService(SwmDispatchService.SERVICE_NAME, false)
+                    app.rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, false)
                 }
             }
             return isQueued
@@ -113,27 +96,6 @@ class SwmUtils(private val context: Context) {
             val clearBefore = Date(timeStamp.toLong())
             app.swmMetaDb.dbSwmDiagnostic.clearRowsBefore(clearBefore)
             return 1
-        }
-
-        @kotlin.jvm.JvmStatic
-        fun findRunningSerialProcessIds(busyBoxBin: String): IntArray {
-            val processIds: MutableList<Int> = ArrayList()
-            if (!FileUtils.exists(busyBoxBin)) {
-                Log.e(
-                    logTag,
-                    "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system."
-                )
-            } else {
-                val processScan =
-                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps -ef | grep /dev/ttyMT")
-                for (scanRtrn in processScan) {
-                    if (scanRtrn.contains("microcom") || scanRtrn.contains("stty")) {
-                        val processId = scanRtrn.substring(0, scanRtrn.indexOf("root"))
-                        processIds.add(processId.toInt())
-                    }
-                }
-            }
-            return ArrayUtils.ListToIntArray(processIds)
         }
     }
 }

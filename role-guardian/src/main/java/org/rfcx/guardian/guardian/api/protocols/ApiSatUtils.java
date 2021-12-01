@@ -25,6 +25,32 @@ public class ApiSatUtils {
 		return queueSatMsgToSend(null, msgBody, satProtocol);
 	}
 
+	public boolean queueSatMsgToApiToSendImmediately(String groupId, String msgBody, String satProtocol) {
+		return queueSatMsgToSendWithGroupId(null, groupId, msgBody, satProtocol);
+	}
+
+	public boolean queueSatMsgToSendWithGroupId(String sendAt, String groupId, String msgBody, String satProtocol) {
+
+		try {
+			String satSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? ""+Long.parseLong(sendAt) : ""+System.currentTimeMillis();
+			String satMsgBody = (msgBody != null) ? msgBody : "";
+			String satMsgUrlBlob = TextUtils.join("|", new String[]{ satSendAt, groupId, RfcxComm.urlEncode(satMsgBody) });
+
+			Cursor satQueueResponse = app.getResolver().query(
+					RfcxComm.getUri("admin", satProtocol+"_queue", satMsgUrlBlob),
+					RfcxComm.getProjection("admin", satProtocol+"_queue"),
+					null, null, null);
+			if (satQueueResponse != null) {
+				satQueueResponse.close();
+				return true;
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return false;
+	}
+
 	public boolean queueSatMsgToSend(String sendAt, String msgBody, String satProtocol) {
 
 		try {
