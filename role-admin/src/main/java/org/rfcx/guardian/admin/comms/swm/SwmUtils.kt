@@ -36,7 +36,8 @@ class SwmUtils(private val context: Context) {
     }
 
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
-        for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS).split(",")) {
+        for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS)
+            .split(",")) {
             val offHours = offHoursRange.split("-")
             if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {
                 return false
@@ -81,17 +82,14 @@ class SwmUtils(private val context: Context) {
         var fdev: Int? = null
         var time: String? = null
         var satId: String? = null
-        if (rtSatellite != null) {
-            if (app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.packetTimestamp)) {
-                Log.d(logTag, "Saving Satellite Packet")
-                if (rtSatellite.packetTimestamp != "1970-01-01 00:00:00") time =
-                    rtSatellite.packetTimestamp
-                if (time != null) {
-                    if (rtSatellite.rssi != 0) rssiSat = rtSatellite.rssi
-                    if (rtSatellite.signalToNoiseRatio != 0) snr = rtSatellite.signalToNoiseRatio
-                    if (rtSatellite.frequencyDeviation != 0) fdev = rtSatellite.frequencyDeviation
-                    if (rtSatellite.satelliteId != "0x000000") satId = rtSatellite.satelliteId
-                }
+        if (rtSatellite != null && app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.packetTimestamp)) {
+            Log.d(logTag, "Saving Satellite Packet")
+            if (rtSatellite.packetTimestamp != "1970-01-01 00:00:00") time = rtSatellite.packetTimestamp
+            if (time != null) {
+                if (rtSatellite.rssi != 0) rssiSat = rtSatellite.rssi
+                if (rtSatellite.signalToNoiseRatio != 0) snr = rtSatellite.signalToNoiseRatio
+                if (rtSatellite.frequencyDeviation != 0) fdev = rtSatellite.frequencyDeviation
+                if (rtSatellite.satelliteId != "0x000000") satId = rtSatellite.satelliteId
             }
         }
 
