@@ -59,9 +59,11 @@ public class CompanionSocketUtils {
 	private JSONObject getLatestAllSentCheckInType() throws JSONException {
 		JSONObject checkIn = new JSONObject();
 
-		JSONArray mqtt = app.apiCheckInDb.dbSent.getSingleRowAsJsonArray();
+		String mqtt = app.apiCheckInUtils.getLastCheckinDateTime();
+		JSONObject mqttObj = new JSONObject();
+		mqttObj.put("created_at", mqtt);
 		if (mqtt.length() > 0) {
-			checkIn.put("mqtt", mqtt.getJSONObject(0));
+			checkIn.put("mqtt", mqttObj);
 		}
 
 		JSONArray sms = RfcxComm.getQuery(

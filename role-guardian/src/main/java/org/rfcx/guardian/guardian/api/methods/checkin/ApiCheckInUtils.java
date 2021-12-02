@@ -31,6 +31,12 @@ public class ApiCheckInUtils {
 
 	private RfcxGuardian app;
 
+	private String lastCheckinDateTime = "";
+
+	public String getLastCheckinDateTime() {
+		return lastCheckinDateTime;
+	}
+
 	public boolean addCheckInToQueue(String[] audioInfo, String filePath) {
 
 		// serialize audio info into JSON for checkin queue insertion
@@ -219,7 +225,7 @@ public class ApiCheckInUtils {
 
 
 	public void moveCheckInEntryToSentDatabase(String inFlightCheckInAudioId) {
-
+		lastCheckinDateTime = DateTimeUtils.getDateTime();
 		if ((app.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId) != null) && (app.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId)[0] != null)) {
 			String[] checkInEntry = app.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId);
 			// delete latest instead to keep present info
