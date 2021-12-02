@@ -338,6 +338,7 @@ public class AudioCaptureUtils {
 
 
 	public Pair<byte[], Integer> getAudioBuffer() {
+		if (wavRecorderForCompanion == null) return null;
 		return wavRecorderForCompanion.getAudioBuffer();
 	}
 
