@@ -3,6 +3,7 @@ package org.rfcx.guardian.admin.comms.sbd;
 import android.content.ContentValues;
 import android.content.Context;
 
+import org.json.JSONArray;
 import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -107,6 +108,10 @@ public class SbdMessageDb {
 			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public JSONArray getSingleRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, 1);
 		}
 
 		public List<String[]> getAllRows() {

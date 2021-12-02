@@ -3,10 +3,12 @@ package org.rfcx.guardian.admin.comms.swm;
 import android.content.ContentValues;
 import android.content.Context;
 
+import org.json.JSONArray;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -74,6 +76,10 @@ public class SwmMessageDb {
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
+		public JSONArray getSingleRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, 1);
+		}
+
 		public List<String[]> getAllRows() {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
@@ -130,11 +136,28 @@ public class SwmMessageDb {
 		}
 
 		public List<String[]> getUnsentMessagesInOrderOfTimestampAndWithinGroupId(String groupId) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",0,4) = ?", new String[] { groupId }, C_TIMESTAMP+" ASC");
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,4) = '" + groupId + "'", null, C_TIMESTAMP+" ASC");
 		}
 
 		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP+" DESC", 0);
+		}
+
+		public ArrayList<String> getGroupIdsBefore(Date date) {
+			List<String[]> result = this.dbUtils.getRows(TABLE, new String[] { C_GROUP_ID }, C_CREATED_AT + "<=" + date.getTime() + " GROUP BY " + C_GROUP_ID, null, null);
+			ArrayList<String> groupIds = new ArrayList<>();
+			for (String[] item: result) {
+				groupIds.add(item[0]);
+			}
+			return groupIds;
+		}
+
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
+		}
+
+		public void clearRowsByIds(List<String> ids) {
+			this.dbUtils.deleteRowsWithinValuesByOneColumn(TABLE, C_MESSAGE_ID, ids.toArray(new String[0]));
 		}
 
 		public int deleteSingleRowByMessageId(String message_id) {

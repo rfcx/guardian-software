@@ -2,7 +2,9 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.comms.swm.SwmUtils;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
@@ -36,8 +38,6 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -211,6 +211,17 @@ public class AdminContentProvider extends ContentProvider {
                 SwmUtils.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, app.getApplicationContext(), false);
                 return RfcxComm.getProjectionCursor(appRole, "swm_queue", new Object[]{ swmSendAt+"|"+swmPayload, null, System.currentTimeMillis()});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "sms_latest", null)) { logFuncVal = "sms_latest";
+                JSONArray result = app.smsMessageDb.dbSmsSent.getSingleRowAsJsonArray();
+                return RfcxComm.getProjectionCursor(appRole, "sms_latest", new Object[]{ result });
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "sbd_latest", null)) { logFuncVal = "sbd_latest";
+                JSONArray result = app.sbdMessageDb.dbSbdSent.getSingleRowAsJsonArray();
+                return RfcxComm.getProjectionCursor(appRole, "sbd_latest", new Object[]{ result });
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "swm_latest", null)) { logFuncVal = "swm_latest";
+                JSONArray result = app.swmMessageDb.dbSwmSent.getSingleRowAsJsonArray();
+                return RfcxComm.getProjectionCursor(appRole, "swm_latest", new Object[]{ result });
 
             // get momentary values endpoints
 
@@ -238,7 +249,10 @@ public class AdminContentProvider extends ContentProvider {
                     } else if (pathSeg.equalsIgnoreCase("system_network")) {
                         momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network");
 
+                    } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
+                        momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
                     }
+
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e);
                 }

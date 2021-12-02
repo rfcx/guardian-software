@@ -3,6 +3,7 @@ package org.rfcx.guardian.admin.comms.swm;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -14,6 +15,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.util.Date;
 import java.util.List;
 
 public class SwmDispatchCycleService extends Service {
@@ -128,7 +130,6 @@ public class SwmDispatchCycleService extends Service {
             if (latestMessageForQueue[4] == null) return;
 
             for (String[] swmForDispatch : app.swmMessageDb.dbSwmQueued.getUnsentMessagesInOrderOfTimestampAndWithinGroupId(latestMessageForQueue[4])) {
-
                 // only proceed with dispatch process if there is a valid queued swm message in the database
                 if (swmForDispatch[0] != null) {
 
@@ -164,37 +165,14 @@ public class SwmDispatchCycleService extends Service {
                     }
                 }
             }
+            long day = (24 * 60 * 60 * 1000);
+            Date date = new Date(Long.parseLong(latestMessageForQueue[0]) - day);
+            List<String> groupIds = app.swmMessageDb.dbSwmQueued.getGroupIdsBefore(date);
+            app.swmMessageDb.dbSwmQueued.clearRowsByIds(groupIds);
         }
 
         private void getDiagnostics() {
-            SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
-            SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
-            Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-
-            Integer rssiBackground = null;
-            if (rtBackground != null) {
-                rssiBackground = rtBackground.getRssi();
-            }
-
-            Integer rssiSat = null;
-            Integer snr = null;
-            Integer fdev = null;
-            String time = null;
-            String satId = null;
-            if (rtSatellite != null) {
-                if (app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.getPacketTimestamp())) {
-                    Log.d(logTag, "Saving Satellite Packet");
-                    if (rtSatellite.getRssi() != 0) rssiSat = rtSatellite.getRssi();
-                    if (rtSatellite.getSignalToNoiseRatio() != 0) snr = rtSatellite.getSignalToNoiseRatio();
-                    if (rtSatellite.getFrequencyDeviation() != 0) fdev = rtSatellite.getFrequencyDeviation();
-                    if (!rtSatellite.getPacketTimestamp().equals("1970-01-01 00:00:00")) time = rtSatellite.getPacketTimestamp();
-                    if (!rtSatellite.getSatelliteId().equals("0x000000")) satId = rtSatellite.getSatelliteId();
-                }
-            }
-
-            if (rtBackground != null || rtSatellite != null) {
-                app.swmMetaDb.dbSwmDiagnostic.insert(rssiBackground, rssiSat, snr, fdev, time, satId, unsentMessageNumbers);
-            }
+            app.swmUtils.saveDiagnostic();
         }
     }
 
