@@ -161,8 +161,12 @@ public class AudioDetectionDb {
 			return rightNow;
 		}
 
-		public void deleteSingleRow(String classificationTag, String audioId) {
+		public void deleteSingleRowByClassificationTagAndAudioId(String classificationTag, String audioId) {
 			this.dbUtils.deleteRowsWithinQueryByTwoColumns( TABLE, C_CLASSIFICATION_TAG, classificationTag, C_AUDIO_ID, audioId);
+		}
+
+		public void deleteSingleRow(String detectionId) {
+			this.dbUtils.deleteRowsWithinQueryByOneColumn( TABLE, C_CREATED_AT, detectionId);
 		}
 
 		public String getSimplifiedConcatRows() {

@@ -53,21 +53,21 @@ public class AssetDownloadUtils {
 
 		app.assetDownloadDb.dbQueued.insert(
 				"classifier",
-				"1637901613151",
-				"0055c8ae66c17aa16c269ac94de968c7f625a33f",
+				"1637901623151",
+				"69482d8b65083e2fabcf1096033c863409cc50f7",
 				"http",
-				"http://192.168.43.107:8080/cdn/tflite/asia-elephant-edge_v1.tflite.gz",
-				13629113,
+				"http://192.168.43.107:8080/cdn/tflite/asia-elephant-edge_v2.tflite.gz",
+				12469754,
 				"tflite",
 				"{"
 						+"\"classifier_name\":\"asia-elephant-edge\","
-						+"\"classifier_version\":\"1\","
+						+"\"classifier_version\":\"2\","
 						+"\"sample_rate\":\"8000\","
 						+"\"input_gain\":\"1.0\","
-						+"\"window_size\":\"3.5000\","
-						+"\"step_size\":\"3.5000\","
+						+"\"window_size\":\"2.5000\","
+						+"\"step_size\":\"2.0000\","
 						+"\"classifications\":\"elephas_maximus,environment\","
-						+"\"classifications_filter_threshold\":\"0.99,1.00\""
+						+"\"classifications_filter_threshold\":\"0.98,1.00\""
 						+"}"
 		);
 

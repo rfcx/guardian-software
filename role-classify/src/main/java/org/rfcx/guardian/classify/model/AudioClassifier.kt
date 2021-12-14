@@ -39,7 +39,7 @@ class AudioClassifier(private val tfLiteFilePath: String, private val sampleRate
         this.endAt = this.windowLengthSamples
     }
 
-    fun classify(path: String): List<FloatArray> {
+    fun classify(path: String, verboseLogging: Boolean): List<FloatArray> {
         val audio = AudioConverter.readAudioSimple(path)
         val outputs = arrayListOf<FloatArray>()
         //check if all attributes are set and audio picked not more than its size.
@@ -48,7 +48,16 @@ class AudioClassifier(private val tfLiteFilePath: String, private val sampleRate
             val iterationStartTime = System.currentTimeMillis()
             val output = predictor.run(audio.pickBetween(this.startAt, this.endAt))
             outputs.add(output)
-            Log.e(this.logTag, "Processed "+(this.startAt/this.sampleRate)+" to "+(this.endAt/this.sampleRate)+" secs ("+(this.endAt-this.startAt)+" samples) of "+(audio.size/this.sampleRate)+" secs (processing required "+DateTimeUtils.timeStampDifferenceFromNowAsReadableString(iterationStartTime)+")")
+
+            if (verboseLogging) {
+                Log.e(
+                    this.logTag,
+                    "Processed " + (this.startAt / this.sampleRate) + " to " + (this.endAt / this.sampleRate) + " secs (" + (this.endAt - this.startAt) + " samples) of " + (audio.size / this.sampleRate) + " secs (processing required " + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(
+                        iterationStartTime
+                    ) + ")"
+                )
+            }
+
             nextWindow()
         }
         //reset after audio classified

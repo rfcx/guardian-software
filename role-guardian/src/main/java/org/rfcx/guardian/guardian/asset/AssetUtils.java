@@ -139,6 +139,9 @@ public class AssetUtils {
 				filePaths.add(RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, numericAssetId));
 				filePaths.add(RfcxClassifierFileUtils.getClassifierFileLocation_Cache(context, numericAssetId));
 
+			} else if (assetType.equals(RfcxAsset.Type.DETECTION)) {
+				app.audioDetectionDb.dbFiltered.deleteSingleRow(assetId);
+
 			} else if (assetType.equals(RfcxAsset.Type.SMS)) {
 				RfcxComm.deleteQuery("admin", "database_delete_row", "sms|" + assetId, app.getResolver());
 

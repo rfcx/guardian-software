@@ -53,7 +53,7 @@ public class AudioDetectionJsonUtils {
 
 			// add detection set ID to array of IDs
 			dtcnIds.put(dtcnRow[0]);
-			dtcnList.add(TextUtils.join("*", new String[] { dtcnRow[1], dtcnRow[3]+"-v"+dtcnRow[4], dtcnRow[7], ""+Math.round(Double.parseDouble(dtcnRow[8])*1000), dtcnRow[10] }));
+			dtcnList.add(TextUtils.join("*", new String[] { dtcnRow[1], dtcnRow[3]+"-v"+dtcnRow[4], dtcnRow[7], ""+Math.round(Double.parseDouble(dtcnRow[9])), dtcnRow[10] }));
 
 			// mark this row as accessed in the database
 			app.audioDetectionDb.dbFiltered.updateLastAccessedAtByCreatedAt(dtcnRow[0]);

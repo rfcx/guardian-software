@@ -38,6 +38,15 @@
 			android:defaultValue="@string/prefs_value_default_admin_verbose_network" />
 
 	<ListPreference
+			android:key="admin_verbose_classify"
+			android:title="admin_verbose_classify"
+			android:dialogTitle="admin_verbose_classify"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_classify" />
+
+	<ListPreference
 			android:key="enable_audio_capture"
 			android:title="enable_audio_capture"
 			android:dialogTitle="enable_audio_capture"
@@ -451,6 +460,13 @@
         android:summary="int - megabytes"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_checkin_archive_filesize_target" />
+
+	<EditTextPreference
+		android:key="ping_meta_send_bundle_limit"
+		android:title="ping_meta_send_bundle_limit"
+		android:summary="int - count"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_ping_meta_send_bundle_limit" />
 
 	<EditTextPreference
 		android:key="checkin_meta_send_bundle_limit"

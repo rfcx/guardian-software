@@ -112,8 +112,8 @@ public class AudioDetectionFilterJobService extends Service {
 //						filterRow = filters.get(filterId);
 
 						String[] allowedClassifications = new String[] { "chainsaw", "elephas_maximus" };
-						double filterConfidenceMinThreshold = 0.99;
-						double filterConfidenceMinCountPerMinute = 3;
+						double filterConfidenceMinThreshold = 0.98;
+						double filterConfidenceMinCountPerMinute = 1;
 						int detectionSigFigs = 2;
 
 
@@ -143,6 +143,8 @@ public class AudioDetectionFilterJobService extends Service {
 										classTag, clsfrId, clsfrName, clsfrVersion, filterId,
 										audioId, beginsAtMs, windowSizeMs, stepSizeMs, TextUtils.join(",", filteredConfidences));
 								Log.v(logTag, eligibleDetectionsCount+" detection windows ("+Math.round((Double.parseDouble(""+eligibleDetectionsCount)/Double.parseDouble(""+confidences.length()))*100)+"%) for classification '"+classTag+"' are above the "+filterConfidenceMinThreshold+" confidence threshold and have been preserved (required per minute: "+Math.round(filterConfidenceMinCountPerMinute)+").");
+								app.apiPingUtils.sendPing(false, new String[] { "detections" }, true);
+
 							} else {
 								Log.w(logTag, eligibleDetectionsCount+" detection windows ("+Math.round((Double.parseDouble(""+eligibleDetectionsCount)/Double.parseDouble(""+confidences.length()))*100)+"%) for classification '"+classTag+"' are above the "+filterConfidenceMinThreshold+" confidence threshold (required per minute: "+Math.round(filterConfidenceMinCountPerMinute)+"). None will be preserved.");
 							}

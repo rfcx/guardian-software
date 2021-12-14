@@ -152,7 +152,7 @@ public class AudioClassifyJobService extends Service {
 										Log.i(logTag, "Beginning Audio Classify Job - Audio: " + audioId + " - Classifier: " + classifierId);
 
 										long classifyStartTime = System.currentTimeMillis();
-										List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath);
+										List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath, app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_VERBOSE_CLASSIFY));
 										Log.i(logTag, "Completed Audio Classify Job - " + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime) + " - Audio: " + audioId + " - Classifier: " + classifierId);
 
 										JSONObject classifyOutputJson = app.audioClassifyUtils.classifyOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
