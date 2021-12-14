@@ -64,6 +64,7 @@ public class ShellCommands {
 					}
 				}
 			}
+			shellProcess.destroy();
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 	    }

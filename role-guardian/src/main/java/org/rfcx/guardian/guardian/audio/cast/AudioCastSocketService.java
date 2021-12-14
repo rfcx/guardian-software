@@ -93,7 +93,7 @@ public class AudioCastSocketService extends Service {
 						if (app.audioCastUtils.sendSocketPing()) {
 							Thread.sleep(pingPushCycleDurationMs);
 							currFailureThreshold = 0;
-							app.audioCastUtils.updatePingJson(true);
+							app.audioCastUtils.updatePingJson(false);
 						} else {
 							Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * pingPushCycleDurationMs );
 							currFailureThreshold++;

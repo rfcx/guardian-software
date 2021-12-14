@@ -46,6 +46,22 @@ public class DateTimeUtils {
 		}
 		return null;
 	}
+
+	public static Date getDateFromStringUTC(String dateString) {
+		try {
+			SimpleDateFormat sdf = DATETIME_FORMAT;
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			return sdf.parse(dateString);
+		} catch (ParseException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return null;
+	}
+
+	public static long getCurrentTimeInUTC() {
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		return cal.getTime().getTime();
+	}
 	
 	public static Calendar nextOccurrenceOf(int hour, int minute, int second) {
 		Calendar rightNow = Calendar.getInstance();

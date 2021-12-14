@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
@@ -45,12 +46,54 @@ public class CompanionSocketUtils {
 
 			companionObj.put("is_registered", app.isGuardianRegistered());
 
+			companionObj.put("checkin", getLatestAllSentCheckInType());
+
 			companionObj.put("guardian", guardianObj);
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}
 		return companionObj;
+	}
+
+	private JSONObject getLatestAllSentCheckInType() throws JSONException {
+		JSONObject checkIn = new JSONObject();
+
+		String mqtt = app.apiCheckInUtils.getLastCheckinDateTime();
+		JSONObject mqttObj = new JSONObject();
+		mqttObj.put("created_at", mqtt);
+		if (mqtt.length() > 0) {
+			checkIn.put("mqtt", mqttObj);
+		}
+
+		JSONArray sms = RfcxComm.getQuery(
+				"admin",
+				"sms_latest",
+				null,
+				app.getContentResolver());
+		if (sms.length() > 0) {
+			checkIn.put("sms", sms.getJSONObject(0));
+		}
+
+		JSONArray sbd = RfcxComm.getQuery(
+				"admin",
+				"sbd_latest",
+				null,
+				app.getContentResolver());
+		if (sbd.length() > 0) {
+			checkIn.put("sbd", sbd.getJSONObject(0));
+		}
+
+		JSONArray swm = RfcxComm.getQuery(
+				"admin",
+				"swm_latest",
+				null,
+				app.getContentResolver());
+		if (swm.length() > 0) {
+			checkIn.put("swm", sbd.getJSONObject(0));
+		}
+
+		return checkIn;
 	}
 
 	public void updatePingJson(boolean printJsonToLogs) {

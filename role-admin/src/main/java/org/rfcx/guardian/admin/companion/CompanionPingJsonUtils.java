@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.sms.SmsUtils;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -70,6 +71,12 @@ public class CompanionPingJsonUtils {
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
 			String systemNetwork = getConcatMetaField(app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network"));
 			if (systemNetwork.length() > 0) { jsonObj.put("network", systemNetwork); }
+			includeMeasuredAt = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm_network")) {
+			String swmRssi = getConcatMetaField(app.swmMetaDb.dbSwmDiagnostic.getLatestRowAsJsonArray());
+			if (swmRssi.length() > 0) { jsonObj.put("swm_network", swmRssi); }
 			includeMeasuredAt = true;
 		}
 

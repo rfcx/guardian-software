@@ -67,7 +67,6 @@ public class ApiPingJsonUtils {
 			JSONObject deviceJsonObj = new JSONObject();
 			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
-			deviceJsonObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
 			jsonObj.put("device", deviceJsonObj);
 		}
 
@@ -103,6 +102,12 @@ public class ApiPingJsonUtils {
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
 			String systemNetwork = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_network", app.getResolver()));
 			if (systemNetwork.length() > 0) { jsonObj.put("network", systemNetwork); }
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm")) {
+			String swmDiagnostic = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values",
+					"swm_diagnostic", app.getResolver()));
+			if (swmDiagnostic.length() > 0) { jsonObj.put("swm", swmDiagnostic); }
 		}
 
 		if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "meta")) {

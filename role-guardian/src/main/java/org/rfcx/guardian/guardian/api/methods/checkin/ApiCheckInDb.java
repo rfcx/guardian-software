@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.api.methods.checkin;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -329,6 +330,10 @@ public class ApiCheckInDb {
 		
 		public List<String[]> getRowsWithOffset(int rowOffset, int rowLimit) {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, rowOffset, rowLimit);
+		}
+
+		public JSONArray getSingleRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, 1);
 		}
 		
 		public String[] getLatestRow() {
