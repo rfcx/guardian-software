@@ -132,14 +132,45 @@ object ApiPingExt {
 
                     val shortenDevice = JSONObject().apply {
                         put("a", shortenAndroid)
-                        put("p", shortenHardware)
+                        put("p", shortenPhone)
                         put("h", shortenHardware)
                     }
 
                     shortenJson.put("device", shortenDevice)
                 }
                 "detections" -> {
-                    
+                    val detections = ping.getString("detections")
+                    val detectionsAsList = detections.split("|").map { detection -> detection.split("*").toMutableList() }.toMutableList()
+                    detectionsAsList.forEachIndexed { indexOfDetection, dt ->
+                        val shortenConfidence = arrayListOf<String>()
+                        val confidence = dt[4].split(",")
+                        var emptyCount = 0
+                        for (index in confidence.indices) {
+                            if (index == confidence.size - 1) {
+                                if (confidence[index] == "") {
+                                    emptyCount++
+                                    shortenConfidence.add("n$emptyCount")
+                                } else {
+                                    shortenConfidence.add(confidence[index])
+                                }
+                                break
+                            }
+
+                            if (confidence[index] == "" && confidence[index] == confidence[index + 1]) {
+                                emptyCount++
+                            } else if (confidence[index] == "" && confidence[index] != confidence[index + 1]) {
+                                emptyCount++
+                                shortenConfidence.add("n$emptyCount")
+                                emptyCount = 0
+                            } else {
+                                shortenConfidence.add(confidence[index])
+                            }
+                        }
+                        detectionsAsList[indexOfDetection][4] = shortenConfidence.joinToString(",")
+                    }
+                    val removedCommaDetectionsString =
+                        detectionsAsList.joinToString("|") { it.joinToString("*") }
+                    shortenJson.put("detections", removedCommaDetectionsString)
                 }
             }
         }
