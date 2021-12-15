@@ -18,6 +18,7 @@ object ApiPingExt {
                 "library" -> shortenJson.put("library", ping.getString("library"))
                 "messages" -> shortenJson.put("messages", ping.getString("messages"))
                 "sentinel_sensor" -> shortenJson.put("sentinel_sensor", ping.getString("sentinel_sensor"))
+                "swm" -> shortenJson.put("swm", ping.getString("swm"))
                 "purged" -> {
                     val purged = ping.getString("purged")
                     val shortenPurged = purged.apply {
