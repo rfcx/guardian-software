@@ -3,10 +3,12 @@ package org.rfcx.guardian.admin.comms.swm;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg;
@@ -117,6 +119,7 @@ public class SwmDispatchCycleService extends Service {
             Log.d(logTag, "Swarm is ON");
             app.swmUtils.getPower().setOn(true);
 
+            setDateTime();
             getDiagnostics();
             sendQueuedMessages();
         }
@@ -173,6 +176,12 @@ public class SwmDispatchCycleService extends Service {
 
         private void getDiagnostics() {
             app.swmUtils.saveDiagnostic();
+        }
+
+        private void setDateTime() {
+            SwmDTResponse dateTime = app.swmUtils.api.getDateTime();
+            if (dateTime == null) return;
+            SystemClock.setCurrentTimeMillis(dateTime.getEpochMs());
         }
     }
 
