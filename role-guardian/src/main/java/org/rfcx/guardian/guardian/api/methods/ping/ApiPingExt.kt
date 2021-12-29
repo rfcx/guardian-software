@@ -11,7 +11,6 @@ object ApiPingExt {
                 "data_transfer" -> shortenJson.put("dt", ping.getString("data_transfer"))
                 "measured_at" -> shortenJson.put("ma", ping.getLong("measured_at"))
                 "cpu" -> shortenJson.put("cpu", ping.getString("cpu"))
-                "prefs" -> shortenJson.put("pf", ping.getString("prefs"))
                 "broker_connections" -> shortenJson.put("bc", ping.getString("broker_connections"))
                 "meta_ids" -> shortenJson.put("mid", ping.getString("meta_ids"))
                 "detection_ids" -> shortenJson.put("did", ping.getString("detection_ids"))
@@ -21,6 +20,25 @@ object ApiPingExt {
                 "sentinel_sensor" -> shortenJson.put("ss", ping.getString("sentinel_sensor"))
                 "swm" -> shortenJson.put("swm", ping.getString("swm"))
                 "purged" -> shortenJson.put("p", ping.getString("purged"))
+                "prefs" -> {
+                    val prefs = ping.getJSONObject("prefs")
+                    val shortenPrefs = JSONObject()
+
+                    prefs.keys().forEach { key ->
+                        when(key) {
+                            "sha1" -> {
+                                val sha1 = prefs.getString("sha1")
+                                shortenPrefs.put("s", sha1)
+                            }
+                            "vals" -> {
+                                val vals = prefs.getJSONObject("vals")
+                                shortenPrefs.put("v", vals)
+                            }
+                        }
+                    }
+
+                    shortenJson.put("pf", shortenPrefs)
+                }
                 "checkins" -> {
                     val checkins = ping.getString("checkins")
                     val shortenCheckins = checkins.let {
@@ -168,6 +186,7 @@ object ApiPingExt {
                         detectionsAsList.joinToString("|") { it.joinToString("*") }
                     shortenJson.put("dtt", removedCommaDetectionsString)
                 }
+                else -> shortenJson.put(it, ping.get(it))
             }
         }
         return shortenJson
