@@ -11,22 +11,16 @@ object ApiPingExt {
                 "data_transfer" -> shortenJson.put("dt", ping.getString("data_transfer"))
                 "measured_at" -> shortenJson.put("ma", ping.getLong("measured_at"))
                 "cpu" -> shortenJson.put("cpu", ping.getString("cpu"))
-                "prefs" -> shortenJson.put("pfs", ping.getString("prefs"))
+                "prefs" -> shortenJson.put("pf", ping.getString("prefs"))
                 "broker_connections" -> shortenJson.put("bc", ping.getString("broker_connections"))
-                "meta_ids" -> shortenJson.put("mtid", ping.getString("meta_ids"))
-                "instructions" -> shortenJson.put("inst", ping.getString("instructions"))
+                "meta_ids" -> shortenJson.put("mid", ping.getString("meta_ids"))
+                "detection_ids" -> shortenJson.put("did", ping.getString("detection_ids"))
+                "instructions" -> shortenJson.put("instructions", ping.getString("instructions"))
                 "library" -> shortenJson.put("lib", ping.getString("library"))
                 "messages" -> shortenJson.put("msg", ping.getString("messages"))
                 "sentinel_sensor" -> shortenJson.put("ss", ping.getString("sentinel_sensor"))
                 "swm" -> shortenJson.put("swm", ping.getString("swm"))
-                "purged" -> {
-                    val purged = ping.getString("purged")
-                    val shortenPurged = purged.let {
-                        it.replace("meta", "m")
-                            .replace("audio", "a")
-                    }
-                    shortenJson.put("pg", shortenPurged)
-                }
+                "purged" -> shortenJson.put("p", ping.getString("purged"))
                 "checkins" -> {
                     val checkins = ping.getString("checkins")
                     val shortenCheckins = checkins.let {
@@ -66,7 +60,6 @@ object ApiPingExt {
                     }
                     shortenJson.put("mm", shortenMemory)
                 }
-                //TODO: check if we really need to shorten this property
                 "network" -> {
                     val network = ping.getString("network")
                     val networkAsList = network.split("|").map { batt -> batt.split("*") }
@@ -104,7 +97,6 @@ object ApiPingExt {
                     }
                     shortenJson.put("sw", shortenSoftware)
                 }
-                //TODO: since I cannot use sentinel board to get these data, need to wait for real data
                 "sentinel_power" -> {
                     val sentinelPower = ping.getString("sentinel_power")
                     val shortenSentinelPower = sentinelPower.let {
@@ -135,20 +127,9 @@ object ApiPingExt {
                         put("imsi", phone.getString("imsi"))
                     }
 
-                    val hardware = device.getJSONObject("hardware")
-                    val shortenHardware = JSONObject().apply {
-                        put("p", hardware.getString("product"))
-                        put("br", hardware.getString("brand"))
-                        put("m", hardware.getString("model"))
-                        put("bu", hardware.getString("build"))
-                        put("a", hardware.getString("android"))
-                        put("mf", hardware.getString("manufacturer"))
-                    }
-
                     val shortenDevice = JSONObject().apply {
                         put("a", shortenAndroid)
                         put("p", shortenPhone)
-                        put("h", shortenHardware)
                     }
 
                     shortenJson.put("dv", shortenDevice)

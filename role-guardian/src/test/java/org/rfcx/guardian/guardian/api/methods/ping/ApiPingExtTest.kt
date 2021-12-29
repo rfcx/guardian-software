@@ -27,21 +27,11 @@ class ApiPingExtTest {
                 put("imsi", "310410339128419")
             }
             put("p", expectPhone)
-
-            val expectHardware = JSONObject().apply {
-                put("p", "Guardian")
-                put("br", "RFCx")
-                put("m", "3G_IOT")
-                put("bu", "0.2.3")
-                put("a", "4.4.2")
-                put("mf", "OrangePi")
-            }
-            put("h", expectHardware)
         }
         val expectJson = JSONObject().apply {
             put("sw", "g*0.9.0|a*0.9.0|c*0.8.1")
             put("btt","1638333717221*100*25*0*1")
-            put("pg","m*1639553694642|a*1639553604530|a*1639550541979")
+            put("p","meta*1639553694642|audio*1639553604530|audio*1639550541979")
             put("chn","s*0*0|q*2*326589|m*0*0|sk*23*3666426|st*0*0|a*584*104424960|v*0*0")
             put("ma",1639553745821)
             put("nw","1639662807479*-91*hspa*AT&T|1639661726813*-91*hspa*AT&T|1639661194334*-97*hspa*AT&T")
@@ -71,16 +61,6 @@ class ApiPingExtTest {
                 put("imsi","310410339128419")
             }
             put("phone", mockPhone)
-
-            val mockHardware = JSONObject().apply {
-                put("product","Guardian")
-                put("brand","RFCx")
-                put("model","3G_IOT")
-                put("build","0.2.3")
-                put("android","4.4.2")
-                put("manufacturer","OrangePi")
-            }
-            put("hardware", mockHardware)
         }
         val mockJson = JSONObject().apply {
             put("software", "guardian*0.9.0|admin*0.9.0|classify*0.8.1")
@@ -102,7 +82,7 @@ class ApiPingExtTest {
         // Assert
         assertEquals(expectJson.get("sw"), json.get("sw"))
         assertEquals(expectJson.get("btt"), json.get("btt"))
-        assertEquals(expectJson.get("pg"), json.get("pg"))
+        assertEquals(expectJson.get("p"), json.get("p"))
         assertEquals(expectJson.get("chn"), json.get("chn"))
         assertEquals(expectJson.get("ma"), json.get("ma"))
         assertEquals(expectJson.get("nw"), json.get("nw"))
