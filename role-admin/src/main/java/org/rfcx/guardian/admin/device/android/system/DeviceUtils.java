@@ -299,7 +299,7 @@ public class DeviceUtils {
 
 			} else if ("memory".equalsIgnoreCase(metaTag)) {
 				long[] memoryStats = DeviceMemory.getCurrentMemoryStats(this.context);
-				metaJson.put("memory", memoryStats[0] + "*" + memoryStats[1] + "*" + memoryStats[2] + "*" + memoryStats[3] );
+				metaJson.put("memory", "system" + "*" + memoryStats[0] + "*" + memoryStats[1] + "*" + memoryStats[2] + "*" + memoryStats[3] );
 
 			} else if ("cpu".equalsIgnoreCase(metaTag)) {
 				int[] cpuStats = app.deviceCPU.getCurrentValues();

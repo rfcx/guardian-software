@@ -63,7 +63,7 @@ object ApiPingExt {
                             if (index == 0) {
                                 removedDupBattery.add(list)
                             } else {
-                                if (list[index][1] != list[index-1][1]) removedDupBattery.add(list)
+                                if (batteryAsList[index][1] != batteryAsList[index-1][1]) removedDupBattery.add(list)
                             }
                         }
                     }
@@ -80,7 +80,7 @@ object ApiPingExt {
                 }
                 "network" -> {
                     val network = ping.getString("network")
-                    val networkAsList = network.split("|").map { batt -> batt.split("*") }
+                    val networkAsList = network.split("|").map { nw -> nw.split("*") }
                     val removedDupNetwork = arrayListOf<List<String>>()
                     networkAsList.forEachIndexed { index, list ->
                         if (networkAsList.size == 1) {
@@ -89,7 +89,7 @@ object ApiPingExt {
                             if (index == 0) {
                                 removedDupNetwork.add(list)
                             } else {
-                                if (list[index][1] != list[index-1][1]) removedDupNetwork.add(list)
+                                if (networkAsList[index][1] != networkAsList[index-1][1]) removedDupNetwork.add(list)
                             }
                         }
                     }
@@ -126,28 +126,39 @@ object ApiPingExt {
                 }
                 "device" -> {
                     val device = ping.getJSONObject("device")
+                    val shortenDevice = JSONObject()
 
-                    val android = device.getJSONObject("android")
-                    val shortenAndroid = JSONObject().apply {
-                        put("p", android.getString("product"))
-                        put("br", android.getString("brand"))
-                        put("m", android.getString("model"))
-                        put("bu", android.getString("build"))
-                        put("a", android.getString("android"))
-                        put("mf", android.getString("manufacturer"))
-                    }
-
-                    val phone = device.getJSONObject("phone")
-                    val shortenPhone = JSONObject().apply {
-                        put("s", phone.getString("sim"))
-                        put("n", phone.getString("number"))
-                        put("imei", phone.getString("imei"))
-                        put("imsi", phone.getString("imsi"))
-                    }
-
-                    val shortenDevice = JSONObject().apply {
-                        put("a", shortenAndroid)
-                        put("p", shortenPhone)
+                    device.keys().forEach { dKey ->
+                        when(dKey) {
+                            "android" -> {
+                                val android = device.getJSONObject("android")
+                                val androidObj = JSONObject()
+                                android.keys().forEach { aKey ->
+                                    when(aKey) {
+                                        "product" -> androidObj.put("p", android.getString("product"))
+                                        "brand" -> androidObj.put("br", android.getString("brand"))
+                                        "model" -> androidObj.put("m", android.getString("model"))
+                                        "build" -> androidObj.put("bu", android.getString("build"))
+                                        "android" -> androidObj.put("a", android.getString("android"))
+                                        "manufacturer" -> androidObj.put("mf", android.getString("manufacturer"))
+                                    }
+                                }
+                                shortenDevice.put("a", androidObj)
+                            }
+                            "phone" -> {
+                                val phone = device.getJSONObject("phone")
+                                val phoneObj = JSONObject()
+                                phone.keys().forEach { pKey ->
+                                    when(pKey) {
+                                        "sim" -> phoneObj.put("s", phone.getString("sim"))
+                                        "number" -> phoneObj.put("n", phone.getString("number"))
+                                        "imei" -> phoneObj.put("imei", phone.getString("imei"))
+                                        "imsi" -> phoneObj.put("imsi", phone.getString("imsi"))
+                                    }
+                                }
+                                shortenDevice.put("p", phoneObj)
+                            }
+                        }
                     }
 
                     shortenJson.put("dv", shortenDevice)
