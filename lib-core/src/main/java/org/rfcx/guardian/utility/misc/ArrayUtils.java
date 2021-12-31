@@ -75,6 +75,13 @@ public class ArrayUtils {
 		for (int i = 0; i < arr.length; i++) { _arr[i] =  ""+arr[i]; }
 		return _arr;
 	}
+
+	public static String[] castDoubleArrayToStringArray(double[] arr) {
+		if (arr == null) { arr = new double[]{}; }
+		String[] _arr = new String[arr.length];
+		for (int i = 0; i < arr.length; i++) { _arr[i] =  ""+arr[i]; }
+		return _arr;
+	}
 	
 	public static double[] limitArrayValuesToSpecificDecimalPlaces(double[] arr, int decimalPlaces) {
 		double[] _arr = new double[arr.length];

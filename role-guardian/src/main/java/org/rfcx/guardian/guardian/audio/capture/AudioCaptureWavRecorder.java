@@ -46,8 +46,7 @@ public class AudioCaptureWavRecorder {
 	public int readSize;
 
 	// The interval in which the recorded samples are output to the file used only in uncompressed mode
-//	private static final int TIMER_INTERVAL_UNCOMPRESSED = 480;
-	private static final int TIMER_INTERVAL_UNCOMPRESSED = 333;
+	private static final int TIMER_INTERVAL_UNCOMPRESSED = 250;
 
 	// Number of channels, sample rate, sample size(size in bits), buffer size, audio source, sample size (see AudioFormat)
 	private short captureChannelCount;
@@ -141,7 +140,7 @@ public class AudioCaptureWavRecorder {
 				// Set frame period and timer interval accordingly
 				recorderFileOutputFramePeriod = captureBufferSize / (2 * captureSampleSizeInBits * captureChannelCount / 8);
 				
-				Log.w(logTag, "Increasing buffer size to "+Integer.toString(captureBufferSize));
+				Log.w(logTag, "Increasing buffer size to "+ captureBufferSize);
 			}
 
 			audioRecorder = new AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, captureBufferSize);

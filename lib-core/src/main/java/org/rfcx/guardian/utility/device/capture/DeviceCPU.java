@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -64,11 +65,19 @@ public class DeviceCPU {
 		double[] currCpu1Pct = new double[] { currCpuPctAll[4], currCpuPctAll[5] };
 		double currCpuCnt = ((currCpu1Pct[0]+currCpu1Pct[1]) > 0) ? 2 : 1;
 
+
+//		Log.e(logTag, "CPU 0: "+ TextUtils.join(", ", ArrayUtils.castDoubleArrayToStringArray(currCpu0Pct)));
+//		Log.e(logTag, "CPU 1: "+ TextUtils.join(", ", ArrayUtils.castDoubleArrayToStringArray(currCpu1Pct)));
+
 		if (((prevCpuPct[0]+prevCpuPct[1]) > 0) && ((currCpuPct[0]+currCpuPct[1]) > 0)) {
 
 			double cpuPct = 100 * (currCpuPct[1] - prevCpuPct[1]) / ((currCpuPct[1] + currCpuPct[0]) - (prevCpuPct[1] + prevCpuPct[0]));
-//			double cpu0Pct = 100 * (currCpu0Pct[1] - prevCpu0Pct[1]) / ((currCpu0Pct[1] + currCpu0Pct[0]) - (prevCpu0Pct[1] + prevCpu0Pct[0]));
-//			double cpu1Pct = 100 * (currCpu1Pct[1] - prevCpu1Pct[1]) / ((currCpu1Pct[1] + currCpu1Pct[0]) - (prevCpu1Pct[1] + prevCpu1Pct[0]));
+
+			double cpu0PctSum = (currCpu0Pct[1] + currCpu0Pct[0]) - (prevCpu0Pct[1] + prevCpu0Pct[0]);
+			double cpu1PctSum = (currCpu1Pct[1] + currCpu1Pct[0]) - (prevCpu1Pct[1] + prevCpu1Pct[0]);
+			double cpu0Pct = (cpu0PctSum == 0) ? 0 : (100 * (currCpu0Pct[1] - prevCpu0Pct[1]) / cpu0PctSum);
+			double cpu1Pct = (cpu1PctSum == 0) ? 0 : (100 * (currCpu1Pct[1] - prevCpu1Pct[1]) / cpu1PctSum);
+	//		Log.e(logTag, "CPU: "+ cpu0Pct + "%, "+cpu1Pct+"%");
 
 			if ((cpuPct <= 100) && (cpuPct > 0)) {
 
@@ -80,7 +89,7 @@ public class DeviceCPU {
 				cpuCntVals.add(cpuCnt);
 
 				if (verboseLogging) {
-					Log.d(logTag, "[ total: " + Math.round(cpuPct) + "%, " + Math.round(cpuClk) + " MHz, " + Math.round(cpuCnt/100) + " core(s) ]");
+					Log.d(logTag, "[ total: " + Math.round(cpuPct) + "%, " + Math.round(cpuClk) + " MHz, " + Math.round(cpuCnt) + "% core usage ]");
 				}
 			}
 

@@ -1,6 +1,5 @@
 package org.rfcx.guardian.audio.wav;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +14,7 @@ import be.tarsos.dsp.writer.WriterProcessor;
 
 public class WavUtils {
 
-	private static final int READ_BUFFER = 1024;
+	private static final int READ_BUFFER = 4000;
 
 	public static void copyWavFile(String inputFilePath, String outputFilePath, int sampleRate) throws IOException {
 
@@ -31,6 +30,8 @@ public class WavUtils {
 			WriterProcessor wavWriter = new WriterProcessor( outputFormat, new RandomAccessFile(outputFilePath, "rw") );
 			dispatcher.addAudioProcessor(wavWriter);
 			dispatcher.run();
+
+//			FileUtils.copy(inputFilePath, outputFilePath);
 
 		}
 
