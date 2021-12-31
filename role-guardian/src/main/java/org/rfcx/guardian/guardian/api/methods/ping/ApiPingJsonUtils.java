@@ -144,7 +144,7 @@ public class ApiPingJsonUtils {
 			Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
 		}
 
-		return jsonObj.toString();
+		return ApiPingExt.INSTANCE.shortenPingJson(jsonObj).toString();
 	}
 
 
