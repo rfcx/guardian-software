@@ -50,7 +50,7 @@ public class ApiPingUtils {
 
 		try {
 
-			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeAssetBundleCount, true, new String[]{} );
+			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeAssetBundleCount, true, new String[]{}, true);
 
 			for (String apiProtocol : apiProtocols) {
 
