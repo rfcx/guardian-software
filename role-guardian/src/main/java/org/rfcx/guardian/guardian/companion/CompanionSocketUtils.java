@@ -24,7 +24,7 @@ public class CompanionSocketUtils {
 	}
 
 	private static final String[] includePingFields = new String[] {
-			"battery", "instructions", "prefs_full", "software", "library", "device", "companion"
+			"battery", "instructions", "prefs_full", "software", "library", "device", "companion", "swm"
 	};
 
 	private static final String[] excludeFromLogs = new String[] { "prefs" };
@@ -98,7 +98,7 @@ public class CompanionSocketUtils {
 
 	public void updatePingJson(boolean printJsonToLogs) {
 		try {
-			pingJson =  app.apiPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs, excludeFromLogs );
+			pingJson =  app.apiPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs, excludeFromLogs, false);
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e, "updatePingJson");
 		}

@@ -59,7 +59,7 @@ class SwmUtils(private val context: Context) {
         saveDiagnostic()
         val swmDiagnosticJSONarr = JSONArray()
         val rssi = app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull
-        if (rssi.length > 0) {
+        if (rssi.isNotEmpty()) {
             val diagnosticJson = JSONObject()
             diagnosticJson.put("swm", rssi)
             swmDiagnosticJSONarr.put(diagnosticJson)
