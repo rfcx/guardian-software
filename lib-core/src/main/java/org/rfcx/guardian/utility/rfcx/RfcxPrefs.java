@@ -196,7 +196,7 @@ public class RfcxPrefs {
 			put(Pref.API_NTP_HOST, "time.apple.com");
 			put(Pref.API_SMS_ADDRESS, "+14154803657");
 
-			put(Pref.API_PROTOCOL_ESCALATION_ORDER, "mqtt,rest,sms,sat");
+			put(Pref.API_PROTOCOL_ESCALATION_ORDER, "mqtt,rest,sat");
 			
 			put(Pref.API_SATELLITE_PROTOCOL, "off");
 
