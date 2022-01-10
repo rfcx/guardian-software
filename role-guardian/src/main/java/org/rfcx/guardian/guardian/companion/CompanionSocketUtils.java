@@ -90,7 +90,7 @@ public class CompanionSocketUtils {
 				null,
 				app.getContentResolver());
 		if (swm.length() > 0) {
-			checkIn.put("swm", sbd.getJSONObject(0));
+			checkIn.put("swm", swm.getJSONObject(0));
 		}
 
 		return checkIn;
