@@ -44,11 +44,11 @@ public class CompanionSocketUtils {
 			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
 			guardianObj.put("name", app.rfcxGuardianIdentity.getName());
 
+			companionObj.put("guardian", guardianObj);
+
 			companionObj.put("is_registered", app.isGuardianRegistered());
 
 			companionObj.put("checkin", getLatestAllSentCheckInType());
-
-			companionObj.put("guardian", guardianObj);
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
