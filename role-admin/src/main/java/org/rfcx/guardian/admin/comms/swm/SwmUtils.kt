@@ -56,7 +56,7 @@ class SwmUtils(private val context: Context) {
     }
 
     fun getMomentaryConcatDiagnosticValuesAsJsonArray(): JSONArray {
-        saveDiagnostic()
+        saveBackgroundSignal()
         val swmDiagnosticJSONarr = JSONArray()
         val rssi = app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull
         if (rssi.isNotEmpty()) {
@@ -102,6 +102,26 @@ class SwmUtils(private val context: Context) {
                 time,
                 satId,
                 unsentMessageNumbers
+            )
+        }
+    }
+
+    fun saveBackgroundSignal() {
+        val rtBackground = api.getRTBackground()
+        var rssiBackground: Int? = null
+        if (rtBackground != null) {
+            rssiBackground = rtBackground.rssi
+        }
+
+        if (rtBackground != null) {
+            app.swmMetaDb.dbSwmDiagnostic.insert(
+                rssiBackground,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
             )
         }
     }
