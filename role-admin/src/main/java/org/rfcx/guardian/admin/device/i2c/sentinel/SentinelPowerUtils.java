@@ -442,11 +442,17 @@ public class SentinelPowerUtils {
     }
 
 
-    public JSONArray getMomentarySentinelPowerValuesAsJsonArray() {
+    public JSONArray getMomentarySentinelPowerValuesAsJsonArray(boolean resetValues) {
 
         JSONArray powerJsonArray = new JSONArray();
 
         if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_POWER)) {
+
+            if (resetValues) {
+                this.powerSystemValues = new ArrayList<>();
+                this.powerBatteryValues = new ArrayList<>();
+                this.powerInputValues = new ArrayList<>();
+            }
 
             if ((this.powerBatteryValues.size() == 0) && isChipAccessibleByI2c()) {
                 updateSentinelPowerValues();
