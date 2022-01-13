@@ -41,7 +41,7 @@ public class CompanionPingJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_power")) {
-			String sentinelPower = getConcatMetaField(app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray());
+			String sentinelPower = getConcatMetaField(app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray(true));
 			if (sentinelPower.length() > 0) { jsonObj.put("sentinel_power", sentinelPower); }
 		}
 
