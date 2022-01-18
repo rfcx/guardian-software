@@ -97,7 +97,7 @@ public class CompanionPingJsonUtils {
 
 			String swarmId = app.swmUtils.getSwmId();
 			JSONObject satInfo = new JSONObject();
-			simInfo.put("sat_id", swarmId);
+			satInfo.put("sat_id", swarmId);
 			companionJsonObj.put("sat_info", satInfo);
 
 			jsonObj.put("companion", companionJsonObj);
