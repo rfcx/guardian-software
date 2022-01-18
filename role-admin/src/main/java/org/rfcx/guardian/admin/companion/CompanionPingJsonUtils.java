@@ -95,7 +95,7 @@ public class CompanionPingJsonUtils {
 			simInfo.put("phone_number", phoneNumber);
 			companionJsonObj.put("sim_info", simInfo);
 
-			String swarmId = app.swmUtils.api.getSwarmDeviceId();
+			String swarmId = app.swmUtils.getSwmId();
 			JSONObject satInfo = new JSONObject();
 			simInfo.put("sat_id", swarmId);
 			companionJsonObj.put("sat_info", satInfo);
