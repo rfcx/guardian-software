@@ -7,7 +7,7 @@ import java.util.*
 
 class SwmApi(private val connection: SwmConnection) {
 
-    enum class Command { TD, MT, SL, RT, DT, PO }
+    enum class Command { TD, MT, SL, RT, DT, PO, CS }
 
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
@@ -82,5 +82,14 @@ class SwmApi(private val connection: SwmConnection) {
                 datetimeCompactFormatter.parse(match.groupValues[1])
             } ?: return null
         return SwmDTResponse(datetime.time)
+    }
+
+    fun getSwarmDeviceId(): String? {
+        return connection.executeWithoutTimeout(Command.CS.name, "")
+            .firstOrNull()?.let {
+                val match = "DI=(0x[0-9]+)".toRegex().find(it) ?: return null
+                val (deviceId) = match.destructured
+                deviceId
+            } ?: return null
     }
 }
