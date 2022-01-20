@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -86,16 +87,42 @@ public class HttpPostMultipart {
 		
 		long startTime = System.currentTimeMillis();
 		Log.v(logTag,"Sending "+FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
-		String rtrnStr = executeMultipartPost(fullUrl, requestEntity);
+		String rtrnStr = executeMultipartPost(fullUrl, requestEntity, false);
 		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
 		return rtrnStr;
 	}
+
+	public double getUploadSpeedTest(String fullUrl) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+
+		String testPath = context.getFilesDir().getAbsolutePath() + "test_upload.txt";
+		File file = new File(testPath);
+		if (file.exists()) {
+			file.delete();
+		}
+		RandomAccessFile rf = new RandomAccessFile(file, "rw");
+		rf.setLength(1000000); // 1 Mb
+
+		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+		requestEntity.addPart("file", new FileBody(file));
+
+		long startTime = System.currentTimeMillis();
+		Log.v(logTag,"Sending "+FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
+		String result = executeMultipartPost(fullUrl, requestEntity, true);
+
+		if (result == null) {
+			return -1.0;
+		}
+		long uploadTime = System.currentTimeMillis() - startTime;
+		double uploadSpeed = (1000000.0) / uploadTime;
+		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(uploadTime) +") from "+fullUrl);
+		return uploadSpeed;
+	}
     
-	private String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException, KeyManagementException, NoSuchAlgorithmException {
+	private String executeMultipartPost(String fullUrl, MultipartEntity requestEntity, boolean ignoreResult) throws IOException, KeyManagementException, NoSuchAlgorithmException {
 
 		String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 		if (inferredProtocol.equals("http")) {
-			return sendInsecurePostRequest((new URL(fullUrl)), requestEntity);
+			return sendInsecurePostRequest((new URL(fullUrl)), requestEntity, ignoreResult);
 		} else if (inferredProtocol.equals("https")) {
 			return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
 		} else {
@@ -104,7 +131,7 @@ public class HttpPostMultipart {
 		}
 	}
 	
-	private String sendInsecurePostRequest(URL url, MultipartEntity entity) throws IOException {
+	private String sendInsecurePostRequest(URL url, MultipartEntity entity, boolean ignoreResult) throws IOException {
 		HttpURLConnection conn;
 		conn = (HttpURLConnection) url.openConnection();
 		conn.setReadTimeout(requestReadTimeout);
@@ -123,6 +150,9 @@ public class HttpPostMultipart {
 		outputStream.close();
 		conn.connect();
 		if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			if (ignoreResult) {
+				return "";
+			}
 			Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+url.toString());
 			return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
 		} else {

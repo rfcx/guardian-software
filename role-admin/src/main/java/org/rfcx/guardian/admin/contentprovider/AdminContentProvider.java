@@ -20,6 +20,7 @@ import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
+import org.rfcx.guardian.utility.network.ConnectivityUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -137,11 +138,16 @@ public class AdminContentProvider extends ContentProvider {
                 app.assetUtils.runFileSystemAssetCleanup();
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_sbd")) { logFuncVal = "control-test_sbd";
-                String randomString = "abcd"+"001"+StringUtils.randomAlphanumericString(113, false);
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_sbd")) {
+                logFuncVal = "control-test_sbd";
+                String randomString = "abcd" + "001" + StringUtils.randomAlphanumericString(113, false);
                 boolean isSuccessful = app.sbdUtils.sendSbdMessage(randomString);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_sbd", isSuccessful, System.currentTimeMillis()});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "speed_test")) { logFuncVal = "control-speed_test";
+                app.connectivityUtils.setUploadSpeedTest(getContext(), appRole);
+                app.connectivityUtils.setDownloadSpeedTest(getContext(), appRole);
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"speed_test", null, System.currentTimeMillis()});
 
 
             } else if (RfcxComm.uriMatch(uri, appRole, "keycode", "*")) { logFuncVal = "keycode-*";

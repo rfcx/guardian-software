@@ -100,6 +100,11 @@ public class CompanionPingJsonUtils {
 			satInfo.put("sat_id", swarmId);
 			companionJsonObj.put("sat_info", satInfo);
 
+			JSONObject speedTest = new JSONObject();
+			speedTest.put("download_speed", app.connectivityUtils.getDownloadSpeedTest());
+			speedTest.put("upload_speed", app.connectivityUtils.getUploadSpeedTest());
+			companionJsonObj.put("speed_test", speedTest);
+
 			jsonObj.put("companion", companionJsonObj);
 		}
 
