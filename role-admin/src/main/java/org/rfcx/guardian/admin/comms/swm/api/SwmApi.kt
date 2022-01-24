@@ -87,9 +87,9 @@ class SwmApi(private val connection: SwmConnection) {
     fun getSwarmDeviceId(): String? {
         return connection.executeWithoutTimeout(Command.CS.name, "")
             .firstOrNull()?.let {
-                val match = "DI=(0x[a-z0-9]+)".toRegex().find(it) ?: return null
+                val match = "DI=0x([a-fA-F0-9]+)".toRegex().find(it) ?: return null
                 val (deviceId) = match.destructured
-                deviceId
+                deviceId.toLowerCase(Locale.getDefault())
             } ?: return null
     }
 }
