@@ -19,7 +19,7 @@ class SwmApiCSTest {
 
         // Assert
         assertNotNull(deviceId)
-        assertEquals("0x000e57", deviceId)
+        assertEquals("000e57", deviceId)
     }
 
 }
