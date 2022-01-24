@@ -23,7 +23,7 @@ public class CompanionSocketUtils {
 	}
 
 	private static final String[] includePingFields = new String[] {
-			"network", "sentinel_power", "sentinel_sensor", "cpu", "storage"
+			"network", "sentinel_power", "sentinel_sensor", "cpu", "storage", "companion"
 	};
 
 	private static final String[] excludeFromLogs = new String[] { };
