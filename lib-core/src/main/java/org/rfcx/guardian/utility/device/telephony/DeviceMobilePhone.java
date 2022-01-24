@@ -65,7 +65,7 @@ public class DeviceMobilePhone {
 	}
 
 	@SuppressLint({"MissingPermission", "HardwareIds"})
-	private String getSimPhoneNumber() {
+	public String getSimPhoneNumber() {
 		setSimPhoneNumber(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number());
 		return this.simPhoneNumber;
 	}

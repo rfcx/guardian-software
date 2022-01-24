@@ -30,6 +30,8 @@ class SwmUtils(private val context: Context) {
     lateinit var power: SwmPower
     lateinit var api: SwmApi
 
+    private var swmId: String? = null
+
     fun setupSwmUtils() {
         power = SwmPower(context)
         api = SwmApi(SwmConnection(SwmUartShell()))
@@ -124,6 +126,12 @@ class SwmUtils(private val context: Context) {
                 null
             )
         }
+    }
+
+    fun getSwmId(): String? {
+        if (swmId != null) return swmId
+        swmId = api.getSwarmDeviceId()
+        return swmId
     }
 
     companion object {

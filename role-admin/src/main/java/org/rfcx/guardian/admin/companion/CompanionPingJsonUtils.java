@@ -84,8 +84,22 @@ public class CompanionPingJsonUtils {
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "companion")) {
 			JSONObject companionJsonObj = new JSONObject();
+
 			JSONObject i2cAccessibility = app.sentinelPowerUtils.getI2cAccessibilityAndFailMessage();
 			companionJsonObj.put("i2c", i2cAccessibility);
+
+			Boolean hasSim = app.deviceMobilePhone.hasSim();
+			String phoneNumber = app.deviceMobilePhone.getSimPhoneNumber();
+			JSONObject simInfo = new JSONObject();
+			simInfo.put("has_sim", hasSim);
+			simInfo.put("phone_number", phoneNumber);
+			companionJsonObj.put("sim_info", simInfo);
+
+			String swarmId = app.swmUtils.getSwmId();
+			JSONObject satInfo = new JSONObject();
+			satInfo.put("sat_id", swarmId);
+			companionJsonObj.put("sat_info", satInfo);
+
 			jsonObj.put("companion", companionJsonObj);
 		}
 
