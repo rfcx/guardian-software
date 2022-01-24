@@ -33,7 +33,7 @@ public class SwmMessageDb {
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_GROUP_ID, C_MESSAGE_ID, C_SWM_MESSAGE_ID, C_LAST_ACCESSED_AT };
 
-	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { "0.9.1", "0.9.2", "0.9.3"}; // "0.6.43"
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { "0.9.1", "0.9.2" }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = true;
 
 	private String createColumnString(String tableName) {
