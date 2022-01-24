@@ -14,6 +14,7 @@ public class ConnectivityUtils {
 
     private Double downloadSpeedTest = -1.0;
     private Double uploadSpeedTest = -1.0;
+    private boolean isFailed = false;
 
     public Double getDownloadSpeedTest() {
         return downloadSpeedTest;
@@ -23,11 +24,17 @@ public class ConnectivityUtils {
         return uploadSpeedTest;
     }
 
+    public boolean getFailed() {
+        return isFailed;
+    }
+
     public void setDownloadSpeedTest(Context context, String role) {
         HttpGet httpGet = new HttpGet(context, role);
         try {
+            isFailed = false;
             downloadSpeedTest = httpGet.getDownloadSpeedTest("http://ipv4.ikoula.testdebit.info/1M.iso"); // test url
         } catch (IOException e) {
+            isFailed = true;
             RfcxLog.logExc(logTag, e);
         }
     }
@@ -35,13 +42,11 @@ public class ConnectivityUtils {
     public void setUploadSpeedTest(Context context, String role) {
         HttpPostMultipart httpPostMultipart = new HttpPostMultipart(context, role);
         try {
-            uploadSpeedTest = httpPostMultipart.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info"); // test url
-        } catch (IOException e) {
+            isFailed = false;
+            uploadSpeedTest = httpPostMultipart.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 1000000); // test url
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+            isFailed = true;
             RfcxLog.logExc(logTag, e);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
         }
     }
 }

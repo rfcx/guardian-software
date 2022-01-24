@@ -145,8 +145,8 @@ public class AdminContentProvider extends ContentProvider {
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_sbd", isSuccessful, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "speed_test")) { logFuncVal = "control-speed_test";
-                app.connectivityUtils.setUploadSpeedTest(getContext(), appRole);
                 app.connectivityUtils.setDownloadSpeedTest(getContext(), appRole);
+                app.connectivityUtils.setUploadSpeedTest(getContext(), appRole);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"speed_test", null, System.currentTimeMillis()});
 
 

@@ -92,7 +92,7 @@ public class HttpPostMultipart {
 		return rtrnStr;
 	}
 
-	public double getUploadSpeedTest(String fullUrl) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+	public double getUploadSpeedTest(String fullUrl, int size) throws IOException, NoSuchAlgorithmException, KeyManagementException {
 
 		String testPath = context.getFilesDir().getAbsolutePath() + "test_upload.txt";
 		File file = new File(testPath);
@@ -100,7 +100,7 @@ public class HttpPostMultipart {
 			file.delete();
 		}
 		RandomAccessFile rf = new RandomAccessFile(file, "rw");
-		rf.setLength(1000000); // 1 Mb
+		rf.setLength(size);
 
 		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		requestEntity.addPart("file", new FileBody(file));
@@ -113,7 +113,7 @@ public class HttpPostMultipart {
 			return -1.0;
 		}
 		long uploadTime = System.currentTimeMillis() - startTime;
-		double uploadSpeed = (1000000.0) / uploadTime;
+		double uploadSpeed = (size * 1.0) / uploadTime;
 		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(uploadTime) +") from "+fullUrl);
 		return uploadSpeed;
 	}
