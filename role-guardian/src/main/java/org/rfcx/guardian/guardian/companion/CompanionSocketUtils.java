@@ -44,11 +44,11 @@ public class CompanionSocketUtils {
 			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
 			guardianObj.put("name", app.rfcxGuardianIdentity.getName());
 
+			companionObj.put("guardian", guardianObj);
+
 			companionObj.put("is_registered", app.isGuardianRegistered());
 
 			companionObj.put("checkin", getLatestAllSentCheckInType());
-
-			companionObj.put("guardian", guardianObj);
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
@@ -90,7 +90,7 @@ public class CompanionSocketUtils {
 				null,
 				app.getContentResolver());
 		if (swm.length() > 0) {
-			checkIn.put("swm", sbd.getJSONObject(0));
+			checkIn.put("swm", swm.getJSONObject(0));
 		}
 
 		return checkIn;

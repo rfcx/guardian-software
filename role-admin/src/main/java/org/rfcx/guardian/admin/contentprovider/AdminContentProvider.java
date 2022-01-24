@@ -232,7 +232,7 @@ public class AdminContentProvider extends ContentProvider {
 
                 try {
                     if (pathSeg.equalsIgnoreCase("sentinel_power")) {
-                        momentaryValueArr = app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray();
+                        momentaryValueArr = app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray(false);
 
                     } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
                         momentaryValueArr = DeviceI2CUtils.getMomentaryI2cSensorValuesAsJsonArray(true, app.getApplicationContext());
@@ -374,7 +374,7 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "signal", "*")) { logFuncVal = "signal-*";
                 return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{ app.deviceMobileNetwork.getSignalStrengthAsJsonArray() });
             } else if (RfcxComm.uriMatch(uri, appRole, "sentinel_values", "*")) { logFuncVal = "sentinel_values-*";
-                return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray() });
+                return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray(false) });
             }
 
 
