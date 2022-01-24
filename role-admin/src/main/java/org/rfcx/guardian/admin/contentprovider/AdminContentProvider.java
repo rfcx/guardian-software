@@ -2,9 +2,7 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.admin.comms.swm.SwmUtils;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
@@ -20,7 +18,6 @@ import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.network.ConnectivityUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -145,8 +142,8 @@ public class AdminContentProvider extends ContentProvider {
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_sbd", isSuccessful, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "speed_test")) { logFuncVal = "control-speed_test";
-                app.connectivityUtils.setDownloadSpeedTest(getContext(), appRole);
-                app.connectivityUtils.setUploadSpeedTest(getContext(), appRole);
+                app.speedTest.setDownloadSpeedTest(getContext(), appRole);
+                app.speedTest.setUploadSpeedTest(getContext(), appRole);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"speed_test", null, System.currentTimeMillis()});
 
 

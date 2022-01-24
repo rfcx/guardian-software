@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.sms.SmsUtils;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -102,9 +101,9 @@ public class CompanionPingJsonUtils {
 
 			JSONObject speedTest = new JSONObject();
 			speedTest.put("connection_available", app.deviceConnectivity.isConnected());
-			speedTest.put("is_failed", app.connectivityUtils.getFailed());
-			speedTest.put("download_speed", app.connectivityUtils.getDownloadSpeedTest());
-			speedTest.put("upload_speed", app.connectivityUtils.getUploadSpeedTest());
+			speedTest.put("is_failed", app.speedTest.getFailed());
+			speedTest.put("download_speed", app.speedTest.getDownloadSpeedTest());
+			speedTest.put("upload_speed", app.speedTest.getUploadSpeedTest());
 			companionJsonObj.put("speed_test", speedTest);
 
 			jsonObj.put("companion", companionJsonObj);

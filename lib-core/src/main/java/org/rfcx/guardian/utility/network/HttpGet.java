@@ -278,7 +278,7 @@ public class HttpGet {
 		}
 	}
 
-	private int writeFileForTest(InputStream inputStream, FileOutputStream fileOutputStream, String logTag) {
+	public int writeFileForTest(InputStream inputStream, FileOutputStream fileOutputStream, String logTag) {
 		int downloadedContent = 0;
 		try {
 			byte[] buffer = new byte[8192];
@@ -303,8 +303,8 @@ public class HttpGet {
 			RfcxLog.logExc(logTag, e);
 		}
 	}
-	
-	private static FileOutputStream httpGetFileOutputStream(String filePath, String logTag) {
+
+	public static FileOutputStream httpGetFileOutputStream(String filePath, String logTag) {
 		FileUtils.delete(filePath);
 		try {
 			return new FileOutputStream(filePath);
@@ -314,7 +314,7 @@ public class HttpGet {
 		return null;
 	}
 	
-	private InputStream httpGetFileInputStream(String fullUrl) {
+	public InputStream httpGetFileInputStream(String fullUrl) {
     	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
     	try {
 			if (inferredProtocol.equals("https")) {

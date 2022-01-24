@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
-public class ConnectivityUtils {
+public class SpeedTest {
 
     private static final String logTag = RfcxLog.generateLogTag("Utils", "ConnectivityUtils");
 
@@ -29,10 +29,10 @@ public class ConnectivityUtils {
     }
 
     public void setDownloadSpeedTest(Context context, String role) {
-        HttpGet httpGet = new HttpGet(context, role);
+        DownloadSpeedTest downloadTest = new DownloadSpeedTest(context, role);
         try {
             isFailed = false;
-            downloadSpeedTest = httpGet.getDownloadSpeedTest("http://ipv4.ikoula.testdebit.info/1M.iso"); // test url
+            downloadSpeedTest = downloadTest.getDownloadSpeedTest("http://ipv4.ikoula.testdebit.info/1M.iso"); // test url
         } catch (IOException e) {
             isFailed = true;
             RfcxLog.logExc(logTag, e);
@@ -40,10 +40,10 @@ public class ConnectivityUtils {
     }
 
     public void setUploadSpeedTest(Context context, String role) {
-        HttpPostMultipart httpPostMultipart = new HttpPostMultipart(context, role);
+        UploadSpeedTest uploadTest = new UploadSpeedTest(context, role);
         try {
             isFailed = false;
-            uploadSpeedTest = httpPostMultipart.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 1000000); // test url
+            uploadSpeedTest = uploadTest.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 1000000); // test url
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             isFailed = true;
             RfcxLog.logExc(logTag, e);
