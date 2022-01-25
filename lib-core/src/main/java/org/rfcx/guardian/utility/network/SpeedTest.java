@@ -12,16 +12,16 @@ public class SpeedTest {
 
     private static final String logTag = RfcxLog.generateLogTag("Utils", "ConnectivityUtils");
 
-    private Double downloadSpeedTest = -1.0;
-    private Double uploadSpeedTest = -1.0;
+    private Double downloadSpeedKbps = -1.0;
+    private Double uploadSpeedKbps = -1.0;
     private boolean isFailed = false;
 
     public Double getDownloadSpeedTest() {
-        return downloadSpeedTest;
+        return downloadSpeedKbps;
     }
 
     public Double getUploadSpeedTest() {
-        return uploadSpeedTest;
+        return uploadSpeedKbps;
     }
 
     public boolean getFailed() {
@@ -32,7 +32,7 @@ public class SpeedTest {
         DownloadSpeedTest downloadTest = new DownloadSpeedTest(context, role);
         try {
             isFailed = false;
-            downloadSpeedTest = downloadTest.getDownloadSpeedTest("http://ipv4.ikoula.testdebit.info/1M.iso"); // test url
+            downloadSpeedKbps = downloadTest.getDownloadSpeedTest("http://ipv4.ikoula.testdebit.info/1M.iso"); // test url
         } catch (IOException e) {
             isFailed = true;
             RfcxLog.logExc(logTag, e);
@@ -43,7 +43,7 @@ public class SpeedTest {
         UploadSpeedTest uploadTest = new UploadSpeedTest(context, role);
         try {
             isFailed = false;
-            uploadSpeedTest = uploadTest.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 1000000); // test url
+            uploadSpeedKbps = uploadTest.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 1000000); // test url
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             isFailed = true;
             RfcxLog.logExc(logTag, e);
