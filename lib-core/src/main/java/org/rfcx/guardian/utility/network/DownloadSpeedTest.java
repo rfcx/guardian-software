@@ -48,4 +48,20 @@ public class DownloadSpeedTest extends HttpGet {
         Log.e(logTag,"Download Failed (" + DateTimeUtils.milliSecondDurationAsReadableString((System.currentTimeMillis() - startTime)) + ") from " + fullUrl);
         return -1;
     }
+
+    private int writeFileForTest(InputStream inputStream, FileOutputStream fileOutputStream, String logTag) {
+        int downloadedContent = 0;
+        try {
+            byte[] buffer = new byte[8192];
+            int bufferLength = 0;
+            while ((bufferLength = inputStream.read(buffer)) != -1) {
+                downloadedContent += bufferLength;
+                fileOutputStream.write(buffer, 0, bufferLength);
+            }
+            return downloadedContent;
+        } catch (IOException e) {
+            RfcxLog.logExc(logTag, e);
+            return downloadedContent;
+        }
+    }
 }

@@ -89,7 +89,7 @@ class SwmApi(private val connection: SwmConnection) {
             .firstOrNull()?.let {
                 val match = "DI=0x([a-fA-F0-9]+)".toRegex().find(it) ?: return null
                 val (deviceId) = match.destructured
-                deviceId.toLowerCase(Locale.getDefault())
+                deviceId.lowercase()
             } ?: return null
     }
 }
