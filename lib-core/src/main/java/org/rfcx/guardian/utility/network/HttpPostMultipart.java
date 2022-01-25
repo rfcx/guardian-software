@@ -87,16 +87,16 @@ public class HttpPostMultipart {
 		
 		long startTime = System.currentTimeMillis();
 		Log.v(logTag,"Sending "+FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
-		String rtrnStr = executeMultipartPost(fullUrl, requestEntity, false);
+		String rtrnStr = executeMultipartPost(fullUrl, requestEntity);
 		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
 		return rtrnStr;
 	}
     
-	public String executeMultipartPost(String fullUrl, MultipartEntity requestEntity, boolean ignoreResult) throws IOException, KeyManagementException, NoSuchAlgorithmException {
+	public String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException, KeyManagementException, NoSuchAlgorithmException {
 
 		String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 		if (inferredProtocol.equals("http")) {
-			return sendInsecurePostRequest((new URL(fullUrl)), requestEntity, ignoreResult);
+			return sendInsecurePostRequest((new URL(fullUrl)), requestEntity);
 		} else if (inferredProtocol.equals("https")) {
 			return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
 		} else {
@@ -105,7 +105,7 @@ public class HttpPostMultipart {
 		}
 	}
 	
-	private String sendInsecurePostRequest(URL url, MultipartEntity entity, boolean ignoreResult) throws IOException {
+	private String sendInsecurePostRequest(URL url, MultipartEntity entity) throws IOException {
 		HttpURLConnection conn;
 		conn = (HttpURLConnection) url.openConnection();
 		conn.setReadTimeout(requestReadTimeout);
@@ -124,9 +124,6 @@ public class HttpPostMultipart {
 		outputStream.close();
 		conn.connect();
 		if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			if (ignoreResult) {
-				return "";
-			}
 			Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+url.toString());
 			return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
 		} else {

@@ -42,7 +42,7 @@ public class UploadSpeedTest extends HttpPostMultipart {
 
         long startTime = System.currentTimeMillis();
         Log.v(logTag,"Sending "+ FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
-        String result = executeMultipartPost(fullUrl, requestEntity, true);
+        String result = executeMultipartPost(fullUrl, requestEntity);
 
         if (result == null) {
             return -1.0;
