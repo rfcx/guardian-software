@@ -92,7 +92,7 @@ public class HttpPostMultipart {
 		return rtrnStr;
 	}
     
-	public String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException, KeyManagementException, NoSuchAlgorithmException {
+	protected String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException, KeyManagementException, NoSuchAlgorithmException {
 
 		String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 		if (inferredProtocol.equals("http")) {

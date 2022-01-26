@@ -261,7 +261,7 @@ public class HttpGet {
 		}
 	}
 
-	public static FileOutputStream httpGetFileOutputStream(String filePath, String logTag) {
+	protected static FileOutputStream httpGetFileOutputStream(String filePath, String logTag) {
 		FileUtils.delete(filePath);
 		try {
 			return new FileOutputStream(filePath);
@@ -271,7 +271,7 @@ public class HttpGet {
 		return null;
 	}
 	
-	public InputStream httpGetFileInputStream(String fullUrl) {
+	protected InputStream httpGetFileInputStream(String fullUrl) {
     	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
     	try {
 			if (inferredProtocol.equals("https")) {
