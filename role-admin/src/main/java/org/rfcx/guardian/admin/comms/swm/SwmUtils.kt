@@ -129,7 +129,7 @@ class SwmUtils(private val context: Context) {
     }
 
     fun getSwmId(): String? {
-        if (swmId != null) return swmId
+        if (swmId != null || !::api.isInitialized) return swmId
         swmId = api.getSwarmDeviceId()
         return swmId
     }
