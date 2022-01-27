@@ -253,7 +253,9 @@ public class AdminContentProvider extends ContentProvider {
                         momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network");
 
                     } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
-                        momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
+                        if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+                            momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
+                        }
                     }
 
                 } catch (Exception e) {

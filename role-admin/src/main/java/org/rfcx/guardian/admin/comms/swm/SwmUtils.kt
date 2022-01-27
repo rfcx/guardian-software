@@ -109,22 +109,24 @@ class SwmUtils(private val context: Context) {
     }
 
     fun saveBackgroundSignal() {
-        val rtBackground = api.getRTBackground()
-        var rssiBackground: Int? = null
-        if (rtBackground != null) {
-            rssiBackground = rtBackground.rssi
-        }
+        if (!::api.isInitialized) {
+            val rtBackground = api.getRTBackground()
+            var rssiBackground: Int? = null
+            if (rtBackground != null) {
+                rssiBackground = rtBackground.rssi
+            }
 
-        if (rtBackground != null) {
-            app.swmMetaDb.dbSwmDiagnostic.insert(
-                rssiBackground,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
+            if (rtBackground != null) {
+                app.swmMetaDb.dbSwmDiagnostic.insert(
+                    rssiBackground,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            }
         }
     }
 

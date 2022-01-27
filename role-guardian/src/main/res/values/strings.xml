@@ -28,7 +28,7 @@
 	<string name="prefs_value_default_api_ntp_host">time.apple.com</string>
 	<string name="prefs_value_default_api_sms_address">+14154803657</string>
 
-	<string name="prefs_value_api_protocol_escalation_order">mqtt,rest,sms,sat</string>
+	<string name="prefs_value_api_protocol_escalation_order">mqtt,rest</string>
 
 	<string name="prefs_value_default_reboot_forced_daily_at">23:55:00</string>
 
@@ -121,7 +121,7 @@
 
 	<string name="prefs_value_default_api_satellite_protocol">off</string>
 
-	<string name="prefs_value_default_enable_file_socket">false</string>
+	<string name="prefs_value_default_enable_file_socket">true</string>
 
 	<string-array name="prefs_values_api_satellite_protocol">
 		<item>off</item>

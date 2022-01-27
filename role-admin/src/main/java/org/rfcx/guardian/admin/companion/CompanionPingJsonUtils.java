@@ -12,6 +12,7 @@ import org.rfcx.guardian.admin.comms.sms.SmsUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -94,10 +95,12 @@ public class CompanionPingJsonUtils {
 			simInfo.put("phone_number", phoneNumber);
 			companionJsonObj.put("sim_info", simInfo);
 
-			String swarmId = app.swmUtils.getSwmId();
-			JSONObject satInfo = new JSONObject();
-			satInfo.put("sat_id", swarmId);
-			companionJsonObj.put("sat_info", satInfo);
+			if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+				String swarmId = app.swmUtils.getSwmId();
+				JSONObject satInfo = new JSONObject();
+				satInfo.put("sat_id", swarmId);
+				companionJsonObj.put("sat_info", satInfo);
+			}
 
 			JSONObject speedTest = new JSONObject();
 			speedTest.put("connection_available", app.deviceConnectivity.isConnected());
