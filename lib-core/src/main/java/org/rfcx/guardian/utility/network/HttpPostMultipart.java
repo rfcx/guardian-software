@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -91,7 +92,7 @@ public class HttpPostMultipart {
 		return rtrnStr;
 	}
     
-	private String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException, KeyManagementException, NoSuchAlgorithmException {
+	protected String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException, KeyManagementException, NoSuchAlgorithmException {
 
 		String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 		if (inferredProtocol.equals("http")) {

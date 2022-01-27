@@ -56,6 +56,7 @@ import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.network.SpeedTest;
 import org.rfcx.guardian.utility.network.SSHServerUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -143,6 +144,7 @@ public class RfcxGuardian extends Application {
 	public SbdUtils sbdUtils = null;
 	public SwmUtils swmUtils = null;
 
+	public SpeedTest speedTest = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -186,6 +188,7 @@ public class RfcxGuardian extends Application {
 		this.companionPingJsonUtils = new CompanionPingJsonUtils(this);
 		this.sbdUtils = new SbdUtils(this);
 		this.swmUtils = new SwmUtils(this);
+		this.speedTest = new SpeedTest();
 
 		DeviceI2CUtils.setSentinelLoggingVerbosity(this);
 		DeviceUtils.setSystemLoggingVerbosity(this);

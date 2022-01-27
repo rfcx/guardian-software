@@ -2,9 +2,7 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.admin.comms.swm.SwmUtils;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
@@ -137,11 +135,16 @@ public class AdminContentProvider extends ContentProvider {
                 app.assetUtils.runFileSystemAssetCleanup();
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_sbd")) { logFuncVal = "control-test_sbd";
-                String randomString = "abcd"+"001"+StringUtils.randomAlphanumericString(113, false);
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_sbd")) {
+                logFuncVal = "control-test_sbd";
+                String randomString = "abcd" + "001" + StringUtils.randomAlphanumericString(113, false);
                 boolean isSuccessful = app.sbdUtils.sendSbdMessage(randomString);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_sbd", isSuccessful, System.currentTimeMillis()});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "speed_test")) { logFuncVal = "control-speed_test";
+                app.speedTest.setDownloadSpeedTest(getContext(), appRole);
+                app.speedTest.setUploadSpeedTest(getContext(), appRole);
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"speed_test", null, System.currentTimeMillis()});
 
 
             } else if (RfcxComm.uriMatch(uri, appRole, "keycode", "*")) { logFuncVal = "keycode-*";
@@ -250,7 +253,9 @@ public class AdminContentProvider extends ContentProvider {
                         momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network");
 
                     } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
-                        momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
+                        if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+                            momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
+                        }
                     }
 
                 } catch (Exception e) {

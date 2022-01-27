@@ -60,6 +60,8 @@ public class SentinelPowerUtils {
     private boolean isBatteryCharged = false;
     private boolean isBatteryChargingAllowed = true;
 
+    private String chipAccessibleFailMessage = null;
+
     public boolean isChipAccessibleByI2c() {
 
         boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_POWER);
@@ -69,11 +71,17 @@ public class SentinelPowerUtils {
         if (isNotExplicitlyDisabled) {
             isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible();
             if (!isI2cHandlerAccessible) {
-                Log.e(logTag, "Sentinel Power Chip could not be accessed because I2C handler is not accessible...");
+                chipAccessibleFailMessage = "Sentinel Power Chip could not be accessed because I2C handler is not accessible...";
+                Log.e(logTag, chipAccessibleFailMessage);
             } else {
                 String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x4a", i2cMainAddr, true);
                 isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
-                if (!isI2cPowerChipConnected) { Log.e(logTag, "Sentinel Power Chip is NOT Accessible via I2C..."); }
+                if (!isI2cPowerChipConnected) {
+                    chipAccessibleFailMessage = "Sentinel Power Chip is NOT Accessible via I2C...";
+                    Log.e(logTag, chipAccessibleFailMessage);
+                } else {
+                    chipAccessibleFailMessage = null;
+                }
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cPowerChipConnected;
@@ -441,6 +449,20 @@ public class SentinelPowerUtils {
         return 1;
     }
 
+    public JSONObject getI2cAccessibilityAndFailMessage() {
+        JSONObject i2c = new JSONObject();
+        try {
+            if (chipAccessibleFailMessage == null) {
+                i2c.put("is_accessible", true);
+            } else {
+                i2c.put("is_accessible", false);
+                i2c.put("message", chipAccessibleFailMessage);
+            }
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return i2c;
+    }
 
     public JSONArray getMomentarySentinelPowerValuesAsJsonArray(boolean resetValues) {
 

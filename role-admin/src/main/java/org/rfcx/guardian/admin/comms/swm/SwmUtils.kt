@@ -30,6 +30,8 @@ class SwmUtils(private val context: Context) {
     lateinit var power: SwmPower
     lateinit var api: SwmApi
 
+    private var swmId: String? = null
+
     fun setupSwmUtils() {
         power = SwmPower(context)
         api = SwmApi(SwmConnection(SwmUartShell()))
@@ -56,7 +58,7 @@ class SwmUtils(private val context: Context) {
     }
 
     fun getMomentaryConcatDiagnosticValuesAsJsonArray(): JSONArray {
-        saveDiagnostic()
+        saveBackgroundSignal()
         val swmDiagnosticJSONarr = JSONArray()
         val rssi = app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull
         if (rssi.isNotEmpty()) {
@@ -104,6 +106,34 @@ class SwmUtils(private val context: Context) {
                 unsentMessageNumbers
             )
         }
+    }
+
+    fun saveBackgroundSignal() {
+        if (!::api.isInitialized) {
+            val rtBackground = api.getRTBackground()
+            var rssiBackground: Int? = null
+            if (rtBackground != null) {
+                rssiBackground = rtBackground.rssi
+            }
+
+            if (rtBackground != null) {
+                app.swmMetaDb.dbSwmDiagnostic.insert(
+                    rssiBackground,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            }
+        }
+    }
+
+    fun getSwmId(): String? {
+        if (swmId != null || !::api.isInitialized) return swmId
+        swmId = api.getSwarmDeviceId()
+        return swmId
     }
 
     companion object {

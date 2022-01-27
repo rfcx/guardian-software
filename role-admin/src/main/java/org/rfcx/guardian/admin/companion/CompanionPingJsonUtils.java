@@ -9,10 +9,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.sms.SmsUtils;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -84,6 +84,31 @@ public class CompanionPingJsonUtils {
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "companion")) {
 			JSONObject companionJsonObj = new JSONObject();
+
+			JSONObject i2cAccessibility = app.sentinelPowerUtils.getI2cAccessibilityAndFailMessage();
+			companionJsonObj.put("i2c", i2cAccessibility);
+
+			Boolean hasSim = app.deviceMobilePhone.hasSim();
+			String phoneNumber = app.deviceMobilePhone.getSimPhoneNumber();
+			JSONObject simInfo = new JSONObject();
+			simInfo.put("has_sim", hasSim);
+			simInfo.put("phone_number", phoneNumber);
+			companionJsonObj.put("sim_info", simInfo);
+
+			if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+				String swarmId = app.swmUtils.getSwmId();
+				JSONObject satInfo = new JSONObject();
+				satInfo.put("sat_id", swarmId);
+				companionJsonObj.put("sat_info", satInfo);
+			}
+
+			JSONObject speedTest = new JSONObject();
+			speedTest.put("connection_available", app.deviceConnectivity.isConnected());
+			speedTest.put("is_failed", app.speedTest.getFailed());
+			speedTest.put("download_speed", app.speedTest.getDownloadSpeedTest());
+			speedTest.put("upload_speed", app.speedTest.getUploadSpeedTest());
+			companionJsonObj.put("speed_test", speedTest);
+
 			jsonObj.put("companion", companionJsonObj);
 		}
 
