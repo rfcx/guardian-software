@@ -211,7 +211,8 @@ public class AdminContentProvider extends ContentProvider {
                 long swmSendAt = Long.parseLong(swmQueue[0]);
                 String swmGroupId = swmQueue[1];
                 String swmPayload = swmQueue[2];
-                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, app.getApplicationContext(), false);
+                int swmPriority = Integer.parseInt(swmQueue[3]);
+                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, swmPriority, app.getApplicationContext(), false);
                 return RfcxComm.getProjectionCursor(appRole, "swm_queue", new Object[]{ swmSendAt+"|"+swmPayload, null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_latest", null)) { logFuncVal = "sms_latest";

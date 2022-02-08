@@ -422,7 +422,7 @@ public class ApiSegmentUtils {
 		return updateCount;
 	}
 
-	public int queueSegmentsForDispatch(String groupId) {
+	public int queueSegmentsForDispatch(String groupId, int priority) {
 
 		int queuedSegments = 0;
 
@@ -442,7 +442,7 @@ public class ApiSegmentUtils {
 					int segId = Integer.parseInt(segmentRow[2]);
 
 					if (	(msgProtocol.equalsIgnoreCase("sms") && app.apiSmsUtils.queueSmsToApiToSendImmediately(segBody))
-						||	(msgProtocol.equalsIgnoreCase("swm") && app.apiSatUtils.queueSatMsgToApiToSendImmediately(groupId, segBody, "swm"))
+						||	(msgProtocol.equalsIgnoreCase("swm") && app.apiSatUtils.queueSatMsgToApiToSendImmediately(groupId, segBody, "swm", priority))
 						||	(msgProtocol.equalsIgnoreCase("sbd") && app.apiSatUtils.queueSatMsgToApiToSendImmediately(segBody, "sbd"))
 						) {
 

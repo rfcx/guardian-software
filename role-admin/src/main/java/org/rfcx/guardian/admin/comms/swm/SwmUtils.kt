@@ -145,6 +145,7 @@ class SwmUtils(private val context: Context) {
             sendAtOrAfter: Long,
             groupId: String?,
             msgPayload: String?,
+            priority: Int,
             context: Context,
             triggerDispatchService: Boolean
         ): Boolean {
@@ -152,7 +153,7 @@ class SwmUtils(private val context: Context) {
             if (msgPayload != null && !msgPayload.equals("", ignoreCase = true)) {
                 val app = context.applicationContext as RfcxGuardian
                 val msgId = DeviceSmsUtils.generateMessageId()
-                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, groupId, msgId)
+                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, groupId, msgId, priority)
                 if (triggerDispatchService) {
                     app.rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, false)
                 }

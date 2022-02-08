@@ -30,10 +30,11 @@ public class SwmMessageDb {
 	static final String C_GROUP_ID = "group_id";
 	static final String C_MESSAGE_ID = "message_id";
 	static final String C_SWM_MESSAGE_ID = "swm_message_id";
+	static final String C_PRIORITY = "priority";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_GROUP_ID, C_MESSAGE_ID, C_SWM_MESSAGE_ID, C_LAST_ACCESSED_AT };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_GROUP_ID, C_MESSAGE_ID, C_SWM_MESSAGE_ID, C_PRIORITY, C_LAST_ACCESSED_AT };
 
-	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { "0.9.1", "0.9.2" }; // "0.6.43"
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { "0.9.1", "0.9.2", "0.9.3" }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = true;
 
 	private String createColumnString(String tableName) {
@@ -46,6 +47,7 @@ public class SwmMessageDb {
                 .append(", ").append(C_GROUP_ID).append(" TEXT")
                 .append(", ").append(C_MESSAGE_ID).append(" TEXT")
                 .append(", ").append(C_SWM_MESSAGE_ID).append(" TEXT")
+				.append(", ").append(C_PRIORITY).append(" INTEGER")
                 .append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
                 .append(")");
 		return sbOut.toString();
@@ -61,7 +63,7 @@ public class SwmMessageDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(long timestamp, String address, String body, String groupId, String message_id, String swmMessageId) {
+		public int insert(long timestamp, String address, String body, String groupId, String message_id, int priority, String swmMessageId) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -71,6 +73,7 @@ public class SwmMessageDb {
 			values.put(C_GROUP_ID, groupId);
 			values.put(C_MESSAGE_ID, message_id);
 			values.put(C_SWM_MESSAGE_ID, swmMessageId);
+			values.put(C_PRIORITY, priority);
 			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
@@ -105,7 +108,7 @@ public class SwmMessageDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(long timestamp, String address, String body, String groupId, String message_id) {
+		public int insert(long timestamp, String address, String body, String groupId, String message_id, int priority) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -114,6 +117,7 @@ public class SwmMessageDb {
 			values.put(C_BODY, body);
 			values.put(C_GROUP_ID, groupId);
 			values.put(C_MESSAGE_ID, message_id);
+			values.put(C_PRIORITY, priority);
 			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
@@ -140,7 +144,7 @@ public class SwmMessageDb {
 		}
 
 		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP+" DESC", 0);
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_PRIORITY + "ASC," + C_TIMESTAMP + " DESC", 0);
 		}
 
 		public ArrayList<String> getGroupIdsBefore(Date date) {
