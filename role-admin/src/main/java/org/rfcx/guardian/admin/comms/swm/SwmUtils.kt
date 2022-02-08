@@ -48,15 +48,6 @@ class SwmUtils(private val context: Context) {
         return true
     }
 
-    fun isLastSatellitePacketAllowToSave(lastDate: String): Boolean {
-        val minRange = 1000 * 60 * 3 // 3 minutes to save
-        val lastTime = DateTimeUtils.getDateFromStringUTC(lastDate).time
-        val currentTime = DateTimeUtils.getCurrentTimeInUTC()
-        Log.d(logTag, "$currentTime $lastTime")
-        if (currentTime - lastTime > minRange) return false
-        return true
-    }
-
     fun getMomentaryConcatDiagnosticValuesAsJsonArray(): JSONArray {
         saveBackgroundSignal()
         val swmDiagnosticJSONarr = JSONArray()
@@ -84,7 +75,7 @@ class SwmUtils(private val context: Context) {
         var fdev: Int? = null
         var time: String? = null
         var satId: String? = null
-        if (rtSatellite != null && app.swmUtils.isLastSatellitePacketAllowToSave(rtSatellite.packetTimestamp)) {
+        if (rtSatellite != null) {
             Log.d(logTag, "Saving Satellite Packet")
             if (rtSatellite.packetTimestamp != "1970-01-01 00:00:00") time = rtSatellite.packetTimestamp
             if (time != null) {
@@ -108,7 +99,7 @@ class SwmUtils(private val context: Context) {
         }
     }
 
-    fun saveBackgroundSignal() {
+    private fun saveBackgroundSignal() {
         if (!::api.isInitialized) {
             val rtBackground = api.getRTBackground()
             var rssiBackground: Int? = null
