@@ -50,6 +50,8 @@ public class CompanionSocketUtils {
 
 			companionObj.put("checkin", getLatestAllSentCheckInType());
 
+			companionObj.put("local_time", System.currentTimeMillis());
+			
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}
