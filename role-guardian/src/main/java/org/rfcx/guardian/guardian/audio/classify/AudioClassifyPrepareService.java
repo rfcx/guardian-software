@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.audio.classify;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -10,6 +11,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeUtils;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -105,7 +107,9 @@ public class AudioClassifyPrepareService extends Service {
 
 
 						if (!classifierFile.exists()) {
-
+							// Check if there is a classifier in classify role
+							Uri target = RfcxComm.getFileUri("classify", RfcxAssetCleanup.conciseFilePath(classifierFile.getAbsolutePath(), RfcxGuardian.APP_ROLE));
+							RfcxComm.getFileRequest(target, classifierFile.getAbsolutePath(), app.getResolver());
 							Log.e(logTag, "Skipping Audio Classify Job because classifier file could not be found."+RfcxAssetCleanup.conciseFilePath(classifierFile.getAbsolutePath(), RfcxGuardian.APP_ROLE));
 							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 
