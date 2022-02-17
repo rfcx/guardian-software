@@ -93,6 +93,10 @@ public class AssetDownloadDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
+		public String[] getByAssetId(String id) {
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+C_ASSET_ID+",1,"+id.length()+") = ?", new String[] { id }, C_CREATED_AT, 0);
+		}
+
 		public void deleteSingleRow(String assetType, String assetId) {
 			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_ASSET_TYPE, assetType, C_ASSET_ID, assetId);
 		}
