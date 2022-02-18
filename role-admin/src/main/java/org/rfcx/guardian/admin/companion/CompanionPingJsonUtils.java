@@ -105,6 +105,7 @@ public class CompanionPingJsonUtils {
 			JSONObject speedTest = new JSONObject();
 			speedTest.put("connection_available", app.deviceConnectivity.isConnected());
 			speedTest.put("is_failed", app.speedTest.getFailed());
+			speedTest.put("is_testing", app.speedTest.getTestingState());
 			speedTest.put("download_speed", app.speedTest.getDownloadSpeedTest());
 			speedTest.put("upload_speed", app.speedTest.getUploadSpeedTest());
 			companionJsonObj.put("speed_test", speedTest);
