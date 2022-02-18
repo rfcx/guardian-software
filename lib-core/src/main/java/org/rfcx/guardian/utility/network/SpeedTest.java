@@ -43,7 +43,7 @@ public class SpeedTest {
         UploadSpeedTest uploadTest = new UploadSpeedTest(context, role);
         try {
             isFailed = false;
-            uploadSpeedKbps = uploadTest.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 100000); // test url
+            uploadSpeedKbps = uploadTest.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 102400); // test url
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             isFailed = true;
             RfcxLog.logExc(logTag, e);
