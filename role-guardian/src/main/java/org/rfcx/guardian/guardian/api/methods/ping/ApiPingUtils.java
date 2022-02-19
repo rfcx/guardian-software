@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -64,10 +65,10 @@ public class ApiPingUtils {
 						)
 					|| 	(	allowSegmentProtocols
 						&&	(	(	apiProtocol.equalsIgnoreCase("sms")
-								&& 	app.apiSmsUtils.sendSmsPing(pingJson)
+								&& 	app.apiSmsUtils.sendSmsPing(pingJson, getPriority(pingJson))
 								)
 							||	(	( apiProtocol.equalsIgnoreCase("sat") || apiProtocol.equalsIgnoreCase("sbd") || apiProtocol.equalsIgnoreCase("swm") )
-								&& 	app.apiSatUtils.sendSatPing(pingJson)
+								&& 	app.apiSatUtils.sendSatPing(pingJson, getPriority(pingJson))
 								)
 							)
 						)
@@ -100,6 +101,11 @@ public class ApiPingUtils {
 			}
 		}
 		return true;
+	}
+
+	private int getPriority(String pingJson) {
+		if (pingJson.contains("detections")) return 1;
+		return 2;
 	}
 
 }

@@ -54,7 +54,7 @@ public class ApiSmsUtils {
 	}
 
 
-	public boolean sendSmsPing(String pingJson) {
+	public boolean sendSmsPing(String pingJson, int priority) {
 
 		boolean isSent = false;
 
@@ -63,7 +63,7 @@ public class ApiSmsUtils {
 
 				String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", pingJson, null);
 
-				app.apiSegmentUtils.queueSegmentsForDispatch(groupId);
+				app.apiSegmentUtils.queueSegmentsForDispatch(groupId, priority);
 
 				isSent = true;
 

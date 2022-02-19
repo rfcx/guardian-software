@@ -11,8 +11,13 @@ class SwmApi(private val connection: SwmConnection) {
 
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
-    fun transmitData(msgStr: String): String? {
-        val results = connection.execute(Command.TD.name, msgStr)
+    fun transmitData(msgStr: String, priority: Int = 2): String? {
+        val fullMsg = if (priority == 1) {
+            "ET=${System.currentTimeMillis() + 43200000},$msgStr" // plus 12 hours
+        } else {
+            "ET=${System.currentTimeMillis() + 10800000},$msgStr" // plus 3 hours
+        }
+        val results = connection.execute(Command.TD.name, fullMsg)
         val regex = "OK,(-?[0-9]+)".toRegex()
         val firstMatchResult = results.mapNotNull { regex.find(it) }.firstOrNull()
         return firstMatchResult?.let { match ->
