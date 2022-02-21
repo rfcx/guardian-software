@@ -51,9 +51,9 @@ public class CompanionSocketUtils {
 
 			companionObj.put("checkin", getLatestAllSentCheckInType());
 
-			companionObj.put("local_time", System.currentTimeMillis());
+			companionObj.put("system_time_utc", System.currentTimeMillis());
 
-			companionObj.put("timezone", TimeZone.getDefault().getID());
+			companionObj.put("system_timezone", TimeZone.getDefault().getID());
 			
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
