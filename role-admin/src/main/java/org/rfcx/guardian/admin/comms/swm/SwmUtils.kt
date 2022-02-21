@@ -38,7 +38,7 @@ class SwmUtils(private val context: Context) {
     }
 
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
-        for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS)
+        for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_ON_HOURS)
             .split(",")) {
             val offHours = offHoursRange.split("-")
             if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {

@@ -39,6 +39,7 @@
 	<string name="prefs_value_default_api_checkin_publish_schedule_off_hours">23:55-23:56,23:57-23:59</string>
 	<string name="prefs_value_default_api_checkin_requeue_schedule_off_hours">00:01-10:00,14:00-23:59</string>>
 	<string name="prefs_value_default_api_satellite_off_hours">23:55-23:56,23:57-23:59</string>
+	<string name="prefs_value_default_api_satellite_on_hours">00:01-23:59</string>
 
 	<string name="prefs_value_default_enable_cutoffs_sampling_ratio">false</string>
 	<string name="prefs_value_default_audio_sampling_ratio">1:2</string>
