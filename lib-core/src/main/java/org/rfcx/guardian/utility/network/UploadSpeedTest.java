@@ -34,18 +34,22 @@ public class UploadSpeedTest extends HttpPostMultipart {
         if (file.exists()) {
             file.delete();
         }
-        RandomAccessFile rf = new RandomAccessFile(file, "rw");
-        rf.setLength(size);
-
-        MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-        requestEntity.addPart("file", new FileBody(file));
-
         long startTime = System.currentTimeMillis();
-        Log.v(logTag,"Sending "+ FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
-        String result = executeMultipartPost(fullUrl, requestEntity);
+        try {
+            RandomAccessFile rf = new RandomAccessFile(file, "rw");
+            rf.setLength(size);
 
-        if (result == null) {
-            return -1.0;
+            MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            requestEntity.addPart("file", new FileBody(file));
+
+            Log.v(logTag,"Sending "+ FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
+            String result = executeMultipartPost(fullUrl, requestEntity);
+
+            if (result == null) {
+                return -1.0;
+            }
+        } catch (IOException e) {
+            RfcxLog.logExc(logTag, e);
         }
         long uploadTime = System.currentTimeMillis() - startTime;
         double uploadSpeed = (size * 1.0) / uploadTime;
