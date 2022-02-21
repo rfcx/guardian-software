@@ -143,9 +143,10 @@ public class SwmDispatchCycleService extends Service {
 
                         String msgId = swmForDispatch[4];
                         String msgBody = swmForDispatch[3];
+                        int priority = Integer.parseInt(swmForDispatch[5]);
 
                         // send message
-                        String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
+                        String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"", priority);
                         if (swmMessageId != null) {
                             app.swmMessageDb.dbSwmSent.insert(
                                     Long.parseLong(swmForDispatch[1]),
@@ -153,6 +154,7 @@ public class SwmDispatchCycleService extends Service {
                                     msgBody,
                                     swmForDispatch[4],
                                     msgId,
+                                    priority,
                                     swmMessageId
                             );
                             app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);

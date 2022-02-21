@@ -25,16 +25,16 @@ public class ApiSatUtils {
 		return queueSatMsgToSend(null, msgBody, satProtocol);
 	}
 
-	public boolean queueSatMsgToApiToSendImmediately(String groupId, String msgBody, String satProtocol) {
-		return queueSatMsgToSendWithGroupId(null, groupId, msgBody, satProtocol);
+	public boolean queueSatMsgToApiToSendImmediately(String groupId, String msgBody, String satProtocol, int priority) {
+		return queueSatMsgToSendWithGroupId(null, groupId, msgBody, satProtocol, priority);
 	}
 
-	public boolean queueSatMsgToSendWithGroupId(String sendAt, String groupId, String msgBody, String satProtocol) {
+	public boolean queueSatMsgToSendWithGroupId(String sendAt, String groupId, String msgBody, String satProtocol, int priority) {
 
 		try {
 			String satSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? ""+Long.parseLong(sendAt) : ""+System.currentTimeMillis();
 			String satMsgBody = (msgBody != null) ? msgBody : "";
-			String satMsgUrlBlob = TextUtils.join("|", new String[]{ satSendAt, groupId, RfcxComm.urlEncode(satMsgBody) });
+			String satMsgUrlBlob = TextUtils.join("|", new String[]{ satSendAt, groupId, RfcxComm.urlEncode(satMsgBody), priority+"" });
 
 			Cursor satQueueResponse = app.getResolver().query(
 					RfcxComm.getUri("admin", satProtocol+"_queue", satMsgUrlBlob),
@@ -76,7 +76,7 @@ public class ApiSatUtils {
 
 
 
-	public boolean sendSatPing(String pingJson) {
+	public boolean sendSatPing(String pingJson, int priority) {
 
 		boolean isSent = false;
 
@@ -87,7 +87,7 @@ public class ApiSatUtils {
 
 				String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", apiSatelliteProtocol, pingJson, null);
 
-				app.apiSegmentUtils.queueSegmentsForDispatch(groupId);
+				app.apiSegmentUtils.queueSegmentsForDispatch(groupId, priority);
 
 				isSent = true;
 

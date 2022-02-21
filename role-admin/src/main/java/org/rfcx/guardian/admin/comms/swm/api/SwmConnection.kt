@@ -1,7 +1,5 @@
 package org.rfcx.guardian.admin.comms.swm.api
 
-import android.util.Log
-
 class SwmConnection(private val shell: SwmShell) {
 
     private val messageRegex = "\\$([A-Z]+ [^\\$]*)\\*([0-9a-fA-F]{2})$".toRegex()
