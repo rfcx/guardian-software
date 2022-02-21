@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.api.methods.download;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
@@ -8,8 +9,10 @@ import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,31 +54,46 @@ public class AssetDownloadUtils {
 						+"}"
 				);
 
-
-//		app.assetDownloadDb.dbQueued.insert(
-//				"classifier",
-//				"1617208867757",
-//				"5ad4aafdf92cbb4c2fc795962548a711581273aa",
-//				"http",
-//				"http://192.168.0.179:8080/cdn/tflite/chainsaw_v2.tflite.gz",
-//				12500443,
-//				"tflite",
-//				"{"
-//						+"\"classifier_name\":\"chainsaw\","
-//						+"\"classifier_version\":\"2\","
-//						+"\"sample_rate\":\"12000\","
-//						+"\"input_gain\":\"1.0\","
-//						+"\"window_size\":\"0.9750\","
-//						+"\"step_size\":\"1\","
-//						+"\"classifications\":\"chainsaw,environment\","
-//						+"\"classifications_filter_threshold\":\"0.90,1.00\""
-//						+"}"
-//		);
-
 	}
 
+	public void createPreClassifierValues(Context context) {
+		String assetId = "1617208867756";
+		String filePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong(assetId));
+		Uri fileOriginUri = RfcxComm.getFileUri("classify", RfcxAssetCleanup.conciseFilePath(filePath, RfcxGuardian.APP_ROLE));
+		String fileChecksum = FileUtils.sha1Hash(filePath);
+		if (new File(filePath).exists()) {
+			return;
+		}
+		RfcxComm.getFileRequest(fileOriginUri, filePath, app.getResolver());
 
+		String fileType = "tflite";
+		String metaJsonBlob = "{"
+				+"\"classifier_name\":\"chainsaw\","
+				+"\"classifier_version\":\"5\","
+				+"\"sample_rate\":\"12000\","
+				+"\"input_gain\":\"1.0\","
+				+"\"window_size\":\"0.9750\","
+				+"\"step_size\":\"1\","
+				+"\"classifications\":\"chainsaw,environment\","
+				+"\"classifications_filter_threshold\":\"0.95,1.00\""
+				+"}";
 
+		String[] existClassifier = app.assetLibraryDb.dbClassifier.getSingleRowById(assetId);
+		if (existClassifier[1] != null && existClassifier[1].equals(assetId)) {
+			return;
+		}
+		app.assetLibraryDb.dbClassifier.insert(
+				assetId,
+				fileType,
+				fileChecksum,
+				filePath,
+				FileUtils.getFileSizeInBytes(filePath),
+				metaJsonBlob,
+				0,
+				0
+		);
+		app.audioClassifyUtils.activateClassifier(assetId);
+	}
 
 	public String getTmpAssetFilePath(String assetType, String assetId) {
 

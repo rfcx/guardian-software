@@ -7,6 +7,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rfcx.guardian.classify.R;
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.classify.model.AudioClassifier;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
@@ -17,6 +18,11 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -180,6 +186,27 @@ public class AudioClassifyUtils {
 		}
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioSnippetDir(context) }, audioSnippets, Math.round(maxAgeInMilliseconds/60000), false, false );
+	}
+
+	public void moveClassifierFromRawToDirectory(Context context) {
+		InputStream is = context.getResources().openRawResource(R.raw.c1617208867756);
+		String path = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong("1617208867756"));
+		Log.d(logTag, path);
+		if (new File(path).exists()) {
+			return;
+		}
+
+		try {
+			OutputStream outStream = new FileOutputStream(path);
+			byte[] buffer = new byte[8 * 1024];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				outStream.write(buffer, 0, bytesRead);
+			}
+			Log.d(logTag, "Done moving classifier");
+		} catch (IOException exception) {
+			RfcxLog.logExc(exception.getMessage(), exception);
+		}
 	}
 
 }
