@@ -144,7 +144,7 @@ public class SwmMessageDb {
 		}
 
 		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_PRIORITY + "ASC," + C_TIMESTAMP + " DESC", 0);
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_PRIORITY + " ASC," + C_TIMESTAMP + " DESC", 0);
 		}
 
 		public ArrayList<String> getGroupIdsBefore(Date date) {

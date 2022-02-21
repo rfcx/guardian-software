@@ -13,9 +13,9 @@ class SwmApi(private val connection: SwmConnection) {
 
     fun transmitData(msgStr: String, priority: Int = 2): String? {
         val fullMsg = if (priority == 1) {
-            "ET=${System.currentTimeMillis() + 43200000},$msgStr" // plus 12 hours
+            "HD=43200,$msgStr" // plus 12 hours
         } else {
-            "ET=${System.currentTimeMillis() + 10800000},$msgStr" // plus 3 hours
+            "HD=10800,$msgStr" // plus 3 hours
         }
         val results = connection.execute(Command.TD.name, fullMsg)
         val regex = "OK,(-?[0-9]+)".toRegex()

@@ -100,7 +100,7 @@ class SwmUtils(private val context: Context) {
     }
 
     private fun saveBackgroundSignal() {
-        if (!::api.isInitialized) {
+        if (::api.isInitialized) {
             val rtBackground = api.getRTBackground()
             var rssiBackground: Int? = null
             if (rtBackground != null) {
