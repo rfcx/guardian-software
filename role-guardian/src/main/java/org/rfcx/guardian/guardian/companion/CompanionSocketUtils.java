@@ -14,6 +14,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.TimeZone;
 
 public class CompanionSocketUtils {
 
@@ -51,6 +52,8 @@ public class CompanionSocketUtils {
 			companionObj.put("checkin", getLatestAllSentCheckInType());
 
 			companionObj.put("local_time", System.currentTimeMillis());
+
+			companionObj.put("timezone", TimeZone.getDefault().getID());
 			
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
