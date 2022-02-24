@@ -20,16 +20,19 @@ class SwmUtils(private val context: Context) {
     lateinit var power: SwmPower
     lateinit var api: SwmApi
 
+    private var swmId: String? = null
+
     fun setupSwmUtils() {
         power = SwmPower(context)
         api = SwmApi(SwmConnection(SwmUartShell()))
     }
 
+    // ,08:30,09:30-09-45
     fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
         for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS)
-            .split(",")) {
-            val offHours = offHoursRange.split("-")
-            if (offHours.isEmpty()) return true
+            .split(",").filter { it != "" }) {
+            val offHours = offHoursRange.split("-").filter { it != "" }
+            if (offHours.isEmpty()) continue
             if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {
                 return false
             }
@@ -111,8 +114,9 @@ class SwmUtils(private val context: Context) {
     }
 
     fun getSwmId(): String? {
-        if (!::api.isInitialized) return null
-        return api.getSwarmDeviceId()
+        if (swmId != null || !::api.isInitialized) return swmId
+        swmId = api.getSwarmDeviceId()
+        return swmId
     }
 
     companion object {
