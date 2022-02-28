@@ -31,6 +31,7 @@ class SwmUtils(private val context: Context) {
     lateinit var api: SwmApi
 
     private var swmId: String? = null
+    private var isGPSConnected = false
 
     fun setupSwmUtils() {
         power = SwmPower(context)
@@ -125,6 +126,12 @@ class SwmUtils(private val context: Context) {
         if (swmId != null || !::api.isInitialized) return swmId
         swmId = api.getSwarmDeviceId()
         return swmId
+    }
+
+    fun getGPSConnection(): Boolean {
+        if (!::api.isInitialized) return isGPSConnected
+        isGPSConnected = api.getGPSConnection() != null
+        return isGPSConnected
     }
 
     companion object {

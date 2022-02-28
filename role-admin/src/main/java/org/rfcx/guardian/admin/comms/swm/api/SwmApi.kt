@@ -7,7 +7,7 @@ import java.util.*
 
 class SwmApi(private val connection: SwmConnection) {
 
-    enum class Command { TD, MT, SL, RT, DT, PO, CS }
+    enum class Command { TD, MT, SL, RT, DT, PO, CS, GS }
 
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
@@ -95,6 +95,15 @@ class SwmApi(private val connection: SwmConnection) {
                 val match = "DI=0x([a-fA-F0-9]+)".toRegex().find(it) ?: return null
                 val (deviceId) = match.destructured
                 deviceId.lowercase()
+            } ?: return null
+    }
+
+    fun getGPSConnection(): SwmGSResponse? {
+        return connection.executeWithoutTimeout(Command.GS.name, "@")
+            .firstOrNull()?.let {
+                val match = "([0-9]+),([0-9]+),([0-9]+),([0-9]+),([A-Z0-9]+)".toRegex().find(it) ?: return null
+                val (hdop, vdop, gnss, unused, type) = match.destructured
+                return SwmGSResponse(hdop.toInt(), vdop.toInt(), gnss.toInt(), type)
             } ?: return null
     }
 }
