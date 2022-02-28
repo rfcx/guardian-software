@@ -16,171 +16,172 @@ import java.util.List;
 
 public class AssetDownloadJobService extends Service {
 
-	public static final String SERVICE_NAME = "AssetDownloadJob";
+    public static final String SERVICE_NAME = "AssetDownloadJob";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetDownloadJobService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private AssetDownloadJob assetDownloadJob;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetDownloadJobService");
 
-	@Override
-	public IBinder onBind(Intent arg0) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.assetDownloadJob = new AssetDownloadJob();
-		app = (RfcxGuardian) getApplication();
-	}
+    private RfcxGuardian app;
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
+    private boolean runFlag = false;
+    private AssetDownloadJob assetDownloadJob;
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.assetDownloadJob = new AssetDownloadJob();
+        app = (RfcxGuardian) getApplication();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.assetDownloadJob.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.assetDownloadJob.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.assetDownloadJob.interrupt();
-		this.assetDownloadJob = null;
-	}
-	
-	private class AssetDownloadJob extends Thread {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.assetDownloadJob.interrupt();
+        this.assetDownloadJob = null;
+    }
 
-		public AssetDownloadJob() {
-			super("AssetDownloadJobService-AssetDownloadJob");
-		}
-		
-		@Override
-		public void run() {
-			AssetDownloadJobService assetDownloadJobInstance = AssetDownloadJobService.this;
-			
-			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
+    private class AssetDownloadJob extends Thread {
 
-			app.rfcxSvc.reportAsActive(SERVICE_NAME);
-			
-			try {
+        public AssetDownloadJob() {
+            super("AssetDownloadJobService-AssetDownloadJob");
+        }
 
-				List<String[]> queuedAssetsForDownload = app.assetDownloadDb.dbQueued.getAllRows();
-				if (queuedAssetsForDownload.size() == 0) { Log.d(logTag, "No asset download jobs are currently queued."); }
-				app.assetDownloadUtils.cleanupDownloadDirectory( queuedAssetsForDownload, Math.round( 1.0 * 3 * 60 * 60 * 1000 ) );
+        @Override
+        public void run() {
+            AssetDownloadJobService assetDownloadJobInstance = AssetDownloadJobService.this;
 
-				for (String[] queuedDownloads : queuedAssetsForDownload) {
+            app = (RfcxGuardian) getApplication();
+            Context context = app.getApplicationContext();
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+            app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-					if (queuedDownloads[0] != null) {
+            try {
 
-						String queuedAt = queuedDownloads[0];
-						String assetType = queuedDownloads[1];
-						String assetId = queuedDownloads[2];
-						String checksum = queuedDownloads[3];
-						String protocol = queuedDownloads[4];
-						String uriStr = queuedDownloads[5];
-						long fileSize = Long.parseLong(queuedDownloads[6]);
-						String fileType = queuedDownloads[7];
-						String metaJsonBlob = queuedDownloads[8];
-						int downloadAttempts = Integer.parseInt(queuedDownloads[9]);
-						long lastAccessedAt = Long.parseLong(queuedDownloads[10]);
+                List<String[]> queuedAssetsForDownload = app.assetDownloadDb.dbQueued.getAllRows();
+                if (queuedAssetsForDownload.size() == 0) {
+                    Log.d(logTag, "No asset download jobs are currently queued.");
+                }
+                app.assetDownloadUtils.cleanupDownloadDirectory(queuedAssetsForDownload, Math.round(1.0 * 3 * 60 * 60 * 1000));
 
-						if (downloadAttempts >= AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD) {
+                for (String[] queuedDownloads : queuedAssetsForDownload) {
 
-							Log.d(logTag, "Skipping Asset Download Job for " + assetType + ", " + assetId + " after " + AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD + " failed attempts.");
+                    app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-							app.assetDownloadDb.dbSkipped.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, metaJsonBlob, downloadAttempts, System.currentTimeMillis());
-							app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
+                    if (queuedDownloads[0] != null) {
 
-						} else {
+                        String queuedAt = queuedDownloads[0];
+                        String assetType = queuedDownloads[1];
+                        String assetId = queuedDownloads[2];
+                        String checksum = queuedDownloads[3];
+                        String protocol = queuedDownloads[4];
+                        String uriStr = queuedDownloads[5];
+                        long fileSize = Long.parseLong(queuedDownloads[6]);
+                        String fileType = queuedDownloads[7];
+                        String metaJsonBlob = queuedDownloads[8];
+                        int downloadAttempts = Integer.parseInt(queuedDownloads[9]);
+                        long lastAccessedAt = Long.parseLong(queuedDownloads[10]);
 
+                        if (downloadAttempts >= AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD) {
 
-							Log.i(logTag, "Beginning Asset Download Job: " + assetType + ", " + assetId);
+                            Log.d(logTag, "Skipping Asset Download Job for " + assetType + ", " + assetId + " after " + AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
-							app.assetDownloadDb.dbQueued.incrementSingleRowAttempts(assetType, assetId);
-							app.assetDownloadDb.dbQueued.updateLastAccessedAt(assetType, assetId);
+                            app.assetDownloadDb.dbSkipped.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, metaJsonBlob, downloadAttempts, System.currentTimeMillis());
+                            app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
 
-							String downloadTmpFilePath = app.assetDownloadUtils.getTmpAssetFilePath(assetType, assetId);
-							String postDownloadFilePath = app.assetDownloadUtils.getPostDownloadAssetFilePath(assetType, assetId, fileType);
-							String finalAssetLibraryFilePath = app.assetLibraryUtils.getLibraryAssetFilePath(assetType, assetId, fileType);
-
-							if (protocol.equalsIgnoreCase("http")) {
-
-								if (FileUtils.sha1Hash(finalAssetLibraryFilePath).equalsIgnoreCase(checksum)) {
-
-									Log.e(logTag, "Asset Download will be skipped. An existing copy of queued asset was found with correct checksum at " + RfcxAssetCleanup.conciseFilePath(finalAssetLibraryFilePath, RfcxGuardian.APP_ROLE));
-									app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
-
-								} else {
-
-									HttpGet httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
-									httpGet.setTimeOuts(30000, 300000);
-
-									long downloadStartTime = System.currentTimeMillis();
-									httpGet.getAsFile(uriStr, downloadTmpFilePath);
-									long downloadDuration = (System.currentTimeMillis() - downloadStartTime);
-
-									FileUtils.delete(postDownloadFilePath);
-									FileUtils.gUnZipFile(downloadTmpFilePath, postDownloadFilePath);
-									String downloadChecksum = FileUtils.sha1Hash(postDownloadFilePath);
-
-									if (downloadChecksum.equalsIgnoreCase(checksum)) {
-
-										// log successful completion
-										app.assetDownloadDb.dbCompleted.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, metaJsonBlob,downloadAttempts + 1, downloadDuration);
-										app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
-
-										Log.i(logTag, "Asset Download Successful. File will be placed in the Asset Library at " + RfcxAssetCleanup.conciseFilePath(finalAssetLibraryFilePath, RfcxGuardian.APP_ROLE));
-
-										app.assetDownloadUtils.followUpOnSuccessfulDownload( assetType, assetId, fileType, checksum, metaJsonBlob );
-
-									} else {
-										Log.e(logTag, "Asset Download Failure: Rejected due to checksum mis-match on decompressed asset file.");
-										Log.e(logTag, downloadChecksum+" - "+checksum);
-										FileUtils.delete(postDownloadFilePath);
-
-									}
-								}
-
-								FileUtils.delete(downloadTmpFilePath);
-
-							}
-						}
-
-					} else {
-						Log.d(logTag, "Queued asset download entry in database is invalid.");
-
-					}
-
-				}
+                        } else {
 
 
-					
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				assetDownloadJobInstance.runFlag = false;
-			}
-			
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			assetDownloadJobInstance.runFlag = false;
+                            Log.i(logTag, "Beginning Asset Download Job: " + assetType + ", " + assetId);
 
-		}
-	}
-	
+                            app.assetDownloadDb.dbQueued.incrementSingleRowAttempts(assetType, assetId);
+                            app.assetDownloadDb.dbQueued.updateLastAccessedAt(assetType, assetId);
+
+                            String downloadTmpFilePath = app.assetDownloadUtils.getTmpAssetFilePath(assetType, assetId);
+                            String postDownloadFilePath = app.assetDownloadUtils.getPostDownloadAssetFilePath(assetType, assetId, fileType);
+                            String finalAssetLibraryFilePath = app.assetLibraryUtils.getLibraryAssetFilePath(assetType, assetId, fileType);
+
+                            if (protocol.equalsIgnoreCase("http")) {
+
+                                if (FileUtils.sha1Hash(finalAssetLibraryFilePath).equalsIgnoreCase(checksum)) {
+
+                                    Log.e(logTag, "Asset Download will be skipped. An existing copy of queued asset was found with correct checksum at " + RfcxAssetCleanup.conciseFilePath(finalAssetLibraryFilePath, RfcxGuardian.APP_ROLE));
+                                    app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
+
+                                } else {
+
+                                    HttpGet httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
+                                    httpGet.setTimeOuts(30000, 300000);
+
+                                    long downloadStartTime = System.currentTimeMillis();
+                                    httpGet.getAsFile(uriStr, downloadTmpFilePath);
+                                    long downloadDuration = (System.currentTimeMillis() - downloadStartTime);
+
+                                    FileUtils.delete(postDownloadFilePath);
+                                    FileUtils.gUnZipFile(downloadTmpFilePath, postDownloadFilePath);
+                                    String downloadChecksum = FileUtils.sha1Hash(postDownloadFilePath);
+
+                                    if (downloadChecksum.equalsIgnoreCase(checksum)) {
+
+                                        // log successful completion
+                                        app.assetDownloadDb.dbCompleted.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, metaJsonBlob, downloadAttempts + 1, downloadDuration);
+                                        app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
+
+                                        Log.i(logTag, "Asset Download Successful. File will be placed in the Asset Library at " + RfcxAssetCleanup.conciseFilePath(finalAssetLibraryFilePath, RfcxGuardian.APP_ROLE));
+
+                                        app.assetDownloadUtils.followUpOnSuccessfulDownload(assetType, assetId, fileType, checksum, metaJsonBlob);
+
+                                    } else {
+                                        Log.e(logTag, "Asset Download Failure: Rejected due to checksum mis-match on decompressed asset file.");
+                                        Log.e(logTag, downloadChecksum + " - " + checksum);
+                                        FileUtils.delete(postDownloadFilePath);
+
+                                    }
+                                }
+
+                                FileUtils.delete(downloadTmpFilePath);
+
+                            }
+                        }
+
+                    } else {
+                        Log.d(logTag, "Queued asset download entry in database is invalid.");
+
+                    }
+
+                }
+
+
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                assetDownloadJobInstance.runFlag = false;
+            }
+
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            assetDownloadJobInstance.runFlag = false;
+
+        }
+    }
+
 
 }

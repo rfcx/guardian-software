@@ -14,15 +14,12 @@ public class FileSocketService extends Service {
     public static final String SERVICE_NAME = "FileSocket";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "FileSocketService");
-
-    private RfcxGuardian app;
-
-    private boolean runFlag = false;
-    private FileSocketSvc fileSocketSvc;
-
     private static final long minPushCycleDurationMs = 667;
     private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
     private static final int maxSendFailureThreshold = 24;
+    private RfcxGuardian app;
+    private boolean runFlag = false;
+    private FileSocketSvc fileSocketSvc;
 
     @Override
     public IBinder onBind(Intent intent) {

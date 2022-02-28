@@ -6,7 +6,6 @@ import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 class SwmApiMTTest {
 

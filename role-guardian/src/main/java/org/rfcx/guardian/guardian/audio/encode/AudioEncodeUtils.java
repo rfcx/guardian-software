@@ -21,69 +21,71 @@ import java.util.Locale;
 
 public class AudioEncodeUtils {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeUtils");
+    public static final SimpleDateFormat vaultStatsDayId = new SimpleDateFormat("yyyy_MM_dd", Locale.US);
+    public static final int ENCODE_QUALITY = 10;
+    public static final int ENCODE_FAILURE_SKIP_THRESHOLD = 3;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeUtils");
 
-	public static final SimpleDateFormat vaultStatsDayId = new SimpleDateFormat("yyyy_MM_dd", Locale.US);
+    public static int encodeAudioFile(File preEncodeFile, File postEncodeFile, String encodeCodec, int encodeSampleRate, int encodeBitRate, int encodeQuality) {
 
-	public static final int ENCODE_QUALITY = 10;
-	public static final int ENCODE_FAILURE_SKIP_THRESHOLD = 3;
+        int encodeOutputBitRate = -1;
 
-	public static int encodeAudioFile(File preEncodeFile, File postEncodeFile, String encodeCodec, int encodeSampleRate, int encodeBitRate, int encodeQuality) {
+        if (preEncodeFile.exists()) {
+            try {
+                if (encodeCodec.equalsIgnoreCase("opus")) {
 
-		int encodeOutputBitRate = -1;
+                    OpusAudioEncoder opusEncoder = new OpusAudioEncoder();
+                    EncodeStatus encStatus = opusEncoder.transcode(preEncodeFile, postEncodeFile, encodeBitRate, encodeQuality);
+                    if (encStatus == EncodeStatus.OK) {
+                        encodeOutputBitRate = encodeBitRate;
+                    }
+                    //	Log.d(logTag, "OPUS Encoding Complete: "+encStatus.name());
 
-		if (preEncodeFile.exists()) {
-			try {
-				if (encodeCodec.equalsIgnoreCase("opus")) {
+                } else if (encodeCodec.equalsIgnoreCase("flac")) {
 
-					OpusAudioEncoder opusEncoder = new OpusAudioEncoder();
-					EncodeStatus encStatus = opusEncoder.transcode(preEncodeFile, postEncodeFile, encodeBitRate, encodeQuality);
-					if (encStatus == EncodeStatus.OK) { encodeOutputBitRate = encodeBitRate; }
-				//	Log.d(logTag, "OPUS Encoding Complete: "+encStatus.name());
+                    FLACStreamEncoder flacStreamEncoder = new FLACStreamEncoder();
+                    EncodeStatus encStatus = flacStreamEncoder.encode(preEncodeFile, postEncodeFile, encodeSampleRate, RfcxAudioFileUtils.AUDIO_CHANNEL_COUNT, RfcxAudioFileUtils.AUDIO_SAMPLE_SIZE);
+                    if (encStatus == EncodeStatus.OK) {
+                        encodeOutputBitRate = 0;
+                    }
+                    //	Log.d(logTag, "FLAC Encoding Complete: "+encStatus.name());
 
-				} else if (encodeCodec.equalsIgnoreCase("flac")) {
+                } else {
 
-					FLACStreamEncoder flacStreamEncoder = new FLACStreamEncoder();
-					EncodeStatus encStatus = flacStreamEncoder.encode(preEncodeFile, postEncodeFile, encodeSampleRate, RfcxAudioFileUtils.AUDIO_CHANNEL_COUNT, RfcxAudioFileUtils.AUDIO_SAMPLE_SIZE);
-					if (encStatus == EncodeStatus.OK) { encodeOutputBitRate = 0; }
-				//	Log.d(logTag, "FLAC Encoding Complete: "+encStatus.name());
+                    FileUtils.copy(preEncodeFile, postEncodeFile);
+                    encodeOutputBitRate = encodeBitRate;
 
-				} else {
+                }
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+            }
+        }
 
-					FileUtils.copy(preEncodeFile, postEncodeFile);
-					encodeOutputBitRate = encodeBitRate;
+        return encodeOutputBitRate;
+    }
 
-				}
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-			}
-		}
+    public static void cleanupEncodeDirectory(Context context, List<String[]> queuedForEncode, long maxAgeInMilliseconds) {
 
-		return encodeOutputBitRate;
-	}
+        ArrayList<String> audioQueuedForEncode = new ArrayList<String>();
+        for (String[] queuedRow : queuedForEncode) {
+            audioQueuedForEncode.add(queuedRow[10]);
+        }
 
-	public static void cleanupEncodeDirectory(Context context, List<String[]> queuedForEncode, long maxAgeInMilliseconds) {
-
-		ArrayList<String> audioQueuedForEncode = new ArrayList<String>();
-		for (String[] queuedRow : queuedForEncode) {
-			audioQueuedForEncode.add(queuedRow[10]);
-		}
-
-		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioEncodeDir(context) }, audioQueuedForEncode, Math.round(maxAgeInMilliseconds/60000), false, false );
-	}
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioEncodeDir(context)}, audioQueuedForEncode, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
 
-	public static boolean sendEncodedAudioToVault(String audioTimestamp, File preVaultFile, File vaultFile) throws IOException {
+    public static boolean sendEncodedAudioToVault(String audioTimestamp, File preVaultFile, File vaultFile) throws IOException {
 
-		FileUtils.copy(preVaultFile, vaultFile);
-		FileUtils.delete(preVaultFile);
-		if (FileUtils.exists(vaultFile)) {
-			FileUtils.chmod(vaultFile, "rw", "rw");
-			Log.d(logTag, "Audio saved to Vault: "+audioTimestamp+", "+FileUtils.bytesAsReadableString(FileUtils.getFileSizeInBytes(vaultFile))+", "+vaultFile.getAbsolutePath());
-			return true;
-		} else {
-			Log.e(logTag, "Final encoded file not found: "+vaultFile.getAbsolutePath());
-		}
-		return false;
-	}
+        FileUtils.copy(preVaultFile, vaultFile);
+        FileUtils.delete(preVaultFile);
+        if (FileUtils.exists(vaultFile)) {
+            FileUtils.chmod(vaultFile, "rw", "rw");
+            Log.d(logTag, "Audio saved to Vault: " + audioTimestamp + ", " + FileUtils.bytesAsReadableString(FileUtils.getFileSizeInBytes(vaultFile)) + ", " + vaultFile.getAbsolutePath());
+            return true;
+        } else {
+            Log.e(logTag, "Final encoded file not found: " + vaultFile.getAbsolutePath());
+        }
+        return false;
+    }
 }

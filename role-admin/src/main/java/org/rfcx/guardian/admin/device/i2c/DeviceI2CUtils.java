@@ -13,13 +13,12 @@ import java.util.Date;
 
 public class DeviceI2CUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceI2CUtils");
-
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceI2CUtils");
 
     public static void setSentinelLoggingVerbosity(Context context) {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        boolean isVerbose = app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL );
+        boolean isVerbose = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL);
         app.sentinelPowerUtils.verboseLogging = isVerbose;
         app.sentryAccelUtils.verboseLogging = isVerbose;
     }
@@ -78,7 +77,7 @@ public class DeviceI2CUtils {
 
             if (app.sentryAccelUtils.getAccelValues().size() > 0) {
                 long[] accelVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentryAccelUtils.getAccelValues()));
-                sensorJson.put("accelerometer", "accelerometer*"+accelVals[4]+"*"+accelVals[0]+"*"+accelVals[1]+"*"+accelVals[2]+"*"+accelVals[3] );
+                sensorJson.put("accelerometer", "accelerometer*" + accelVals[4] + "*" + accelVals[0] + "*" + accelVals[1] + "*" + accelVals[2] + "*" + accelVals[3]);
             }
 
 //            if (app.sentinelCompassUtils.getCompassValues().size() > 0) {

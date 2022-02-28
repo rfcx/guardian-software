@@ -22,4 +22,5 @@ try {
 
     android.buildTypes[buildType].signingConfig = android.signingConfigs[buildType]
 }
-catch (ignored){}
+catch (ignored) {
+}

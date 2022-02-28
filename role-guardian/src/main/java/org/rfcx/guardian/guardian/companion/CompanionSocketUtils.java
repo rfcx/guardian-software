@@ -18,144 +18,139 @@ import java.util.TimeZone;
 
 public class CompanionSocketUtils {
 
-	public CompanionSocketUtils(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
-		this.socketUtils = new SocketUtils();
-		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.JSON);
-	}
+    private static final String[] includePingFields = new String[]{
+            "battery", "instructions", "prefs_full", "software", "library", "device", "companion", "swm"
+    };
+    private static final String[] excludeFromLogs = new String[]{"prefs"};
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
+    public SocketUtils socketUtils;
+    private RfcxGuardian app;
+    private String pingJson = (new JSONObject()).toString();
+    public CompanionSocketUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        this.socketUtils = new SocketUtils();
+        this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.JSON);
+    }
 
-	private static final String[] includePingFields = new String[] {
-			"battery", "instructions", "prefs_full", "software", "library", "device", "companion", "swm"
-	};
+    public JSONObject getCompanionPingJsonObj() {
+        JSONObject companionObj = new JSONObject();
+        try {
 
-	private static final String[] excludeFromLogs = new String[] { "prefs" };
+            JSONObject guardianObj = new JSONObject();
+            guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
+            guardianObj.put("name", app.rfcxGuardianIdentity.getName());
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
+            companionObj.put("guardian", guardianObj);
 
-	private RfcxGuardian app;
-	public SocketUtils socketUtils;
-	private String pingJson = (new JSONObject()).toString();
+            companionObj.put("is_registered", app.isGuardianRegistered());
 
+            companionObj.put("checkin", getLatestAllSentCheckInType());
 
-	public JSONObject getCompanionPingJsonObj() {
-		JSONObject companionObj = new JSONObject();
-		try {
+            companionObj.put("system_time_utc", System.currentTimeMillis());
 
-			JSONObject guardianObj = new JSONObject();
-			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
-			guardianObj.put("name", app.rfcxGuardianIdentity.getName());
+            companionObj.put("system_timezone", TimeZone.getDefault().getID());
 
-			companionObj.put("guardian", guardianObj);
+        } catch (JSONException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return companionObj;
+    }
 
-			companionObj.put("is_registered", app.isGuardianRegistered());
+    private JSONObject getLatestAllSentCheckInType() throws JSONException {
+        JSONObject checkIn = new JSONObject();
 
-			companionObj.put("checkin", getLatestAllSentCheckInType());
+        String mqtt = app.apiCheckInUtils.getLastCheckinDateTime();
+        JSONObject mqttObj = new JSONObject();
+        mqttObj.put("created_at", mqtt);
+        if (mqtt.length() > 0) {
+            checkIn.put("mqtt", mqttObj);
+        }
 
-			companionObj.put("system_time_utc", System.currentTimeMillis());
+        JSONArray sms = RfcxComm.getQuery(
+                "admin",
+                "sms_latest",
+                null,
+                app.getContentResolver());
+        if (sms.length() > 0) {
+            checkIn.put("sms", sms.getJSONObject(0));
+        }
 
-			companionObj.put("system_timezone", TimeZone.getDefault().getID());
-			
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return companionObj;
-	}
+        JSONArray sbd = RfcxComm.getQuery(
+                "admin",
+                "sbd_latest",
+                null,
+                app.getContentResolver());
+        if (sbd.length() > 0) {
+            checkIn.put("sbd", sbd.getJSONObject(0));
+        }
 
-	private JSONObject getLatestAllSentCheckInType() throws JSONException {
-		JSONObject checkIn = new JSONObject();
+        JSONArray swm = RfcxComm.getQuery(
+                "admin",
+                "swm_latest",
+                null,
+                app.getContentResolver());
+        if (swm.length() > 0) {
+            checkIn.put("swm", swm.getJSONObject(0));
+        }
 
-		String mqtt = app.apiCheckInUtils.getLastCheckinDateTime();
-		JSONObject mqttObj = new JSONObject();
-		mqttObj.put("created_at", mqtt);
-		if (mqtt.length() > 0) {
-			checkIn.put("mqtt", mqttObj);
-		}
+        return checkIn;
+    }
 
-		JSONArray sms = RfcxComm.getQuery(
-				"admin",
-				"sms_latest",
-				null,
-				app.getContentResolver());
-		if (sms.length() > 0) {
-			checkIn.put("sms", sms.getJSONObject(0));
-		}
+    public void updatePingJson(boolean printJsonToLogs) {
+        try {
+            pingJson = app.apiPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs, excludeFromLogs, false);
+        } catch (JSONException e) {
+            RfcxLog.logExc(logTag, e, "updatePingJson");
+        }
+    }
 
-		JSONArray sbd = RfcxComm.getQuery(
-				"admin",
-				"sbd_latest",
-				null,
-				app.getContentResolver());
-		if (sbd.length() > 0) {
-			checkIn.put("sbd", sbd.getJSONObject(0));
-		}
-
-		JSONArray swm = RfcxComm.getQuery(
-				"admin",
-				"swm_latest",
-				null,
-				app.getContentResolver());
-		if (swm.length() > 0) {
-			checkIn.put("swm", swm.getJSONObject(0));
-		}
-
-		return checkIn;
-	}
-
-	public void updatePingJson(boolean printJsonToLogs) {
-		try {
-			pingJson =  app.apiPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs, excludeFromLogs, false);
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e, "updatePingJson");
-		}
-	}
-
-	public boolean sendSocketPing() {
-		return this.socketUtils.sendJson(pingJson, areSocketInteractionsAllowed() );
-	}
+    public boolean sendSocketPing() {
+        return this.socketUtils.sendJson(pingJson, areSocketInteractionsAllowed());
+    }
 
 
-	private boolean areSocketInteractionsAllowed() {
+    private boolean areSocketInteractionsAllowed() {
 
-		if (	(app != null)
-				&&	socketUtils.isServerRunning
-		) {
-			return true;
-		}
-		Log.d(logTag, "Socket interaction blocked.");
-		return false;
-	}
+        if ((app != null)
+                && socketUtils.isServerRunning
+        ) {
+            return true;
+        }
+        Log.d(logTag, "Socket interaction blocked.");
+        return false;
+    }
 
-	private void processReceivedJson(String jsonStr) {
-		app.apiCommandUtils.processApiCommandJson(jsonStr, "socket");
-	}
+    private void processReceivedJson(String jsonStr) {
+        app.apiCommandUtils.processApiCommandJson(jsonStr, "socket");
+    }
 
 
-	public void startServer() {
+    public void startServer() {
 
 //		if (!socketUtils.isServerRunning) {
-		socketUtils.serverThread = new Thread(() -> {
-			Looper.prepare();
-			try {
-				socketUtils.serverSetup();
-				while (true) {
-					InputStream socketInput = socketUtils.socketSetup();
-					if (socketInput != null) {
-						String jsonStr = socketUtils.streamSetup(socketInput);
-						if (jsonStr != null) {
-							processReceivedJson(jsonStr);
-						}
-					}
-				}
-			} catch (IOException e) {
-				if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			Looper.loop();
-		});
-		socketUtils.serverThread.start();
-		socketUtils.isServerRunning = true;
-		//	}
-	}
+        socketUtils.serverThread = new Thread(() -> {
+            Looper.prepare();
+            try {
+                socketUtils.serverSetup();
+                while (true) {
+                    InputStream socketInput = socketUtils.socketSetup();
+                    if (socketInput != null) {
+                        String jsonStr = socketUtils.streamSetup(socketInput);
+                        if (jsonStr != null) {
+                            processReceivedJson(jsonStr);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+                    RfcxLog.logExc(logTag, e);
+                }
+            }
+            Looper.loop();
+        });
+        socketUtils.serverThread.start();
+        socketUtils.isServerRunning = true;
+        //	}
+    }
 
 }

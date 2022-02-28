@@ -10,30 +10,31 @@ import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class MetaSnapshotService extends IntentService {
 
-	public static final String SERVICE_NAME = "MetaSnapshot";
+    public static final String SERVICE_NAME = "MetaSnapshot";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MetaSnapshotService");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MetaSnapshotService");
 
-	public MetaSnapshotService() {
-		super(logTag);
-	}
-	
-	@Override
-	protected void onHandleIntent(Intent inputIntent) {
-		Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
-		
-		RfcxGuardian app = (RfcxGuardian) getApplication();
+    public MetaSnapshotService() {
+        super(logTag);
+    }
 
-		try {
+    @Override
+    protected void onHandleIntent(Intent inputIntent) {
+        Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+        sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+        ;
 
-			app.metaJsonUtils.createSystemMetaDataJsonSnapshot();
+        RfcxGuardian app = (RfcxGuardian) getApplication();
 
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
+        try {
 
-	}
-	
-	
+            app.metaJsonUtils.createSystemMetaDataJsonSnapshot();
+
+        } catch (JSONException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+
+    }
+
+
 }

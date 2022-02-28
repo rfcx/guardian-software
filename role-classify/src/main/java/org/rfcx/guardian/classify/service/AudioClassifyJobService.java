@@ -24,168 +24,170 @@ import java.util.List;
 
 public class AudioClassifyJobService extends Service {
 
-	public static final String SERVICE_NAME = "AudioClassifyJob";
+    public static final String SERVICE_NAME = "AudioClassifyJob";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyJobService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private AudioClassifyJobSvc audioClassifyJobSvc;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyJobService");
 
-	@Override
-	public IBinder onBind(Intent arg0) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.audioClassifyJobSvc = new AudioClassifyJobSvc();
-		app = (RfcxGuardian) getApplication();
-	}
+    private RfcxGuardian app;
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
+    private boolean runFlag = false;
+    private AudioClassifyJobSvc audioClassifyJobSvc;
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.audioClassifyJobSvc = new AudioClassifyJobSvc();
+        app = (RfcxGuardian) getApplication();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.audioClassifyJobSvc.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.audioClassifyJobSvc.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.audioClassifyJobSvc.interrupt();
-		this.audioClassifyJobSvc = null;
-	}
-	
-	private class AudioClassifyJobSvc extends Thread {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.audioClassifyJobSvc.interrupt();
+        this.audioClassifyJobSvc = null;
+    }
 
-		public AudioClassifyJobSvc() {
-			super("AudioClassifyJobService-AudioClassifyJob");
-		}
-		
-		@Override
-		public void run() {
-			AudioClassifyJobService audioClassifyJobInstance = AudioClassifyJobService.this;
-			
-			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
+    private class AudioClassifyJobSvc extends Thread {
 
-			app.rfcxSvc.reportAsActive(SERVICE_NAME);
+        public AudioClassifyJobSvc() {
+            super("AudioClassifyJobService-AudioClassifyJob");
+        }
 
-			try {
+        @Override
+        public void run() {
+            AudioClassifyJobService audioClassifyJobInstance = AudioClassifyJobService.this;
 
-				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
-				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
-				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
-				AudioClassifyUtils.cleanupSnippetDirectory( context, new ArrayList<String[]>(), Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
+            app = (RfcxGuardian) getApplication();
+            Context context = app.getApplicationContext();
 
-				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
+            app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+            try {
 
-					// only proceed with classify process if there is a valid queued audio file in the database
-					if (latestQueuedAudioToClassify[0] != null) {
+                List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
+                if (latestQueuedAudioFilesToClassify.size() == 0) {
+                    Log.d(logTag, "No classification jobs are currently queued.");
+                }
+                long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
+                AudioClassifyUtils.cleanupClassifyDirectory(context, latestQueuedAudioFilesToClassify, Math.round(RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration));
+                AudioClassifyUtils.cleanupSnippetDirectory(context, new ArrayList<String[]>(), Math.round(RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration));
 
-						String classifierId = latestQueuedAudioToClassify[2];
-						String clsfrVersion = latestQueuedAudioToClassify[3];
-						int clsfrSampleRate = Integer.parseInt(latestQueuedAudioToClassify[5]);
-						float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
-						float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[10]);
-						String clsfrClassifications = latestQueuedAudioToClassify[11];
-						String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate/1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
-						String audioId = latestQueuedAudioToClassify[1];
-						long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
-						String audioOrigRelativePath = latestQueuedAudioToClassify[7];
-						int previousAttempts = Integer.parseInt(latestQueuedAudioToClassify[12]);
+                for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 
-						if (previousAttempts >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
+                    app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-							Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD + " failed attempts.");
+                    // only proceed with classify process if there is a valid queued audio file in the database
+                    if (latestQueuedAudioToClassify[0] != null) {
 
-							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+                        String classifierId = latestQueuedAudioToClassify[2];
+                        String clsfrVersion = latestQueuedAudioToClassify[3];
+                        int clsfrSampleRate = Integer.parseInt(latestQueuedAudioToClassify[5]);
+                        float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
+                        float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[10]);
+                        String clsfrClassifications = latestQueuedAudioToClassify[11];
+                        String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate / 1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
+                        String audioId = latestQueuedAudioToClassify[1];
+                        long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
+                        String audioOrigRelativePath = latestQueuedAudioToClassify[7];
+                        int previousAttempts = Integer.parseInt(latestQueuedAudioToClassify[12]);
 
-						} else {
+                        if (previousAttempts >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
-							app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
+                            Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
-							String clsfrFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong(classifierId));
-							String clsfrRelativeFilePath = RfcxAssetCleanup.conciseFilePath(clsfrFilePath, RfcxGuardian.APP_ROLE);
-							Uri clsfrFileOriginUri = RfcxComm.getFileUri("guardian", clsfrRelativeFilePath);
-							AudioClassifyUtils.cleanupClassifierDirectory( context, new String[] { clsfrFilePath }, Math.round( 24 * 60 * 60 * 1000 ) );
+                            app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 
-							if (!FileUtils.exists(clsfrFilePath) && !RfcxComm.getFileRequest( clsfrFileOriginUri, clsfrFilePath, app.getResolver())) {
+                        } else {
 
-								Log.e(logTag, "Classifier file could not be found or retrieved: " + clsfrRelativeFilePath);
+                            app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
 
-							} else {
+                            String clsfrFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong(classifierId));
+                            String clsfrRelativeFilePath = RfcxAssetCleanup.conciseFilePath(clsfrFilePath, RfcxGuardian.APP_ROLE);
+                            Uri clsfrFileOriginUri = RfcxComm.getFileUri("guardian", clsfrRelativeFilePath);
+                            AudioClassifyUtils.cleanupClassifierDirectory(context, new String[]{clsfrFilePath}, Math.round(24 * 60 * 60 * 1000));
 
-								boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
+                            if (!FileUtils.exists(clsfrFilePath) && !RfcxComm.getFileRequest(clsfrFileOriginUri, clsfrFilePath, app.getResolver())) {
 
-								if (!isClassifierInitialized) {
+                                Log.e(logTag, "Classifier file could not be found or retrieved: " + clsfrRelativeFilePath);
 
-									Log.e(logTag, "Classifier could not be initialized: " + clsfLoggingSummary );
+                            } else {
 
-								} else {
+                                boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
 
-									String audioFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, Long.parseLong(audioId), "wav", clsfrSampleRate, null);
-									String audioRelativeFilePath = RfcxAssetCleanup.conciseFilePath(audioFilePath, RfcxGuardian.APP_ROLE);
-									Uri audioFileOriginUri = RfcxComm.getFileUri("guardian", audioOrigRelativePath);
+                                if (!isClassifierInitialized) {
 
-									if (!FileUtils.exists(audioFilePath) && !RfcxComm.getFileRequest( audioFileOriginUri, audioFilePath, app.getResolver())) {
+                                    Log.e(logTag, "Classifier could not be initialized: " + clsfLoggingSummary);
 
-										Log.e(logTag, "Audio file could not be found or retrieved: " + audioRelativeFilePath);
+                                } else {
 
-									} else {
+                                    String audioFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, Long.parseLong(audioId), "wav", clsfrSampleRate, null);
+                                    String audioRelativeFilePath = RfcxAssetCleanup.conciseFilePath(audioFilePath, RfcxGuardian.APP_ROLE);
+                                    Uri audioFileOriginUri = RfcxComm.getFileUri("guardian", audioOrigRelativePath);
 
-										Log.i(logTag, "Beginning Audio Classify Job - Audio: " + audioId + " - Classifier: " + classifierId);
+                                    if (!FileUtils.exists(audioFilePath) && !RfcxComm.getFileRequest(audioFileOriginUri, audioFilePath, app.getResolver())) {
 
-										long classifyStartTime = System.currentTimeMillis();
-										List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath);
-										Log.i(logTag, "Completed Audio Classify Job - " + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime) + " - Audio: " + audioId + " - Classifier: " + classifierId);
+                                        Log.e(logTag, "Audio file could not be found or retrieved: " + audioRelativeFilePath);
 
-										JSONObject classifyOutputJson = app.audioClassifyUtils.classifyOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
-										classifyOutputJson.put("classify_duration", (System.currentTimeMillis()-classifyStartTime)+"" );
-										classifyOutputJson.put("audio_size", FileUtils.getFileSizeInBytes(audioFilePath)+"" );
+                                    } else {
 
-										app.audioDetectionDb.dbQueued.insert(classifyOutputJson.toString());
+                                        Log.i(logTag, "Beginning Audio Classify Job - Audio: " + audioId + " - Classifier: " + classifierId);
 
-										app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+                                        long classifyStartTime = System.currentTimeMillis();
+                                        List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath);
+                                        Log.i(logTag, "Completed Audio Classify Job - " + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime) + " - Audio: " + audioId + " - Classifier: " + classifierId);
 
-										app.rfcxSvc.triggerService( AudioDetectionSendService.SERVICE_NAME, false );
-									}
-								}
-							}
-						}
+                                        JSONObject classifyOutputJson = app.audioClassifyUtils.classifyOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
+                                        classifyOutputJson.put("classify_duration", (System.currentTimeMillis() - classifyStartTime) + "");
+                                        classifyOutputJson.put("audio_size", FileUtils.getFileSizeInBytes(audioFilePath) + "");
 
-					} else {
-						Log.d(logTag, "Queued classify job definition from database is invalid.");
+                                        app.audioDetectionDb.dbQueued.insert(classifyOutputJson.toString());
 
-					}
-				}
+                                        app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				audioClassifyJobInstance.runFlag = false;
-			}
-			
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			audioClassifyJobInstance.runFlag = false;
+                                        app.rfcxSvc.triggerService(AudioDetectionSendService.SERVICE_NAME, false);
+                                    }
+                                }
+                            }
+                        }
 
-		}
-	}
-	
+                    } else {
+                        Log.d(logTag, "Queued classify job definition from database is invalid.");
+
+                    }
+                }
+
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                audioClassifyJobInstance.runFlag = false;
+            }
+
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            audioClassifyJobInstance.runFlag = false;
+
+        }
+    }
+
 
 }

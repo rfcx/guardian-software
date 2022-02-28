@@ -1,12 +1,26 @@
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
+<paths>
 
     <!-- Assets Directories -->
-    <files-path name="files_audio" path="audio/" />
-    <files-path name="files_classifiers" path="classifiers/" />
-    <files-path name="files_logs" path="logs/" />
-    <files-path name="files_screenshots" path="screenshots/" />
-    <files-path name="files_photos" path="photos/" />
-    <files-path name="files_videos" path="videos/" />
-    <files-path name="files_apks" path="apks/" />
+    <files-path
+            name="files_audio"
+            path="audio/" />
+    <files-path
+            name="files_classifiers"
+            path="classifiers/" />
+    <files-path
+            name="files_logs"
+            path="logs/" />
+    <files-path
+            name="files_screenshots"
+            path="screenshots/" />
+    <files-path
+            name="files_photos"
+            path="photos/" />
+    <files-path
+            name="files_videos"
+            path="videos/" />
+    <files-path
+            name="files_apks"
+            path="apks/" />
 
 </paths>

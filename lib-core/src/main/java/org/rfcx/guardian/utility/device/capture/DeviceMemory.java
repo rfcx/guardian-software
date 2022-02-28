@@ -3,7 +3,6 @@ package org.rfcx.guardian.utility.device.capture;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.os.Debug;
 
 public class DeviceMemory {
 
@@ -18,26 +17,20 @@ public class DeviceMemory {
 //	}
 
 
-	public static long[] getCurrentMemoryStats(Context context) {
+    public static long[] getCurrentMemoryStats(Context context) {
 
-		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-		ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-		activityManager.getMemoryInfo(memoryInfo);
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
 
-		long nativeHeapSize = memoryInfo.totalMem;
-		long nativeHeapFreeSize = memoryInfo.availMem;
-		long usedMemInBytes = nativeHeapSize - nativeHeapFreeSize;
-		long nativeHeapThreshold = memoryInfo.threshold;
-
-
-
-		return new long[] { System.currentTimeMillis(), usedMemInBytes, nativeHeapFreeSize, nativeHeapThreshold };
-	}
+        long nativeHeapSize = memoryInfo.totalMem;
+        long nativeHeapFreeSize = memoryInfo.availMem;
+        long usedMemInBytes = nativeHeapSize - nativeHeapFreeSize;
+        long nativeHeapThreshold = memoryInfo.threshold;
 
 
-
-
-
+        return new long[]{System.currentTimeMillis(), usedMemInBytes, nativeHeapFreeSize, nativeHeapThreshold};
+    }
 
 
 }

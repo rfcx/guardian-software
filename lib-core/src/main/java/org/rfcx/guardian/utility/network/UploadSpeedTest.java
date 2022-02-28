@@ -18,14 +18,13 @@ import java.security.NoSuchAlgorithmException;
 
 public class UploadSpeedTest extends HttpPostMultipart {
 
+    private final Context context;
+    private final String logTag;
     public UploadSpeedTest(Context context, String appRole) {
         super(context, appRole);
         this.context = context;
         this.logTag = RfcxLog.generateLogTag(appRole, "UploadSpeedTest");
     }
-
-    private final Context context;
-    private final String logTag;
 
     public double getUploadSpeedTest(String fullUrl, int size) throws IOException, NoSuchAlgorithmException, KeyManagementException {
 
@@ -42,7 +41,7 @@ public class UploadSpeedTest extends HttpPostMultipart {
             MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
             requestEntity.addPart("file", new FileBody(file));
 
-            Log.v(logTag,"Sending "+ FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
+            Log.v(logTag, "Sending " + FileUtils.bytesAsReadableString(requestEntity.getContentLength()) + " to " + fullUrl);
             String result = executeMultipartPost(fullUrl, requestEntity);
 
             if (result == null) {
@@ -53,7 +52,7 @@ public class UploadSpeedTest extends HttpPostMultipart {
         }
         long uploadTime = System.currentTimeMillis() - startTime;
         double uploadSpeed = (size * 1.0) / uploadTime;
-        Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(uploadTime) +") from "+fullUrl);
+        Log.v(logTag, "Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(uploadTime) + ") from " + fullUrl);
         return uploadSpeed;
     }
 }
