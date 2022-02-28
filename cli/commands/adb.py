@@ -7,4 +7,4 @@ class Device:
         self.device.connect(auth_timeout_s=.5)
 
     def shell(self, command):
-        return self.device().shell(command)
+        return self.device.shell(command)
