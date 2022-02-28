@@ -31,7 +31,7 @@ class SwmUtils(private val context: Context) {
     lateinit var api: SwmApi
 
     private var swmId: String? = null
-    private var isGPSConnected = false
+    private var isGPSConnected: Boolean? = null
 
     fun setupSwmUtils() {
         power = SwmPower(context)
@@ -128,9 +128,10 @@ class SwmUtils(private val context: Context) {
         return swmId
     }
 
-    fun getGPSConnection(): Boolean {
-        if (!::api.isInitialized) return isGPSConnected
-        isGPSConnected = api.getGPSConnection() != null
+    fun getGPSConnection(): Boolean? {
+        if (isGPSConnected != null || !::api.isInitialized) return isGPSConnected
+        api.getGPSConnection() ?: return null
+        isGPSConnected = true
         return isGPSConnected
     }
 
