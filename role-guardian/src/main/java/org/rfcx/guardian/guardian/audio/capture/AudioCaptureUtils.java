@@ -27,63 +27,28 @@ import java.util.Date;
 
 public class AudioCaptureUtils {
 
-    public AudioCaptureUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-        RfcxAudioFileUtils.initializeAudioDirectories(context);
-    }
-
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureUtils");
-
-    private final RfcxGuardian app;
-
     private static final int[] allowedCaptureSampleRates = new int[]{8000, 12000, 16000, 24000, 48000};
-
+    private static final int requiredFreeDiskSpaceForAudioCapture = 64;
+    private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
+    private final RfcxGuardian app;
     public String[] samplingRatioStrArr = new String[]{};
     public int[] samplingRatioArr = new int[]{};
     public int samplingRatioIteration = 0;
-
     public long[] queueCaptureTimestamp_File = new long[]{0, 0};
     public long[] queueCaptureTimestamp_Actual = new long[]{0, 0};
     public int[] queueCaptureSampleRate = new int[]{0, 0};
 
-    private static final int requiredFreeDiskSpaceForAudioCapture = 64;
-
-    private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
+    public AudioCaptureUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        RfcxAudioFileUtils.initializeAudioDirectories(context);
+    }
 
     public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws Exception {
         wavRecorderForCompanion = AudioCaptureWavRecorder.getInstance(sampleRate);
         wavRecorderForCompanion.setOutputFile(getCaptureFilePath(captureDir, timestamp, "wav"));
         wavRecorderForCompanion.prepareRecorder();
         return wavRecorderForCompanion;
-    }
-
-    public void updateSamplingRatioIteration() {
-        this.samplingRatioStrArr = TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO), ":");
-        this.samplingRatioArr = new int[]{Integer.parseInt(this.samplingRatioStrArr[0]), Integer.parseInt(this.samplingRatioStrArr[1])};
-        if (this.samplingRatioIteration > this.samplingRatioArr[1]) {
-            this.samplingRatioIteration = 0;
-        }
-        this.samplingRatioIteration++;
-    }
-
-
-    public int getRequiredCaptureSampleRate() {
-
-        int minRequiredSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM);
-
-        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_STREAM)) {
-            minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE));
-        }
-
-        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT)) {
-            minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE));
-        }
-
-        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CLASSIFY) && (app.audioClassifierDb.dbActive.getCount() > 0)) {
-            minRequiredSampleRate = Math.max(minRequiredSampleRate, app.audioClassifierDb.dbActive.getMaxSampleRateAmongstAllRows());
-        }
-
-        return verifyOrUpdateCaptureSampleRateHardwareSupport(minRequiredSampleRate);
     }
 
     private static int verifyOrUpdateCaptureSampleRateHardwareSupport(int targetSampleRate) {
@@ -107,6 +72,135 @@ public class AudioCaptureUtils {
         return verifiedOrUpdatedSampleRate;
     }
 
+    public static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {
+        return captureDir + "/" + timestamp + "." + fileExtension;
+    }
+
+    public static boolean reLocateAudioCaptureFile(Context context, boolean isToBeEncoded, boolean isToBeClassified, long timestampFile, long timestampActual, int sampleRate, String fileExt) {
+        boolean isEncodeFileMoved = true;
+        boolean isClassifyFileMoved = true;
+        File captureFile = new File(getCaptureFilePath(RfcxAudioFileUtils.audioCaptureDir(context), timestampFile, fileExt));
+        if (captureFile.exists()) {
+            try {
+
+                if (isToBeEncoded) {
+                    File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestampActual, fileExt, sampleRate, "g10"));
+                    FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioEncodeDir(context), false);
+                    WavUtils.copyWavFile(captureFile.getAbsolutePath(), preEncodeFile.getAbsolutePath(), sampleRate);
+                    isEncodeFileMoved = preEncodeFile.exists();
+                }
+
+                if (isToBeClassified) {
+                    File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestampActual, fileExt, sampleRate, "g10"));
+                    FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioClassifyDir(context), false);
+                    WavUtils.copyWavFile(captureFile.getAbsolutePath(), preClassifyFile.getAbsolutePath(), sampleRate);
+                    isClassifyFileMoved = preClassifyFile.exists();
+                }
+
+                if (isEncodeFileMoved && isClassifyFileMoved) {
+                    FileUtils.delete(captureFile);
+                }
+
+            } catch (IOException e) {
+                RfcxLog.logExc(logTag, e);
+            }
+        }
+
+        return isEncodeFileMoved && isClassifyFileMoved;
+    }
+
+    public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int inputSampleRate, int outputSampleRate, double outputGain) {
+
+        String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, outputSampleRate, "g" + Math.round(outputGain * 10));
+
+        if (purpose.equalsIgnoreCase("classify")) {
+            outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, outputSampleRate, "g" + Math.round(outputGain * 10));
+        }
+
+        if (FileUtils.exists(outputFilePath)) {
+
+            Log.d(logTag, "Already exists: " + RfcxAssetCleanup.conciseFilePath(outputFilePath, RfcxGuardian.APP_ROLE));
+            return (new File(outputFilePath));
+
+        } else if (!FileUtils.exists(inputFilePath)) {
+
+            Log.e(logTag, "Input file does not exist: " + RfcxAssetCleanup.conciseFilePath(inputFilePath, RfcxGuardian.APP_ROLE));
+
+        } else {
+
+            try {
+
+                WavUtils.resampleWavWithGain(inputFilePath, outputFilePath, inputSampleRate, outputSampleRate, outputGain);
+                return (new File(outputFilePath));
+
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+            }
+        }
+
+        return null;
+    }
+
+    public static int getAudioFileDurationInMilliseconds(File audioFileObj, int fallbackDuration, boolean printResultsToLog) {
+        int audioDuration = fallbackDuration;
+
+        try {
+            long startTime = System.currentTimeMillis();
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            FileInputStream fileInputStream = new FileInputStream(audioFileObj);
+            mediaPlayer.setDataSource(fileInputStream.getFD());
+            mediaPlayer.prepare();
+            audioDuration = mediaPlayer.getDuration();
+            mediaPlayer.release();
+            fileInputStream.close();
+            if (printResultsToLog) {
+                Log.v(logTag, "Measured Audio Duration: " + audioDuration + " ms, "
+                        + RfcxAssetCleanup.conciseFilePath(audioFileObj.getAbsolutePath(), RfcxGuardian.APP_ROLE)
+                        + " (" + (System.currentTimeMillis() - startTime) + " ms to process the measurement)"
+                );
+            }
+
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return audioDuration;
+    }
+
+    public static void cleanupCaptureDirectory(Context context, long maxAgeInMilliseconds) {
+
+        ArrayList<String> excludeFromCleanup = new ArrayList<String>();
+
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioCaptureDir(context)}, excludeFromCleanup, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
+
+    public void updateSamplingRatioIteration() {
+        this.samplingRatioStrArr = TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO), ":");
+        this.samplingRatioArr = new int[]{Integer.parseInt(this.samplingRatioStrArr[0]), Integer.parseInt(this.samplingRatioStrArr[1])};
+        if (this.samplingRatioIteration > this.samplingRatioArr[1]) {
+            this.samplingRatioIteration = 0;
+        }
+        this.samplingRatioIteration++;
+    }
+
+    public int getRequiredCaptureSampleRate() {
+
+        int minRequiredSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM);
+
+        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_STREAM)) {
+            minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE));
+        }
+
+        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT)) {
+            minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE));
+        }
+
+        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CLASSIFY) && (app.audioClassifierDb.dbActive.getCount() > 0)) {
+            minRequiredSampleRate = Math.max(minRequiredSampleRate, app.audioClassifierDb.dbActive.getMaxSampleRateAmongstAllRows());
+        }
+
+        return verifyOrUpdateCaptureSampleRateHardwareSupport(minRequiredSampleRate);
+    }
+
     private boolean isBatteryChargeSufficientForCapture() {
         int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY);
         int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
@@ -124,11 +218,9 @@ public class AudioCaptureUtils {
         return (!isBatteryChargeSufficientForCapture() && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
     }
 
-
     private boolean limitBasedOnInternalStorage() {
         return (DeviceStorage.getInternalDiskFreeMegaBytes() <= requiredFreeDiskSpaceForAudioCapture);
     }
-
 
     private boolean isCaptureAllowedAtThisTimeOfDay() {
         for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS), ",")) {
@@ -242,116 +334,12 @@ public class AudioCaptureUtils {
         return (queueCaptureTimestamp_File[0] > 0);
     }
 
-    public static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {
-        return captureDir + "/" + timestamp + "." + fileExtension;
-    }
-
-    public static boolean reLocateAudioCaptureFile(Context context, boolean isToBeEncoded, boolean isToBeClassified, long timestampFile, long timestampActual, int sampleRate, String fileExt) {
-        boolean isEncodeFileMoved = true;
-        boolean isClassifyFileMoved = true;
-        File captureFile = new File(getCaptureFilePath(RfcxAudioFileUtils.audioCaptureDir(context), timestampFile, fileExt));
-        if (captureFile.exists()) {
-            try {
-
-                if (isToBeEncoded) {
-                    File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestampActual, fileExt, sampleRate, "g10"));
-                    FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioEncodeDir(context), false);
-                    WavUtils.copyWavFile(captureFile.getAbsolutePath(), preEncodeFile.getAbsolutePath(), sampleRate);
-                    isEncodeFileMoved = preEncodeFile.exists();
-                }
-
-                if (isToBeClassified) {
-                    File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestampActual, fileExt, sampleRate, "g10"));
-                    FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioClassifyDir(context), false);
-                    WavUtils.copyWavFile(captureFile.getAbsolutePath(), preClassifyFile.getAbsolutePath(), sampleRate);
-                    isClassifyFileMoved = preClassifyFile.exists();
-                }
-
-                if (isEncodeFileMoved && isClassifyFileMoved) {
-                    FileUtils.delete(captureFile);
-                }
-
-            } catch (IOException e) {
-                RfcxLog.logExc(logTag, e);
-            }
-        }
-
-        return isEncodeFileMoved && isClassifyFileMoved;
-    }
-
-
-    public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int inputSampleRate, int outputSampleRate, double outputGain) {
-
-        String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, outputSampleRate, "g" + Math.round(outputGain * 10));
-
-        if (purpose.equalsIgnoreCase("classify")) {
-            outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, outputSampleRate, "g" + Math.round(outputGain * 10));
-        }
-
-        if (FileUtils.exists(outputFilePath)) {
-
-            Log.d(logTag, "Already exists: " + RfcxAssetCleanup.conciseFilePath(outputFilePath, RfcxGuardian.APP_ROLE));
-            return (new File(outputFilePath));
-
-        } else if (!FileUtils.exists(inputFilePath)) {
-
-            Log.e(logTag, "Input file does not exist: " + RfcxAssetCleanup.conciseFilePath(inputFilePath, RfcxGuardian.APP_ROLE));
-
-        } else {
-
-            try {
-
-                WavUtils.resampleWavWithGain(inputFilePath, outputFilePath, inputSampleRate, outputSampleRate, outputGain);
-                return (new File(outputFilePath));
-
-            } catch (Exception e) {
-                RfcxLog.logExc(logTag, e);
-            }
-        }
-
-        return null;
-    }
-
-    public static int getAudioFileDurationInMilliseconds(File audioFileObj, int fallbackDuration, boolean printResultsToLog) {
-        int audioDuration = fallbackDuration;
-
-        try {
-            long startTime = System.currentTimeMillis();
-            MediaPlayer mediaPlayer = new MediaPlayer();
-            FileInputStream fileInputStream = new FileInputStream(audioFileObj);
-            mediaPlayer.setDataSource(fileInputStream.getFD());
-            mediaPlayer.prepare();
-            audioDuration = mediaPlayer.getDuration();
-            mediaPlayer.release();
-            fileInputStream.close();
-            if (printResultsToLog) {
-                Log.v(logTag, "Measured Audio Duration: " + audioDuration + " ms, "
-                        + RfcxAssetCleanup.conciseFilePath(audioFileObj.getAbsolutePath(), RfcxGuardian.APP_ROLE)
-                        + " (" + (System.currentTimeMillis() - startTime) + " ms to process the measurement)"
-                );
-            }
-
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
-        }
-        return audioDuration;
-    }
-
-
     public Pair<byte[], Integer> getAudioBuffer() {
         return wavRecorderForCompanion.getAudioBuffer();
     }
 
     public Boolean isAudioChanged() {
         return wavRecorderForCompanion.isAudioChanged();
-    }
-
-
-    public static void cleanupCaptureDirectory(Context context, long maxAgeInMilliseconds) {
-
-        ArrayList<String> excludeFromCleanup = new ArrayList<String>();
-
-        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioCaptureDir(context)}, excludeFromCleanup, Math.round(maxAgeInMilliseconds / 60000), false, false);
     }
 
 }

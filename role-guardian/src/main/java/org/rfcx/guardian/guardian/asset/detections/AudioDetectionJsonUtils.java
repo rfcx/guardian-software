@@ -1,41 +1,27 @@
 package org.rfcx.guardian.guardian.asset.detections;
 
 import android.content.Context;
-import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 public class AudioDetectionJsonUtils {
+
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioDetectionJsonUtils");
+    private RfcxGuardian app;
 
     public AudioDetectionJsonUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioDetectionJsonUtils");
-
-    private RfcxGuardian app;
-
 
     public JSONObject retrieveAndBundleDetectionJson(JSONObject insertDetectionsInto, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
 

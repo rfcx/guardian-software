@@ -3,8 +3,8 @@ package org.rfcx.guardian.guardian.api.methods.segment;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -12,15 +12,6 @@ import java.util.List;
 
 public class ApiSegmentDb {
 
-    public ApiSegmentDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbGroups = new DbGroups(context);
-        this.dbReceived = new DbReceived(context);
-        this.dbQueued = new DbQueued(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "segments";
     static final String C_CREATED_AT = "created_at";
     static final String C_GROUP_ID = "group_id";
@@ -31,9 +22,20 @@ public class ApiSegmentDb {
     static final String C_ATTEMPTS = "attempts";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
     public static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_GROUP_ID, C_SEGMENT_ID_OR_COUNT, C_BODY_OR_CHECKSUM, C_PROTOCOL, C_TYPE, C_ATTEMPTS, C_LAST_ACCESSED_AT};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    public final DbGroups dbGroups;
+    public final DbReceived dbReceived;
+    public final DbQueued dbQueued;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public ApiSegmentDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbGroups = new DbGroups(context);
+        this.dbReceived = new DbReceived(context);
+        this.dbQueued = new DbQueued(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -114,9 +116,6 @@ public class ApiSegmentDb {
 
     }
 
-    public final DbGroups dbGroups;
-
-
     public class DbReceived {
 
         final DbUtils dbUtils;
@@ -193,9 +192,6 @@ public class ApiSegmentDb {
 
     }
 
-    public final DbReceived dbReceived;
-
-
     public class DbQueued {
 
         final DbUtils dbUtils;
@@ -271,8 +267,6 @@ public class ApiSegmentDb {
         }
 
     }
-
-    public final DbQueued dbQueued;
 
 
 }

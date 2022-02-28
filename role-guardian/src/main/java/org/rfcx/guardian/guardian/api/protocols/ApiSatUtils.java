@@ -13,13 +13,12 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiSatUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSatUtils");
+    private RfcxGuardian app;
+
     public ApiSatUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSatUtils");
-
-    private RfcxGuardian app;
 
     public boolean queueSatMsgToApiToSendImmediately(String msgBody, String satProtocol) {
         return queueSatMsgToSend(null, msgBody, satProtocol);

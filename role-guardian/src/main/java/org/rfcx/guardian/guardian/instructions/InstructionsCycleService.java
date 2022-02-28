@@ -11,15 +11,11 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class InstructionsCycleService extends Service {
 
     public static final String SERVICE_NAME = "InstructionsCycle";
-
+    public static final long CYCLE_DURATION = 5000;
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsCycleService");
-
     private RfcxGuardian app;
-
     private boolean runFlag = false;
     private InstructionsCycleSvc instructionsCycleSvc;
-
-    public static final long CYCLE_DURATION = 5000;
 
     @Override
     public IBinder onBind(Intent intent) {

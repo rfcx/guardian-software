@@ -1,11 +1,11 @@
 package org.rfcx.guardian.updater.service;
 
+import android.app.IntentService;
+import android.content.Intent;
+
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
-
-import android.app.IntentService;
-import android.content.Intent;
 
 public class ApiUpdateRequestTrigger extends IntentService {
 

@@ -18,15 +18,29 @@ import java.util.Iterator;
 
 public class CompanionPingJsonUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionPingJsonUtils");
+    private RfcxGuardian app;
+
     public CompanionPingJsonUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionPingJsonUtils");
-
-    private RfcxGuardian app;
+    private static String getConcatMetaField(JSONArray metaJsonArray) throws JSONException {
+        ArrayList<String> metaBlobs = new ArrayList<String>();
+        for (int i = 0; i < metaJsonArray.length(); i++) {
+            JSONObject metaJsonRow = metaJsonArray.getJSONObject(i);
+            Iterator<String> paramLabels = metaJsonRow.keys();
+            while (paramLabels.hasNext()) {
+                String paramLabel = paramLabels.next();
+                if ((metaJsonRow.get(paramLabel) instanceof String) && (metaJsonRow.getString(paramLabel).length() > 0)) {
+                    metaBlobs.add(metaJsonRow.getString(paramLabel));
+                }
+            }
+        }
+        return (metaBlobs.size() > 0) ? TextUtils.join("|", metaBlobs) : "";
+    }
 
     public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, boolean printJsonToLogs, String[] excludeFieldsFromLogs) throws JSONException {
 
@@ -108,22 +122,6 @@ public class CompanionPingJsonUtils {
         }
 
         return jsonObj.toString();
-    }
-
-
-    private static String getConcatMetaField(JSONArray metaJsonArray) throws JSONException {
-        ArrayList<String> metaBlobs = new ArrayList<String>();
-        for (int i = 0; i < metaJsonArray.length(); i++) {
-            JSONObject metaJsonRow = metaJsonArray.getJSONObject(i);
-            Iterator<String> paramLabels = metaJsonRow.keys();
-            while (paramLabels.hasNext()) {
-                String paramLabel = paramLabels.next();
-                if ((metaJsonRow.get(paramLabel) instanceof String) && (metaJsonRow.getString(paramLabel).length() > 0)) {
-                    metaBlobs.add(metaJsonRow.getString(paramLabel));
-                }
-            }
-        }
-        return (metaBlobs.size() > 0) ? TextUtils.join("|", metaBlobs) : "";
     }
 
 }

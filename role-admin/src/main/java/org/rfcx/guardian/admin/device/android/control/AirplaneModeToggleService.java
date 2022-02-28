@@ -1,15 +1,14 @@
 package org.rfcx.guardian.admin.device.android.control;
 
-import org.rfcx.guardian.admin.device.android.network.WifiStateSetService;
-import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import org.rfcx.guardian.admin.RfcxGuardian;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.device.android.network.WifiStateSetService;
+import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class AirplaneModeToggleService extends Service {
 

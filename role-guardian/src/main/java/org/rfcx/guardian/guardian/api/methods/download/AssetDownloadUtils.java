@@ -16,18 +16,16 @@ import java.util.List;
 
 public class AssetDownloadUtils {
 
+    public static final int DOWNLOAD_FAILURE_SKIP_THRESHOLD = 5;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiDownloadUtils");
+    public String downloadDirectoryPath;
+    private RfcxGuardian app;
+
     public AssetDownloadUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.downloadDirectoryPath = context.getFilesDir().getAbsolutePath() + "/downloads";
         FileUtils.initializeDirectoryRecursively(this.downloadDirectoryPath, false);
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiDownloadUtils");
-
-    private RfcxGuardian app;
-    public String downloadDirectoryPath;
-
-    public static final int DOWNLOAD_FAILURE_SKIP_THRESHOLD = 5;
 
     public void createDummyRow() {
 

@@ -1,7 +1,9 @@
 package org.rfcx.guardian.updater.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.util.Log;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
@@ -10,10 +12,8 @@ import org.rfcx.guardian.utility.network.HttpGet;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApiUpdateRequestService extends Service {
 

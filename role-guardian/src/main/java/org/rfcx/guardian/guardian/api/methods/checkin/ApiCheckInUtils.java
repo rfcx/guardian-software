@@ -8,7 +8,6 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -16,20 +15,18 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ApiCheckInUtils {
+
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInUtils");
+    private RfcxGuardian app;
 
     public ApiCheckInUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInUtils");
-
-    private RfcxGuardian app;
 
     public boolean addCheckInToQueue(String[] audioInfo, String filePath) {
 

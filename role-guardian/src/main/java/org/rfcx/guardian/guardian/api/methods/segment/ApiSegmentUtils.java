@@ -21,28 +21,18 @@ import java.util.Map;
 
 public class ApiSegmentUtils {
 
-    public ApiSegmentUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-    }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSegmentUtils");
-
-    private RfcxGuardian app;
-
     public static final int GROUP_ID_LENGTH = 4;
+    public static final String[] JSON_MSG_TYPES = new String[]{"cmd", "png", "chk"};
+    public static final String[] BINARY_MSG_TYPES = new String[]{};
+    public static final String[] SEGMENT_PROTOCOLS = new String[]{"sms", "sbd", "swm"};
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSegmentUtils");
     private static final int SEGMENT_ID_LENGTH = 3;
     private static final int MSG_TYPE_LENGTH = 3;
-    private static final int MSG_CHECKSUM_SNIPPET_LENGTH = 20;
 
     // Segment Group Header Format:
     // {GROUP_ID}{SEGMENT_ID}{GUARDIAN_GUID}{MSG_TYPE}{MSG_CHECKSUM}{SEGMENT_COUNT}{FIRST_SEGMENT}
     // {ABCd}{000}{298c2kwyfg55}{cmd}{0fe272f9da329ab5e64c08b223dc6f044a5b5e79be0}{fff}{1234}
-
-    public static final String[] JSON_MSG_TYPES = new String[]{"cmd", "png", "chk"};
-    public static final String[] BINARY_MSG_TYPES = new String[]{};
-
-    public static final String[] SEGMENT_PROTOCOLS = new String[]{"sms", "sbd", "swm"};
-
+    private static final int MSG_CHECKSUM_SNIPPET_LENGTH = 20;
     private static final Map<String, Integer> SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL =
             Collections.unmodifiableMap(new HashMap<String, Integer>() {{
                                             put("sms", 160);
@@ -50,6 +40,11 @@ public class ApiSegmentUtils {
                                             put("swm", 192);
                                         }}
             );
+    private RfcxGuardian app;
+
+    public ApiSegmentUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+    }
 
     public static String generateSegmentGroupId() {
         return StringUtils.randomAlphanumericString(GROUP_ID_LENGTH, true);

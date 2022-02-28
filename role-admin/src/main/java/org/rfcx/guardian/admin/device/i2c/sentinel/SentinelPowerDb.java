@@ -1,17 +1,31 @@
 package org.rfcx.guardian.admin.device.i2c.sentinel;
 
-import java.util.Date;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.rfcx.guardian.utility.misc.DbUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
-
 import android.content.ContentValues;
 import android.content.Context;
 
+import org.json.JSONArray;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
+
+import java.util.Date;
+import java.util.List;
+
 public class SentinelPowerDb {
+
+    static final String DATABASE = "sentinel-power";
+    static final String C_MEASURED_AT = "measured_at";
+    static final String C_VOLTAGE = "voltage";
+    static final String C_CURRENT = "current";
+    static final String C_MISC = "misc";
+    static final String C_POWER = "power";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VOLTAGE, C_CURRENT, C_MISC, C_POWER};
+    public final DbSentinelPowerBattery dbSentinelPowerBattery;
+    public final DbSentinelPowerInput dbSentinelPowerInput;
+    public final DbSentinelPowerSystem dbSentinelPowerSystem;
+    private int VERSION = 1;
+    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     public SentinelPowerDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
@@ -20,18 +34,6 @@ public class SentinelPowerDb {
         this.dbSentinelPowerInput = new DbSentinelPowerInput(context);
         this.dbSentinelPowerSystem = new DbSentinelPowerSystem(context);
     }
-
-    private int VERSION = 1;
-    static final String DATABASE = "sentinel-power";
-    static final String C_MEASURED_AT = "measured_at";
-    static final String C_VOLTAGE = "voltage";
-    static final String C_CURRENT = "current";
-    static final String C_MISC = "misc";
-    static final String C_POWER = "power";
-    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VOLTAGE, C_CURRENT, C_MISC, C_POWER};
-
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -91,9 +93,6 @@ public class SentinelPowerDb {
 
     }
 
-    public final DbSentinelPowerBattery dbSentinelPowerBattery;
-
-
     public class DbSentinelPowerInput {
 
         final DbUtils dbUtils;
@@ -134,9 +133,6 @@ public class SentinelPowerDb {
 
     }
 
-    public final DbSentinelPowerInput dbSentinelPowerInput;
-
-
     public class DbSentinelPowerSystem {
 
         final DbUtils dbUtils;
@@ -176,8 +172,6 @@ public class SentinelPowerDb {
         }
 
     }
-
-    public final DbSentinelPowerSystem dbSentinelPowerSystem;
 
 
 }

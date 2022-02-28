@@ -11,23 +11,22 @@ import java.util.List;
 
 public class AudioDetectionDb {
 
-    public AudioDetectionDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbQueued = new DbQueued(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "audio-detection";
     static final String C_CREATED_AT = "created_at";
     static final String C_DETECTION_JSON = "detection_json";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
     static final String C_ATTEMPTS = "attempts";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_DETECTION_JSON, C_LAST_ACCESSED_AT, C_ATTEMPTS};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_DETECTION_JSON, C_LAST_ACCESSED_AT, C_ATTEMPTS};
+    public final DbQueued dbQueued;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public AudioDetectionDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbQueued = new DbQueued(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -80,8 +79,6 @@ public class AudioDetectionDb {
         }
 
     }
-
-    public final DbQueued dbQueued;
 
 
 }

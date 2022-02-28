@@ -1,10 +1,5 @@
 package org.rfcx.guardian.guardian.audio.capture;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
@@ -12,17 +7,14 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class AudioCaptureWavRecorder {
 
-    public static AudioCaptureWavRecorder getInstance(int audioSampleRate) throws Exception {
-        AudioCaptureWavRecorder captureWavRecorderResult = null;
-        do {
-            captureWavRecorderResult = new AudioCaptureWavRecorder(true, AudioSource.MIC, audioSampleRate, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        } while (!(captureWavRecorderResult.getRecorderState() == AudioCaptureWavRecorder.State.INITIALIZING));
-        return captureWavRecorderResult;
-    }
-
+    public static final boolean RECORDING_UNCOMPRESSED = true;
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureWavRecorder");
 
     // 	INITIALIZING : recorder is initializing; 
@@ -30,27 +22,20 @@ public class AudioCaptureWavRecorder {
     //	RECORDING : recording 
     //	ERROR : reconstruction needed 
     //	STOPPED: reset needed
-
-    public enum State {INITIALIZING, READY, RECORDING, ERROR, STOPPED}
-
-    ;
-    private static State recorderState;
-
-    private AudioRecord audioRecorder = null;
-    public static final boolean RECORDING_UNCOMPRESSED = true;
-    private boolean isRecordingUncompressed; //on/off; RECORDING_UNCOMPRESSED / RECORDING_COMPRESSED
-    private String recorderOutputFilePath = null;
-    private RandomAccessFile recorderOutputFileRandomAccessWriter;
-    private int recorderFileOutputFramePeriod; // Number of frames written to file on each output (only in uncompressed mode)
-    public byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)
-
-    private Boolean isAudioChanged = false;
-    public int readSize;
-
     // The interval in which the recorded samples are output to the file used only in uncompressed mode
 //	private static final int TIMER_INTERVAL_UNCOMPRESSED = 480;
     private static final int TIMER_INTERVAL_UNCOMPRESSED = 333;
 
+    ;
+    private static State recorderState;
+    public byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)
+    public int readSize;
+    private AudioRecord audioRecorder = null;
+    private boolean isRecordingUncompressed; //on/off; RECORDING_UNCOMPRESSED / RECORDING_COMPRESSED
+    private String recorderOutputFilePath = null;
+    private RandomAccessFile recorderOutputFileRandomAccessWriter;
+    private int recorderFileOutputFramePeriod; // Number of frames written to file on each output (only in uncompressed mode)
+    private Boolean isAudioChanged = false;
     // Number of channels, sample rate, sample size(size in bits), buffer size, audio source, sample size (see AudioFormat)
     private short captureChannelCount;
     private int captureSampleRate;
@@ -58,15 +43,8 @@ public class AudioCaptureWavRecorder {
     private int captureBufferSize;
     private int captureAudioSource;
     private int captureAudioFormat;
-
     // Number of bytes written to file after header(only in uncompressed mode) after stop() is called, this size is written to the header/data chunk in the wave file
     private int captureFilePayloadSizeInBytes;
-
-    //	Returns the state of the recorder in a RehearsalAudioRecord.State typed object. Useful, as no exceptions are thrown.
-    public static State getRecorderState() {
-        return recorderState;
-    }
-
     /*
      *
      * Method used for recording.
@@ -90,18 +68,6 @@ public class AudioCaptureWavRecorder {
             // NOT USED
         }
     };
-
-    /*
-     * Method for getting audio buffer for companion
-     */
-    public Pair<byte[], Integer> getAudioBuffer() {
-        isAudioChanged = false;
-        return new Pair<>(uncompressedOutputBuffer, readSize);
-    }
-
-    public Boolean isAudioChanged() {
-        return isAudioChanged;
-    }
 
     /**
      * Default constructor
@@ -160,6 +126,30 @@ public class AudioCaptureWavRecorder {
         recorderState = State.INITIALIZING;
     }
 
+    public static AudioCaptureWavRecorder getInstance(int audioSampleRate) throws Exception {
+        AudioCaptureWavRecorder captureWavRecorderResult = null;
+        do {
+            captureWavRecorderResult = new AudioCaptureWavRecorder(true, AudioSource.MIC, audioSampleRate, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        } while (!(captureWavRecorderResult.getRecorderState() == AudioCaptureWavRecorder.State.INITIALIZING));
+        return captureWavRecorderResult;
+    }
+
+    //	Returns the state of the recorder in a RehearsalAudioRecord.State typed object. Useful, as no exceptions are thrown.
+    public static State getRecorderState() {
+        return recorderState;
+    }
+
+    /*
+     * Method for getting audio buffer for companion
+     */
+    public Pair<byte[], Integer> getAudioBuffer() {
+        isAudioChanged = false;
+        return new Pair<>(uncompressedOutputBuffer, readSize);
+    }
+
+    public Boolean isAudioChanged() {
+        return isAudioChanged;
+    }
 
     public void setOutputFile(String outputFilePath) {
         try {
@@ -208,7 +198,6 @@ public class AudioCaptureWavRecorder {
 //			recorderState = State.ERROR;
 //		}
     }
-
 
     private void prepareRecorderOutputFileWriter(String outputFilePath) throws IOException {
 
@@ -387,5 +376,7 @@ public class AudioCaptureWavRecorder {
 //		}
 
     }
+
+    public enum State {INITIALIZING, READY, RECORDING, ERROR, STOPPED}
 
 }

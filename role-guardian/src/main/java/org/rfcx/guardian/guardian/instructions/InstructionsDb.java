@@ -11,16 +11,7 @@ import java.util.List;
 
 public class InstructionsDb {
 
-    public InstructionsDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbQueued = new DbQueued(context);
-        this.dbExecuted = new DbExecuted(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "instructions";
-
     static final String C_CREATED_AT = "created_at";
     static final String C_INSTR_ID = "instr_id";
     static final String C_TYPE = "type";
@@ -32,11 +23,20 @@ public class InstructionsDb {
     static final String C_RECEIVED_BY = "received_by";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
     static final String C_ORIGIN = "origin";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY, C_LAST_ACCESSED_AT, C_ORIGIN};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY, C_LAST_ACCESSED_AT, C_ORIGIN};
+    public final DbQueued dbQueued;
+    public final DbExecuted dbExecuted;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+
+    public InstructionsDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbQueued = new DbQueued(context);
+        this.dbExecuted = new DbExecuted(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -55,7 +55,6 @@ public class InstructionsDb {
                 .append(")");
         return sbOut.toString();
     }
-
 
     public class DbQueued {
 
@@ -115,9 +114,6 @@ public class InstructionsDb {
 
     }
 
-    public final DbQueued dbQueued;
-
-
     public class DbExecuted {
 
         final DbUtils dbUtils;
@@ -175,7 +171,5 @@ public class InstructionsDb {
         }
 
     }
-
-    public final DbExecuted dbExecuted;
 
 }

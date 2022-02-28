@@ -1,6 +1,9 @@
 package org.rfcx.guardian.classify.utils
 
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.DataInputStream
+import java.io.File
+import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 

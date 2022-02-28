@@ -8,10 +8,10 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.admin.R
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.comms.sms.ComposeSmsActivity
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService
 import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService
 import org.rfcx.guardian.admin.device.android.control.RebootTriggerService
-import org.rfcx.guardian.admin.comms.sms.ComposeSmsActivity
 
 class MainActivity : Activity() {
 

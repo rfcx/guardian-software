@@ -21,12 +21,10 @@ import java.util.Locale;
 
 public class AudioEncodeUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeUtils");
-
     public static final SimpleDateFormat vaultStatsDayId = new SimpleDateFormat("yyyy_MM_dd", Locale.US);
-
     public static final int ENCODE_QUALITY = 10;
     public static final int ENCODE_FAILURE_SKIP_THRESHOLD = 3;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeUtils");
 
     public static int encodeAudioFile(File preEncodeFile, File postEncodeFile, String encodeCodec, int encodeSampleRate, int encodeBitRate, int encodeQuality) {
 

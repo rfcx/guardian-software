@@ -16,24 +16,19 @@ import java.io.InputStream;
 
 public class CompanionSocketUtils {
 
+    private static final String[] includePingFields = new String[]{
+            "battery", "instructions", "prefs_full", "software", "library", "device", "companion"
+    };
+    private static final String[] excludeFromLogs = new String[]{"prefs"};
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
+    public SocketUtils socketUtils;
+    private RfcxGuardian app;
+    private String pingJson = (new JSONObject()).toString();
     public CompanionSocketUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
         this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.JSON);
     }
-
-    private static final String[] includePingFields = new String[]{
-            "battery", "instructions", "prefs_full", "software", "library", "device", "companion"
-    };
-
-    private static final String[] excludeFromLogs = new String[]{"prefs"};
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
-
-    private RfcxGuardian app;
-    public SocketUtils socketUtils;
-    private String pingJson = (new JSONObject()).toString();
-
 
     public JSONObject getCompanionPingJsonObj() {
         JSONObject companionObj = new JSONObject();

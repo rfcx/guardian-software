@@ -1,24 +1,17 @@
 package org.rfcx.guardian.guardian.api.methods.checkin;
 
-import java.util.Date;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
+
+import java.util.Date;
+import java.util.List;
 
 public class ApiCheckInArchiveDb {
 
-    public ApiCheckInArchiveDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbArchive = new DbArchive(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "checkin";
     static final String C_ARCHIVED_AT = "archived_at";
     static final String C_ARCHIVE_BEGINS_AT = "archive_begins_at";
@@ -26,10 +19,17 @@ public class ApiCheckInArchiveDb {
     static final String C_RECORD_COUNT = "record_count";
     static final String C_FILESIZE = "filesize";
     static final String C_FILEPATH = "filepath";
-    private static final String[] ALL_COLUMNS = new String[]{C_ARCHIVED_AT, C_ARCHIVE_BEGINS_AT, C_ARCHIVE_ENDS_AT, C_RECORD_COUNT, C_FILESIZE, C_FILEPATH};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_ARCHIVED_AT, C_ARCHIVE_BEGINS_AT, C_ARCHIVE_ENDS_AT, C_RECORD_COUNT, C_FILESIZE, C_FILEPATH};
+    public final DbArchive dbArchive;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public ApiCheckInArchiveDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbArchive = new DbArchive(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -93,7 +93,5 @@ public class ApiCheckInArchiveDb {
 
 
     }
-
-    public final DbArchive dbArchive;
 
 }

@@ -11,23 +11,24 @@ import java.util.List;
 
 public class LatencyStatsDb {
 
+    static final String DATABASE = "stats-latency";
+    static final String C_ENTRY_ID = "entry_id";
+    static final String C_LATENCY = "latency";
+    static final String C_SIZE = "size";
+    static final String C_COMPLETED_AT = "created_at";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_ENTRY_ID, C_LATENCY, C_SIZE, C_COMPLETED_AT};
+    public final DbCheckInLatency dbCheckInLatency;
+    public final DbClassifyLatency dbClassifyLatency;
+    private int VERSION = 1;
+    private boolean DROP_TABLE_ON_UPGRADE = false;
+
     public LatencyStatsDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
         this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
         this.dbCheckInLatency = new DbCheckInLatency(context);
         this.dbClassifyLatency = new DbClassifyLatency(context);
     }
-
-    private int VERSION = 1;
-    static final String DATABASE = "stats-latency";
-    static final String C_ENTRY_ID = "entry_id";
-    static final String C_LATENCY = "latency";
-    static final String C_SIZE = "size";
-    static final String C_COMPLETED_AT = "created_at";
-    private static final String[] ALL_COLUMNS = new String[]{C_ENTRY_ID, C_LATENCY, C_SIZE, C_COMPLETED_AT};
-
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -75,9 +76,6 @@ public class LatencyStatsDb {
 
     }
 
-    public final DbCheckInLatency dbCheckInLatency;
-
-
     public class DbClassifyLatency {
 
         final DbUtils dbUtils;
@@ -112,8 +110,6 @@ public class LatencyStatsDb {
         }
 
     }
-
-    public final DbClassifyLatency dbClassifyLatency;
 
 
 }

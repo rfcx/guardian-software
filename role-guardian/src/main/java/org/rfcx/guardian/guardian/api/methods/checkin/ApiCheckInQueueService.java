@@ -1,15 +1,14 @@
 package org.rfcx.guardian.guardian.api.methods.checkin;
 
+import android.app.IntentService;
+import android.content.Intent;
+
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
-
-import android.app.IntentService;
-import android.content.Intent;
-
-import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ApiCheckInQueueService extends IntentService {
 

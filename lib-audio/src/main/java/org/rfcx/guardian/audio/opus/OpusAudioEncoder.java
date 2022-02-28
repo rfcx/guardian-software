@@ -16,6 +16,16 @@ public class OpusAudioEncoder {
 //  int outputSampleRate
 //);
 
+    // Which libraries to include and their dependencies.
+    // Note that the order is very important. Place libraries that are not dependent
+    // on anything first, and only place dependent libraries after the dependencies have
+    // already been included.
+    static {
+        System.loadLibrary("ogg");
+        System.loadLibrary("opus");
+        System.loadLibrary("opusenc");
+    }
+
     public EncodeStatus transcode(String inputPath, String outputPath, int bitRate, int quality) {
 
         int result = encodeOpusFile(inputPath, outputPath, bitRate / 1000, quality);
@@ -29,14 +39,4 @@ public class OpusAudioEncoder {
     }
 
     private native int encodeOpusFile(String sourcePath, String targetPath, int bitRate, int quality);
-
-    // Which libraries to include and their dependencies.
-    // Note that the order is very important. Place libraries that are not dependent
-    // on anything first, and only place dependent libraries after the dependencies have
-    // already been included. 
-    static {
-        System.loadLibrary("ogg");
-        System.loadLibrary("opus");
-        System.loadLibrary("opusenc");
-    }
 }

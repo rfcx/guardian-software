@@ -4,14 +4,29 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
 import java.util.List;
 
 public class SmsMessageDb {
+
+    static final String DATABASE = "sms";
+    static final String C_CREATED_AT = "created_at";
+    static final String C_TIMESTAMP = "timestamp";
+    static final String C_ADDRESS = "address";
+    static final String C_BODY = "body";
+    static final String C_MESSAGE_ID = "message_id";
+    static final String C_LAST_ACCESSED_AT = "last_accessed_at";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_MESSAGE_ID, C_LAST_ACCESSED_AT};
+    public final DbSmsReceived dbSmsReceived;
+    public final DbSmsSent dbSmsSent;
+    public final DbSmsQueued dbSmsQueued;
+    private int VERSION = 1;
+    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     public SmsMessageDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
@@ -20,19 +35,6 @@ public class SmsMessageDb {
         this.dbSmsSent = new DbSmsSent(context);
         this.dbSmsQueued = new DbSmsQueued(context);
     }
-
-    private int VERSION = 1;
-    static final String DATABASE = "sms";
-    static final String C_CREATED_AT = "created_at";
-    static final String C_TIMESTAMP = "timestamp";
-    static final String C_ADDRESS = "address";
-    static final String C_BODY = "body";
-    static final String C_MESSAGE_ID = "message_id";
-    static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_MESSAGE_ID, C_LAST_ACCESSED_AT};
-
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -97,8 +99,6 @@ public class SmsMessageDb {
 
     }
 
-    public final DbSmsReceived dbSmsReceived;
-
     public class DbSmsSent {
 
         final DbUtils dbUtils;
@@ -146,8 +146,6 @@ public class SmsMessageDb {
         }
 
     }
-
-    public final DbSmsSent dbSmsSent;
 
     public class DbSmsQueued {
 
@@ -200,7 +198,5 @@ public class SmsMessageDb {
         }
 
     }
-
-    public final DbSmsQueued dbSmsQueued;
 
 }

@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -13,24 +13,25 @@ import java.util.List;
 
 public class SentinelSensorDb {
 
-    public SentinelSensorDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbEnvironment = new DbEnvironment(context);
-        this.dbBattery = new DbBattery(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "sentinel-sensor";
     static final String C_MEASURED_AT = "measured_at";
     static final String C_VALUE_1 = "value_1";
     static final String C_VALUE_2 = "value_2";
     static final String C_VALUE_3 = "value_3";
     static final String C_VALUE_4 = "value_4";
-    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2, C_VALUE_3, C_VALUE_4};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2, C_VALUE_3, C_VALUE_4};
+    public final DbEnvironment dbEnvironment;
+    public final DbBattery dbBattery;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public SentinelSensorDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbEnvironment = new DbEnvironment(context);
+        this.dbBattery = new DbBattery(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -90,8 +91,6 @@ public class SentinelSensorDb {
 
     }
 
-    public final DbEnvironment dbEnvironment;
-
     public class DbBattery {
 
         final DbUtils dbUtils;
@@ -137,8 +136,6 @@ public class SentinelSensorDb {
         }
 
     }
-
-    public final DbBattery dbBattery;
 
 
 }

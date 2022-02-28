@@ -1,6 +1,12 @@
 package org.rfcx.guardian.guardian.audio.capture;
 
 
+import android.app.IntentService;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyPrepareService;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
@@ -8,13 +14,6 @@ import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
-
-import android.app.IntentService;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-
-import org.rfcx.guardian.guardian.RfcxGuardian;
 
 import java.util.List;
 

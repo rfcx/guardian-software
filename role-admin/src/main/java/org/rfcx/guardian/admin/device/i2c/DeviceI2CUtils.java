@@ -13,9 +13,8 @@ import java.util.Date;
 
 public class DeviceI2CUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceI2CUtils");
-
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceI2CUtils");
 
     public static void setSentinelLoggingVerbosity(Context context) {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();

@@ -17,6 +17,12 @@ import java.util.List;
 
 public class ApiRestUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiRestUtils");
+    HttpGet httpGet;
+    HttpPostMultipart httpPost;
+    private RfcxGuardian app;
+    private String restUrlPath_Ping;
+
     public ApiRestUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
@@ -26,15 +32,6 @@ public class ApiRestUtils {
 
         this.restUrlPath_Ping = "/v2/guardians/" + app.rfcxGuardianIdentity.getGuid() + "/pings";
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiRestUtils");
-
-    private RfcxGuardian app;
-
-    HttpGet httpGet;
-    HttpPostMultipart httpPost;
-
-    private String restUrlPath_Ping;
 
     private void setHttpTimeouts() {
         this.httpGet.setTimeOuts(30000, 30000);

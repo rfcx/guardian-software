@@ -3,7 +3,6 @@ package org.rfcx.guardian.classify.model
 import org.rfcx.guardian.classify.RfcxGuardian
 import org.rfcx.guardian.classify.utils.AudioConverter
 import org.rfcx.guardian.classify.utils.AudioConverter.pickBetween
-import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import kotlin.math.roundToInt
 

@@ -14,15 +14,11 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 public class ApiPingCycleService extends Service {
 
     public static final String SERVICE_NAME = "ApiPingCycle";
-
+    public static final long CYCLE_DURATION = (15 * 1000);
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingCycleService");
-
     private RfcxGuardian app;
-
     private boolean runFlag = false;
     private ApiPingCycleSvc apiPingCycleSvc;
-
-    public static final long CYCLE_DURATION = (15 * 1000);
 
     @Override
     public IBinder onBind(Intent intent) {

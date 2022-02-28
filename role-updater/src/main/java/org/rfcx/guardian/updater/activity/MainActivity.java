@@ -1,15 +1,14 @@
 package org.rfcx.guardian.updater.activity;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 public class MainActivity extends Activity {
 

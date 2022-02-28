@@ -10,8 +10,6 @@ import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.util.List;
-
 public class SwmDispatchTimeoutService extends Service {
 
     public static final String SERVICE_NAME = "SwmDispatchTimeout";

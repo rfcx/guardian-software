@@ -1,7 +1,5 @@
 package org.rfcx.guardian.classify.model
 
-import android.content.Context
-import android.os.Environment
 import android.util.Log
 import org.rfcx.guardian.classify.RfcxGuardian
 import org.rfcx.guardian.classify.model.interfaces.Predictor

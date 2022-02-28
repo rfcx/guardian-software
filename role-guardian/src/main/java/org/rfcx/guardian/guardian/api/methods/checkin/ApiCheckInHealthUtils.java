@@ -5,8 +5,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxStatus;
@@ -18,28 +18,23 @@ import java.util.Map;
 
 public class ApiCheckInHealthUtils {
 
-    public ApiCheckInHealthUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-    }
-
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInHealthUtils");
-
-    private RfcxGuardian app;
-
-    private Map<String, long[]> healthCheckMonitors = new HashMap<>();
     private static final String[] healthCheckCategories = new String[]{"latency", "queued", "recent"};
+    private static final int healthCheckMeasurementCount = 6;
+    private RfcxGuardian app;
+    private Map<String, long[]> healthCheckMonitors = new HashMap<>();
     private long[] healthCheckTargetLowerBounds = new long[healthCheckCategories.length];
     private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
-    private static final int healthCheckMeasurementCount = 6;
     private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
     private boolean doCheckInConditionsAllowCheckInRequeuing = false;
-
     private long lastKnownAudioCycleDuration = 0;
-
     private String inFlightCheckInAudioId = null;
     private String latestCheckInAudioId = null;
     private Map<String, String[]> inFlightCheckInEntries = new HashMap<>();
     private Map<String, long[]> inFlightCheckInStats = new HashMap<>();
+    public ApiCheckInHealthUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+    }
 
     public void updateInFlightCheckInOnSend(String audioId, String[] checkInDbEntry) {
         this.inFlightCheckInAudioId = audioId;

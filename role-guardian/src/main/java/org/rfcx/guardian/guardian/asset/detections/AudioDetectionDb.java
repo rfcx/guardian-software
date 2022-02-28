@@ -15,14 +15,6 @@ import java.util.List;
 
 public class AudioDetectionDb {
 
-    public AudioDetectionDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbUnfiltered = new DbUnfiltered(context);
-        this.dbFiltered = new DbFiltered(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "audio-detection";
     static final String C_CREATED_AT = "created_at";
     static final String C_CLASSIFICATION_TAG = "classification_tag";
@@ -36,11 +28,19 @@ public class AudioDetectionDb {
     static final String C_STEP_SIZE = "step_size";
     static final String C_CONFIDENCE_JSON = "confidence_json";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_CLASSIFICATION_TAG, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FILTER_ID, C_AUDIO_ID, C_BEGINS_AT, C_WINDOW_SIZE, C_STEP_SIZE, C_CONFIDENCE_JSON, C_LAST_ACCESSED_AT};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_CLASSIFICATION_TAG, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FILTER_ID, C_AUDIO_ID, C_BEGINS_AT, C_WINDOW_SIZE, C_STEP_SIZE, C_CONFIDENCE_JSON, C_LAST_ACCESSED_AT};
+    public final DbUnfiltered dbUnfiltered;
+    public final DbFiltered dbFiltered;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public AudioDetectionDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbUnfiltered = new DbUnfiltered(context);
+        this.dbFiltered = new DbFiltered(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -105,9 +105,6 @@ public class AudioDetectionDb {
         }
 
     }
-
-    public final DbUnfiltered dbUnfiltered;
-
 
     public class DbFiltered {
 
@@ -185,8 +182,6 @@ public class AudioDetectionDb {
         }
 
     }
-
-    public final DbFiltered dbFiltered;
 
 
 }

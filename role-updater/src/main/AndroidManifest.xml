@@ -61,11 +61,11 @@
             android:protectionLevel="signature" />
 
     <application
+            android:name="org.rfcx.guardian.updater.RfcxGuardian"
             android:allowBackup="true"
             android:icon="@drawable/icon_guardian_updater"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme"
-            android:name="org.rfcx.guardian.updater.RfcxGuardian">
+            android:theme="@style/AppTheme">
 
         <service android:name=".service.ApiUpdateRequestTrigger" />
         <service android:name=".service.DownloadFileService" />
@@ -91,10 +91,10 @@
         <provider
                 android:name="org.rfcx.guardian.updater.contentprovider.UpdaterContentProvider"
                 android:authorities="org.rfcx.guardian.updater"
-                android:readPermission="org.rfcx.guardian.READ"
-                android:writePermission="org.rfcx.guardian.WRITE"
+                android:exported="true"
                 android:grantUriPermissions="true"
-                android:exported="true">
+                android:readPermission="org.rfcx.guardian.READ"
+                android:writePermission="org.rfcx.guardian.WRITE">
             <meta-data
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/file_provider_paths" />

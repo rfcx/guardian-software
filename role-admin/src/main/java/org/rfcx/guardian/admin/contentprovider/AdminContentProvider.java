@@ -1,31 +1,5 @@
 package org.rfcx.guardian.admin.contentprovider;
 
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.rfcx.guardian.admin.comms.swm.SwmUtils;
-import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
-import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
-import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
-import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
-import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
-import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
-import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
-import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
-import org.rfcx.guardian.admin.comms.sms.SmsUtils;
-import org.rfcx.guardian.utility.device.AppProcessInfo;
-import org.rfcx.guardian.utility.device.DeviceSmsUtils;
-import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
-
-import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
-
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -36,8 +10,31 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
+import org.rfcx.guardian.admin.comms.sms.SmsUtils;
+import org.rfcx.guardian.admin.comms.swm.SwmUtils;
+import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
+import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
+import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
+import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
+import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
+import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
+import org.rfcx.guardian.utility.device.AppProcessInfo;
+import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
+
 import java.util.Locale;
 import java.util.Objects;
 

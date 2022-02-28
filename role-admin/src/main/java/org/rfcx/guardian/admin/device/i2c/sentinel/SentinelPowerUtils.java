@@ -1,64 +1,144 @@
 package org.rfcx.guardian.admin.device.i2c.sentinel;
 
+import android.content.Context;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import org.rfcx.guardian.admin.RfcxGuardian;
-
-import android.content.Context;
-import android.util.Log;
-
-import org.rfcx.guardian.i2c.DeviceI2cUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxStatus;
-
 public class SentinelPowerUtils {
+
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelPowerUtils");
+    private static final String i2cMainAddr = "0x68";
+    private static final double qCountCalibrationVoltageMin = 3000;
+    private static final double qCountMeasurementRange = 65535;
+    private static final double qCountCalibratedMin = Math.round(qCountMeasurementRange / 4);
+    private static final double qCountCalibratedMax = Math.round(qCountMeasurementRange - qCountCalibratedMin);
+    private static final double qCountCalibratedQuarterOfOnePercent = (qCountCalibratedMax - qCountCalibratedMin) / (4 * 100);
+    private static final int qCountCalibrationDelayCounterMax = 20;
+    private static final long reCheckSetConfigAfterThisLong = 5 * 60 * 1000;
+    public boolean verboseLogging = false;
+    public boolean isInputPowerAtZero = false;
+    RfcxGuardian app;
+    private String[] i2cValueIndex = new String[]{};
+    private Map<String, double[]> i2cTmpValues = new HashMap<>();
+    private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
+    private String[] getWithoutTwoComplement = new String[]{};
+    private List<double[]> powerBatteryValues = new ArrayList<>();
+    private List<double[]> powerInputValues = new ArrayList<>();
+    private List<double[]> powerSystemValues = new ArrayList<>();
+    private int qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
+    private boolean isBatteryCharging = false;
+    private boolean isBatteryCharged = false;
+    private boolean isBatteryChargingAllowed = true;
+    private long chipConfigLastCheckedAt = 0;
 
     public SentinelPowerUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         initSentinelPowerI2cOptions();
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelPowerUtils");
+    private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
+        double modifiedValue = 0;
 
-    RfcxGuardian app;
-    private static final String i2cMainAddr = "0x68";
+        // this is a test to see if this is how i2c handles negative values...
+        //if (i2cRawValue > 32767) { i2cRawValue = i2cRawValue - 65535; }
 
-    private String[] i2cValueIndex = new String[]{};
-    private Map<String, double[]> i2cTmpValues = new HashMap<>();
-    private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
-    private String[] getWithoutTwoComplement = new String[]{};
+        if (i2cLabel.equals("system-voltage")) {
+            modifiedValue = i2cRawValue * 1.648;
+        } else if (i2cLabel.equals("system-misc")) {
+            modifiedValue = (i2cRawValue - 12010) / 45.6;
 
-    private List<double[]> powerBatteryValues = new ArrayList<>();
-    private List<double[]> powerInputValues = new ArrayList<>();
-    private List<double[]> powerSystemValues = new ArrayList<>();
+        } else if (i2cLabel.equals("battery-voltage")) {
+            modifiedValue = i2cRawValue * 0.192264;
+        } else if (i2cLabel.equals("battery-current")) {
+            modifiedValue = i2cRawValue * (0.00146487 / 0.003); // hardcoded resistor value R[SNSB] = 0.003 ohms
+        } else if (i2cLabel.equals("battery-misc")) {
+            modifiedValue = i2cRawValue;
 
-    public boolean verboseLogging = false;
+        } else if (i2cLabel.equals("input-voltage")) {
+            modifiedValue = i2cRawValue * 1.648;
+        } else if (i2cLabel.equals("input-current")) {
+            modifiedValue = i2cRawValue * (0.00146487 / 0.005); // hardcoded resistor value R[SNSI] = 0.005 ohms
+        } else if (i2cLabel.equals("input-misc")) {
+            modifiedValue = i2cRawValue;
 
-    private static final double qCountCalibrationVoltageMin = 3000;
 
-    private static final double qCountMeasurementRange = 65535;
-    private static final double qCountCalibratedMin = Math.round(qCountMeasurementRange / 4);
-    private static final double qCountCalibratedMax = Math.round(qCountMeasurementRange - qCountCalibratedMin);
-    private static final double qCountCalibratedQuarterOfOnePercent = (qCountCalibratedMax - qCountCalibratedMin) / (4 * 100);
-    private static final int qCountCalibrationDelayCounterMax = 20;
-    private int qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
+        } else {
+            Log.d(logTag, "No known value modifier for i2c label '" + i2cLabel + "'.");
+        }
+        return modifiedValue;
+    }
 
-    public boolean isInputPowerAtZero = false;
-    private boolean isBatteryCharging = false;
-    private boolean isBatteryCharged = false;
-    private boolean isBatteryChargingAllowed = true;
+    public static JSONArray getSentinelPowerValuesAsJsonArray(Context context) {
+
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+        JSONArray powerJsonArray = new JSONArray();
+        try {
+            JSONObject powerJson = new JSONObject();
+
+            powerJson.put("system", app.sentinelPowerDb.dbSentinelPowerSystem.getConcatRowsWithLabelPrepended("system"));
+            powerJson.put("battery", app.sentinelPowerDb.dbSentinelPowerBattery.getConcatRowsWithLabelPrepended("battery"));
+            powerJson.put("input", app.sentinelPowerDb.dbSentinelPowerInput.getConcatRowsWithLabelPrepended("input"));
+            powerJsonArray.put(powerJson);
+
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+
+        } finally {
+            return powerJsonArray;
+        }
+    }
+
+    public static int deleteSentinelPowerValuesBeforeTimestamp(String timeStamp, Context context) {
+
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+
+        Date clearBefore = new Date(Long.parseLong(timeStamp));
+
+        app.sentinelPowerDb.dbSentinelPowerSystem.clearRowsBefore(clearBefore);
+        app.sentinelPowerDb.dbSentinelPowerBattery.clearRowsBefore(clearBefore);
+        app.sentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
+
+        return 1;
+    }
+
+    private static long _v(String fieldName, long val) {
+
+        double divVal = Double.parseDouble("" + val);
+
+        if (fieldName.equalsIgnoreCase("voltage")) {
+            if (val < 2000) {
+                divVal = Math.round(divVal / 100) * 100;
+            }
+        } else if (fieldName.equalsIgnoreCase("current")) {
+            if ((val < 100) && (val > -100)) {
+                divVal = Math.round(divVal / 10) * 10;
+            }
+        }
+
+        return Math.round(divVal);
+    }
+
+    private static String battValAsPctStr(long bValAsLong) {
+        String bValsStr = (bValAsLong >= 100) ? ("" + Math.abs(bValAsLong)) : (bValAsLong >= 10) ? ("0" + Math.abs(bValAsLong)) : ("00" + Math.abs(bValAsLong));
+        return ((bValAsLong >= 0) ? "" : "-") + bValsStr.substring(0, bValsStr.length() - 2) + "." + bValsStr.substring(bValsStr.length() - 2);
+    }
 
     public boolean isChipAccessibleByI2c() {
 
@@ -93,9 +173,6 @@ public class SentinelPowerUtils {
 
         resetI2cTmpValues();
     }
-
-    private long chipConfigLastCheckedAt = 0;
-    private static final long reCheckSetConfigAfterThisLong = 5 * 60 * 1000;
 
     public boolean checkSetChipConfigByI2c() {
 
@@ -341,38 +418,6 @@ public class SentinelPowerUtils {
         return qCountVal;
     }
 
-    private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
-        double modifiedValue = 0;
-
-        // this is a test to see if this is how i2c handles negative values...
-        //if (i2cRawValue > 32767) { i2cRawValue = i2cRawValue - 65535; }
-
-        if (i2cLabel.equals("system-voltage")) {
-            modifiedValue = i2cRawValue * 1.648;
-        } else if (i2cLabel.equals("system-misc")) {
-            modifiedValue = (i2cRawValue - 12010) / 45.6;
-
-        } else if (i2cLabel.equals("battery-voltage")) {
-            modifiedValue = i2cRawValue * 0.192264;
-        } else if (i2cLabel.equals("battery-current")) {
-            modifiedValue = i2cRawValue * (0.00146487 / 0.003); // hardcoded resistor value R[SNSB] = 0.003 ohms
-        } else if (i2cLabel.equals("battery-misc")) {
-            modifiedValue = i2cRawValue;
-
-        } else if (i2cLabel.equals("input-voltage")) {
-            modifiedValue = i2cRawValue * 1.648;
-        } else if (i2cLabel.equals("input-current")) {
-            modifiedValue = i2cRawValue * (0.00146487 / 0.005); // hardcoded resistor value R[SNSI] = 0.005 ohms
-        } else if (i2cLabel.equals("input-misc")) {
-            modifiedValue = i2cRawValue;
-
-
-        } else {
-            Log.d(logTag, "No known value modifier for i2c label '" + i2cLabel + "'.");
-        }
-        return modifiedValue;
-    }
-
     public void saveSentinelPowerValuesToDatabase(boolean printValuesToLog) {
 
         int sampleCount = Math.round((this.powerSystemValues.size() + this.powerBatteryValues.size() + this.powerInputValues.size()) / 3);
@@ -411,40 +456,6 @@ public class SentinelPowerUtils {
             }
         }
     }
-
-    public static JSONArray getSentinelPowerValuesAsJsonArray(Context context) {
-
-        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        JSONArray powerJsonArray = new JSONArray();
-        try {
-            JSONObject powerJson = new JSONObject();
-
-            powerJson.put("system", app.sentinelPowerDb.dbSentinelPowerSystem.getConcatRowsWithLabelPrepended("system"));
-            powerJson.put("battery", app.sentinelPowerDb.dbSentinelPowerBattery.getConcatRowsWithLabelPrepended("battery"));
-            powerJson.put("input", app.sentinelPowerDb.dbSentinelPowerInput.getConcatRowsWithLabelPrepended("input"));
-            powerJsonArray.put(powerJson);
-
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
-
-        } finally {
-            return powerJsonArray;
-        }
-    }
-
-    public static int deleteSentinelPowerValuesBeforeTimestamp(String timeStamp, Context context) {
-
-        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-
-        Date clearBefore = new Date(Long.parseLong(timeStamp));
-
-        app.sentinelPowerDb.dbSentinelPowerSystem.clearRowsBefore(clearBefore);
-        app.sentinelPowerDb.dbSentinelPowerBattery.clearRowsBefore(clearBefore);
-        app.sentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
-
-        return 1;
-    }
-
 
     public JSONArray getMomentarySentinelPowerValuesAsJsonArray() {
 
@@ -539,7 +550,6 @@ public class SentinelPowerUtils {
         return jsonObj;
     }
 
-
     public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String groupTag) {
 
         boolean isReduced = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY);
@@ -563,28 +573,6 @@ public class SentinelPowerUtils {
         }
 
         return isReduced;
-    }
-
-    private static long _v(String fieldName, long val) {
-
-        double divVal = Double.parseDouble("" + val);
-
-        if (fieldName.equalsIgnoreCase("voltage")) {
-            if (val < 2000) {
-                divVal = Math.round(divVal / 100) * 100;
-            }
-        } else if (fieldName.equalsIgnoreCase("current")) {
-            if ((val < 100) && (val > -100)) {
-                divVal = Math.round(divVal / 10) * 10;
-            }
-        }
-
-        return Math.round(divVal);
-    }
-
-    private static String battValAsPctStr(long bValAsLong) {
-        String bValsStr = (bValAsLong >= 100) ? ("" + Math.abs(bValAsLong)) : (bValAsLong >= 10) ? ("0" + Math.abs(bValAsLong)) : ("00" + Math.abs(bValAsLong));
-        return ((bValAsLong >= 0) ? "" : "-") + bValsStr.substring(0, bValsStr.length() - 2) + "." + bValsStr.substring(bValsStr.length() - 2);
     }
 
 }

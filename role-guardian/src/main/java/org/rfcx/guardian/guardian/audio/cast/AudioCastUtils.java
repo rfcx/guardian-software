@@ -17,17 +17,15 @@ import java.util.List;
 
 public class AudioCastUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastUtils");
+    public SocketUtils socketUtils;
+    private RfcxGuardian app;
+    private List<String> pingJson;
     public AudioCastUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
         this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.AUDIO);
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastUtils");
-
-    private RfcxGuardian app;
-    public SocketUtils socketUtils;
-    private List<String> pingJson;
 
     public void updatePingJson(boolean printJsonToLogs) {
         try {

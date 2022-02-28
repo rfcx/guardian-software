@@ -1,16 +1,15 @@
 package org.rfcx.guardian.admin.device.android.capture;
 
-import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
-import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import org.rfcx.guardian.admin.RfcxGuardian;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
+import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class ScreenShotCaptureService extends Service {
 

@@ -11,15 +11,6 @@ import java.util.List;
 
 public class AssetDownloadDb {
 
-    public AssetDownloadDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true;//ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbQueued = new DbQueued(context);
-        this.dbCompleted = new DbCompleted(context);
-        this.dbSkipped = new DbSkipped(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "downloads";
     static final String C_CREATED_AT = "created_at";
     static final String C_ASSET_TYPE = "asset_type";
@@ -33,9 +24,20 @@ public class AssetDownloadDb {
     static final String C_ATTEMPTS = "attempts";
     static final String C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION = "last_accessed_at";
     public static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_TYPE, C_ASSET_ID, C_PAYLOAD_CHECKSUM, C_PROTOCOL, C_URI, C_FILESIZE, C_FILETYPE, C_META_JSON_BLOB, C_ATTEMPTS, C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    public final DbQueued dbQueued;
+    public final DbCompleted dbCompleted;
+    public final DbSkipped dbSkipped;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public AssetDownloadDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true;//ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbQueued = new DbQueued(context);
+        this.dbCompleted = new DbCompleted(context);
+        this.dbSkipped = new DbSkipped(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -109,9 +111,6 @@ public class AssetDownloadDb {
 
     }
 
-    public final DbQueued dbQueued;
-
-
     public class DbCompleted {
 
         final DbUtils dbUtils;
@@ -160,9 +159,6 @@ public class AssetDownloadDb {
 
     }
 
-    public final DbCompleted dbCompleted;
-
-
     public class DbSkipped {
 
         final DbUtils dbUtils;
@@ -210,6 +206,4 @@ public class AssetDownloadDb {
         }
 
     }
-
-    public final DbSkipped dbSkipped;
 }

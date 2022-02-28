@@ -10,14 +10,13 @@ import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 public class ClassifyStatus extends RfcxStatus {
 
     private static final String fetchTargetRole = "guardian";
+    private final RfcxGuardian app;
 
     public ClassifyStatus(Context context) {
         super(RfcxGuardian.APP_ROLE, fetchTargetRole, ((RfcxGuardian) context.getApplicationContext()).rfcxGuardianIdentity, context.getContentResolver());
         this.app = (RfcxGuardian) context.getApplicationContext();
         setOrResetCacheExpirations(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION));
     }
-
-    private final RfcxGuardian app;
 
     @Override
     protected boolean[] getStatusBasedOnRoleSpecificLogic(int group, boolean[] fallbackValues, boolean printFeedbackInLog) {

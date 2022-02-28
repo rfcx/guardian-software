@@ -7,22 +7,18 @@ import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioCastSocketService extends Service {
 
     public static final String SERVICE_NAME = "AudioCastSocket";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastSocketService");
-
-    private RfcxGuardian app;
-
-    private boolean runFlag = false;
-    private AudioCastSocketSvc audioCastSocketSvc;
-
     private static final long minPushCycleDurationMs = 100;
     private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
     private static final int maxSendFailureThreshold = 24;
+    private RfcxGuardian app;
+    private boolean runFlag = false;
+    private AudioCastSocketSvc audioCastSocketSvc;
 
     @Override
     public IBinder onBind(Intent intent) {

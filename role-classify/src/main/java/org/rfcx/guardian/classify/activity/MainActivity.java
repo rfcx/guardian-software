@@ -1,22 +1,12 @@
 package org.rfcx.guardian.classify.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import org.rfcx.guardian.classify.R;
 import org.rfcx.guardian.classify.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-
-import java.util.List;
 
 public class MainActivity extends Activity {
 

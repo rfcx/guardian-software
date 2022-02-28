@@ -5,8 +5,8 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -17,25 +17,36 @@ import java.util.Map;
 
 public class SentryAccelUtils {
 
-    public SentryAccelUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-        initSentryAccelI2cOptions();
-    }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentryAccelUtils");
-
     public static final long samplesTakenPerCaptureCycle = 1;
-
-    RfcxGuardian app;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentryAccelUtils");
     private static final String i2cMainAddr = "0x18";
-
+    public boolean verboseLogging = false;
+    RfcxGuardian app;
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cTmpValues = new HashMap<>();
     private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
 
     private List<double[]> accelValues = new ArrayList<>();
 
-    public boolean verboseLogging = false;
+    public SentryAccelUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        initSentryAccelI2cOptions();
+    }
+
+    private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
+        double modifiedValue = 0;
+
+        if (i2cLabel.equals("accel-x") || i2cLabel.equals("accel-y") || i2cLabel.equals("accel-z")) {
+            modifiedValue = 976.5625 * i2cRawValue / 16384;
+
+        } else if (i2cLabel.equals("accel-temp")) {
+            modifiedValue = i2cRawValue + 23;
+
+        } else {
+            Log.d(logTag, "No known value modifier for i2c label '" + i2cLabel + "'.");
+        }
+        return modifiedValue;
+    }
 
     private void initSentryAccelI2cOptions() {
 
@@ -132,21 +143,6 @@ public class SentryAccelUtils {
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
-    }
-
-    private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
-        double modifiedValue = 0;
-
-        if (i2cLabel.equals("accel-x") || i2cLabel.equals("accel-y") || i2cLabel.equals("accel-z")) {
-            modifiedValue = 976.5625 * i2cRawValue / 16384;
-
-        } else if (i2cLabel.equals("accel-temp")) {
-            modifiedValue = i2cRawValue + 23;
-
-        } else {
-            Log.d(logTag, "No known value modifier for i2c label '" + i2cLabel + "'.");
-        }
-        return modifiedValue;
     }
 
     public void saveSentryAccelValuesToDatabase(boolean printValuesToLog) {

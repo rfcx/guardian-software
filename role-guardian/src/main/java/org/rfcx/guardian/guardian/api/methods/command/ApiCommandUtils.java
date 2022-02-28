@@ -16,13 +16,32 @@ import java.util.List;
 
 public class ApiCommandUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCommandUtils");
+    private final RfcxGuardian app;
+
     public ApiCommandUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCommandUtils");
+    private static String extractAssetIdFromJsonArrayAtIndex(JSONArray jsonArr, int ind) throws JSONException {
+        if ((jsonArr.get(ind) instanceof JSONObject) && jsonArr.getJSONObject(ind).has("id")) {
+            return jsonArr.getJSONObject(ind).getString("id");
+        } else if (jsonArr.get(ind) instanceof String) {
+            return jsonArr.getString(ind);
+        }
+        return null;
+    }
 
-    private final RfcxGuardian app;
+    private static String getAssetTypeFromStatusJson(JSONObject jsonObj) {
+        if (jsonObj.has("type") && jsonObj.has("id")) {
+            try {
+                return RfcxAsset.getAssetTypeName(jsonObj.getString("type"));
+            } catch (JSONException e) {
+                RfcxLog.logExc(logTag, e);
+            }
+        }
+        return null;
+    }
 
     public void processApiCommandJson(String jsonStr, String originProtocol) {
 
@@ -169,28 +188,6 @@ public class ApiCommandUtils {
             }
         }
     }
-
-
-    private static String extractAssetIdFromJsonArrayAtIndex(JSONArray jsonArr, int ind) throws JSONException {
-        if ((jsonArr.get(ind) instanceof JSONObject) && jsonArr.getJSONObject(ind).has("id")) {
-            return jsonArr.getJSONObject(ind).getString("id");
-        } else if (jsonArr.get(ind) instanceof String) {
-            return jsonArr.getString(ind);
-        }
-        return null;
-    }
-
-    private static String getAssetTypeFromStatusJson(JSONObject jsonObj) {
-        if (jsonObj.has("type") && jsonObj.has("id")) {
-            try {
-                return RfcxAsset.getAssetTypeName(jsonObj.getString("type"));
-            } catch (JSONException e) {
-                RfcxLog.logExc(logTag, e);
-            }
-        }
-        return null;
-    }
-
 
     private void processCheckInId(JSONObject jsonObj, String audId) throws JSONException {
         if (jsonObj.has("checkin_id")) {

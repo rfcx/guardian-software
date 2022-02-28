@@ -68,6 +68,35 @@ public class AudioCaptureService extends Service {
         this.audioCaptureSvc = null;
     }
 
+    private boolean confirmOrSetAudioCaptureParameters() {
+
+        if (app != null) {
+
+            app.audioCaptureUtils.updateSamplingRatioIteration();
+
+            int captureSampleRate = app.audioCaptureUtils.getRequiredCaptureSampleRate();
+            int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
+
+            if ((this.audioSampleRate != captureSampleRate)
+                    || (this.audioCycleDuration != prefsAudioCycleDuration)
+            ) {
+
+                this.audioSampleRate = captureSampleRate;
+                this.audioCycleDuration = prefsAudioCycleDuration;
+                innerLoopIterationDuration = Math.round((prefsAudioCycleDuration * 1000) / RfcxStatus.ratioExpirationToAudioCycleDuration);
+
+                Log.d(logTag, "Audio Capture Params"
+                        + " - Cycle: " + DateTimeUtils.milliSecondDurationAsReadableString(prefsAudioCycleDuration * 1000)
+                        + " - Sample Rate: " + Math.round(((double) captureSampleRate) / 1000) + " kHz");
+            }
+
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
     private class AudioCaptureSvc extends Thread {
 
         public AudioCaptureSvc() {
@@ -113,7 +142,7 @@ public class AudioCaptureService extends Service {
                         Log.i(logTag, "Start of Audio Capture Loop...");
 
                     } else if (wavRecorder != null) {
-                        // in this case, we assume that the state has changed and capture is no longer allowed... 
+                        // in this case, we assume that the state has changed and capture is no longer allowed...
                         // ...but there is a capture in progress, so we take a snapshot and halt the recorder.
                         wavRecorder.haltRecording();
                         wavRecorder = null;
@@ -154,35 +183,6 @@ public class AudioCaptureService extends Service {
             Log.v(logTag, "Stopping service: " + logTag);
 
         }
-    }
-
-    private boolean confirmOrSetAudioCaptureParameters() {
-
-        if (app != null) {
-
-            app.audioCaptureUtils.updateSamplingRatioIteration();
-
-            int captureSampleRate = app.audioCaptureUtils.getRequiredCaptureSampleRate();
-            int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
-
-            if ((this.audioSampleRate != captureSampleRate)
-                    || (this.audioCycleDuration != prefsAudioCycleDuration)
-            ) {
-
-                this.audioSampleRate = captureSampleRate;
-                this.audioCycleDuration = prefsAudioCycleDuration;
-                innerLoopIterationDuration = Math.round((prefsAudioCycleDuration * 1000) / RfcxStatus.ratioExpirationToAudioCycleDuration);
-
-                Log.d(logTag, "Audio Capture Params"
-                        + " - Cycle: " + DateTimeUtils.milliSecondDurationAsReadableString(prefsAudioCycleDuration * 1000)
-                        + " - Sample Rate: " + Math.round(((double) captureSampleRate) / 1000) + " kHz");
-            }
-
-        } else {
-            return false;
-        }
-
-        return true;
     }
 
 

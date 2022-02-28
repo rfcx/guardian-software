@@ -11,16 +11,7 @@ import java.util.List;
 
 public class AudioPlaybackDb {
 
-    public AudioPlaybackDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbQueued = new DbQueued(context);
-        this.dbCompleted = new DbCompleted(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "playback";
-
     static final String C_CREATED_AT = "created_at";
     static final String C_ASSET_ID = "asset_id";
     static final String C_FORMAT = "format";
@@ -28,11 +19,20 @@ public class AudioPlaybackDb {
     static final String C_FILEPATH = "filepath";
     static final String C_DURATION = "duration";
     static final String C_ATTEMPTS = "attempts";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_ID, C_FORMAT, C_SAMPLE_RATE, C_FILEPATH, C_DURATION, C_ATTEMPTS};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_ID, C_FORMAT, C_SAMPLE_RATE, C_FILEPATH, C_DURATION, C_ATTEMPTS};
+    public final DbQueued dbQueued;
+    public final DbCompleted dbCompleted;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+
+    public AudioPlaybackDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbQueued = new DbQueued(context);
+        this.dbCompleted = new DbCompleted(context);
+    }
 
     private static String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -47,7 +47,6 @@ public class AudioPlaybackDb {
                 .append(")");
         return sbOut.toString();
     }
-
 
     public class DbQueued {
 
@@ -93,9 +92,6 @@ public class AudioPlaybackDb {
 
     }
 
-    public final DbQueued dbQueued;
-
-
     public class DbCompleted {
 
         final DbUtils dbUtils;
@@ -139,8 +135,6 @@ public class AudioPlaybackDb {
 
 
     }
-
-    public final DbCompleted dbCompleted;
 
 
 }

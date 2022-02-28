@@ -3,8 +3,8 @@ package org.rfcx.guardian.guardian.asset.library;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -12,16 +12,7 @@ import java.util.List;
 
 public class AssetLibraryDb {
 
-    public AssetLibraryDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbAudio = new DbAudio(context);
-        this.dbClassifier = new DbClassifier(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "library";
-
     static final String C_CREATED_AT = "created_at";
     static final String C_ASSET_ID = "asset_id";
     static final String C_ASSET_TYPE = "asset_type";
@@ -34,11 +25,20 @@ public class AssetLibraryDb {
     static final String C_META_NUMERIC_2 = "meta_numeric_2";
     static final String C_ATTEMPTS = "attempts";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_ID, C_ASSET_TYPE, C_FORMAT, C_DIGEST, C_FILEPATH, C_FILESIZE, C_META_TEXT, C_META_NUMERIC_1, C_META_NUMERIC_2, C_ATTEMPTS, C_LAST_ACCESSED_AT};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_ID, C_ASSET_TYPE, C_FORMAT, C_DIGEST, C_FILEPATH, C_FILESIZE, C_META_TEXT, C_META_NUMERIC_1, C_META_NUMERIC_2, C_ATTEMPTS, C_LAST_ACCESSED_AT};
+    public final DbAudio dbAudio;
+    public final DbClassifier dbClassifier;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+
+    public AssetLibraryDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbAudio = new DbAudio(context);
+        this.dbClassifier = new DbClassifier(context);
+    }
 
     private static String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -58,7 +58,6 @@ public class AssetLibraryDb {
                 .append(")");
         return sbOut.toString();
     }
-
 
     public class DbAudio {
 
@@ -108,9 +107,6 @@ public class AssetLibraryDb {
         }
 
     }
-
-    public final DbAudio dbAudio;
-
 
     public class DbClassifier {
 
@@ -168,8 +164,6 @@ public class AssetLibraryDb {
         }
 
     }
-
-    public final DbClassifier dbClassifier;
 
 
 }

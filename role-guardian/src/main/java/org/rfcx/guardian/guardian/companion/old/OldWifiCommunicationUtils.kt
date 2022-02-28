@@ -6,7 +6,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 class OldWifiCommunicationUtils(private val context: Context) {
 

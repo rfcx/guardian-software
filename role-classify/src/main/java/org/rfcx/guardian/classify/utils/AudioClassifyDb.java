@@ -11,15 +11,7 @@ import java.util.List;
 
 public class AudioClassifyDb {
 
-    public AudioClassifyDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbQueued = new DbQueued(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "audio-classify";
-
     static final String C_CREATED_AT = "created_at";
     static final String C_AUDIO_ID = "audio_id";
     static final String C_CLASSIFIER_ID = "classifier_id";
@@ -33,11 +25,17 @@ public class AudioClassifyDb {
     static final String C_CLASSIFIER_STEP_SIZE = "classifier_step_size";
     static final String C_CLASSIFIER_CLASSIFICATIONS = "classifier_classes";
     static final String C_ATTEMPTS = "attempts";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_AUDIO_ID, C_CLASSIFIER_ID, C_CLASSIFIER_VERSION, C_ORIGINAL_SAMPLE_RATE, C_CLASSIFIER_SAMPLE_RATE, C_CLASSIFIER_INPUT_GAIN, C_AUDIO_FILEPATH, C_CLASSIFIER_FILEPATH, C_CLASSIFIER_WINDOW_SIZE, C_CLASSIFIER_STEP_SIZE, C_CLASSIFIER_CLASSIFICATIONS, C_ATTEMPTS};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_AUDIO_ID, C_CLASSIFIER_ID, C_CLASSIFIER_VERSION, C_ORIGINAL_SAMPLE_RATE, C_CLASSIFIER_SAMPLE_RATE, C_CLASSIFIER_INPUT_GAIN, C_AUDIO_FILEPATH, C_CLASSIFIER_FILEPATH, C_CLASSIFIER_WINDOW_SIZE, C_CLASSIFIER_STEP_SIZE, C_CLASSIFIER_CLASSIFICATIONS, C_ATTEMPTS};
+    public final DbQueued dbQueued;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public AudioClassifyDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbQueued = new DbQueued(context);
+    }
 
     private static String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -58,7 +56,6 @@ public class AudioClassifyDb {
                 .append(")");
         return sbOut.toString();
     }
-
 
     public class DbQueued {
 
@@ -103,8 +100,6 @@ public class AudioClassifyDb {
         }
 
     }
-
-    public final DbQueued dbQueued;
 
 
 }

@@ -14,13 +14,12 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiSmsUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSmsUtils");
+    private RfcxGuardian app;
+
     public ApiSmsUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSmsUtils");
-
-    private RfcxGuardian app;
 
     public boolean queueSmsToApiToSendImmediately(String msgBody) {
         return queueSmsToSend(null, null, msgBody);

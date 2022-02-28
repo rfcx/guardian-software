@@ -1,6 +1,6 @@
 package org.rfcx.guardian.audio.wav;
 
-import java.io.*;
+import java.io.File;
 
 public class ReadExample {
     public static void main(String[] args) {

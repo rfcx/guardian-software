@@ -2,12 +2,10 @@ package org.rfcx.guardian.admin.comms.swm.api
 
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
-import org.rfcx.guardian.admin.comms.swm.SwmUtils
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import java.lang.Exception
 
 class SwmUartShell(
     private val ttyPath: String = DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE,

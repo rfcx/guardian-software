@@ -1,33 +1,33 @@
 package org.rfcx.guardian.guardian.asset;
 
+import android.content.ContentValues;
+import android.content.Context;
+
+import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
-
-import android.content.ContentValues;
-import android.content.Context;
-
 public class AssetExchangeLogDb {
+
+    static final String DATABASE = "asset-exchange-log";
+    static final String C_CREATED_AT = "created_at";
+    static final String C_ASSET_TYPE = "asset_type";
+    static final String C_TIMESTAMP = "timestamp";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_TYPE, C_TIMESTAMP};
+    public final DbPurged dbPurged;
+    private int VERSION = 1;
+    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     public AssetExchangeLogDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
         this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
         this.dbPurged = new DbPurged(context);
     }
-
-    private int VERSION = 1;
-    static final String DATABASE = "asset-exchange-log";
-    static final String C_CREATED_AT = "created_at";
-    static final String C_ASSET_TYPE = "asset_type";
-    static final String C_TIMESTAMP = "timestamp";
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_TYPE, C_TIMESTAMP};
-
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -81,8 +81,6 @@ public class AssetExchangeLogDb {
         }
 
     }
-
-    public final DbPurged dbPurged;
 
 
 }

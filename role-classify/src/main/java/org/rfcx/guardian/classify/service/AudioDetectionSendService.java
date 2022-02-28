@@ -3,19 +3,11 @@ package org.rfcx.guardian.classify.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 
-import org.json.JSONObject;
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
-import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
-import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
-import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.List;

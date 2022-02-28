@@ -26,16 +26,29 @@ import java.util.Locale;
 
 public class MetaJsonUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MetaJsonUtils");
+    private RfcxGuardian app;
+
     public MetaJsonUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MetaJsonUtils");
-
-    private RfcxGuardian app;
-
+    public static String getConcatMetaField(JSONArray metaJsonArray) throws JSONException {
+        ArrayList<String> metaBlobs = new ArrayList<String>();
+        for (int i = 0; i < metaJsonArray.length(); i++) {
+            JSONObject metaJsonRow = metaJsonArray.getJSONObject(i);
+            Iterator<String> paramLabels = metaJsonRow.keys();
+            while (paramLabels.hasNext()) {
+                String paramLabel = paramLabels.next();
+                if ((metaJsonRow.get(paramLabel) instanceof String) && (metaJsonRow.getString(paramLabel).length() > 0)) {
+                    metaBlobs.add(metaJsonRow.getString(paramLabel));
+                }
+            }
+        }
+        return (metaBlobs.size() > 0) ? TextUtils.join("|", metaBlobs) : "";
+    }
 
     public void createSystemMetaDataJsonSnapshot() throws JSONException {
 
@@ -200,22 +213,6 @@ public class MetaJsonUtils {
         }
         return metaDataJsonObj;
     }
-
-    public static String getConcatMetaField(JSONArray metaJsonArray) throws JSONException {
-        ArrayList<String> metaBlobs = new ArrayList<String>();
-        for (int i = 0; i < metaJsonArray.length(); i++) {
-            JSONObject metaJsonRow = metaJsonArray.getJSONObject(i);
-            Iterator<String> paramLabels = metaJsonRow.keys();
-            while (paramLabels.hasNext()) {
-                String paramLabel = paramLabels.next();
-                if ((metaJsonRow.get(paramLabel) instanceof String) && (metaJsonRow.getString(paramLabel).length() > 0)) {
-                    metaBlobs.add(metaJsonRow.getString(paramLabel));
-                }
-            }
-        }
-        return (metaBlobs.size() > 0) ? TextUtils.join("|", metaBlobs) : "";
-    }
-
 
     public JSONObject buildPrefsJsonObj(boolean overrideLimitByLastAccessedAt, boolean forceFullValuesDump) {
 

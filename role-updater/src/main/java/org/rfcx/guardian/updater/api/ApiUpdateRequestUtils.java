@@ -1,36 +1,33 @@
 package org.rfcx.guardian.updater.api;
 
-import java.util.List;
+import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.updater.service.ApiUpdateRequestService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.install.InstallUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import android.content.Context;
-import android.util.Log;
+import java.util.List;
 
 public class ApiUpdateRequestUtils {
 
+    public static final long minimumAllowedIntervalBetweenUpdateRequests = 30; // in minutes
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestUtils");
+    public long lastUpdateRequestTriggered = 0;
+    public long lastUpdateRequestTime = System.currentTimeMillis();
+    private Context context;
+    private RfcxGuardian app;
     public ApiUpdateRequestUtils(Context context) {
         this.context = context;
         this.app = (RfcxGuardian) context.getApplicationContext();
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestUtils");
-
-    private Context context;
-    private RfcxGuardian app;
-
-    public static final long minimumAllowedIntervalBetweenUpdateRequests = 30; // in minutes
-    public long lastUpdateRequestTriggered = 0;
-    public long lastUpdateRequestTime = System.currentTimeMillis();
 
     public boolean apiUpdateRequestFollowUp(String targetRole, List<JSONObject> jsonList) {
 

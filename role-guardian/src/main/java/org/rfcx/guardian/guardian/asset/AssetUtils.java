@@ -16,8 +16,8 @@ import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -28,16 +28,14 @@ import java.util.List;
 
 public class AssetUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetUtils");
+    private RfcxGuardian app;
+
     public AssetUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetUtils");
-
-    private RfcxGuardian app;
-
 
     public String[] getLatestExternalAssetMeta(String assetType, long excludeAssetsLastAccessWithinDuration) {
 

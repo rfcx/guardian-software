@@ -1,12 +1,11 @@
 package org.rfcx.guardian.admin.device.i2c;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -81,52 +80,6 @@ public class DeviceI2cService extends Service {
         app.rfcxSvc.setRunState(SERVICE_NAME, false);
         this.deviceI2cSvc.interrupt();
         this.deviceI2cSvc = null;
-    }
-
-
-    private class DeviceI2cSvc extends Thread {
-
-        public DeviceI2cSvc() {
-            super("DeviceI2cService-DeviceI2cSvc");
-        }
-
-        @Override
-        public void run() {
-            DeviceI2cService deviceI2cService = DeviceI2cService.this;
-
-            app = (RfcxGuardian) getApplication();
-
-            while (deviceI2cService.runFlag) {
-
-                try {
-
-                    confirmOrSetCaptureParameters();
-
-                    if (innerLoopDelayRemainderInMilliseconds > 0) {
-                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-                    }
-
-                    // Inner Loop Behavior
-                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
-
-                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
-
-                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                        // Outer Loop Behavior
-                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
-
-                    }
-
-                } catch (InterruptedException e) {
-                    deviceI2cService.runFlag = false;
-                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                    RfcxLog.logExc(logTag, e);
-                }
-
-            }
-            Log.v(logTag, "Stopping service: " + logTag);
-        }
     }
 
     private int triggerOrSkipInnerLoopBehavior(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
@@ -211,6 +164,51 @@ public class DeviceI2cService extends Service {
         }
 
         return true;
+    }
+
+    private class DeviceI2cSvc extends Thread {
+
+        public DeviceI2cSvc() {
+            super("DeviceI2cService-DeviceI2cSvc");
+        }
+
+        @Override
+        public void run() {
+            DeviceI2cService deviceI2cService = DeviceI2cService.this;
+
+            app = (RfcxGuardian) getApplication();
+
+            while (deviceI2cService.runFlag) {
+
+                try {
+
+                    confirmOrSetCaptureParameters();
+
+                    if (innerLoopDelayRemainderInMilliseconds > 0) {
+                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+                    }
+
+                    // Inner Loop Behavior
+                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
+
+                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
+
+                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+                        // Outer Loop Behavior
+                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
+
+                    }
+
+                } catch (InterruptedException e) {
+                    deviceI2cService.runFlag = false;
+                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                    RfcxLog.logExc(logTag, e);
+                }
+
+            }
+            Log.v(logTag, "Stopping service: " + logTag);
+        }
     }
 
 }

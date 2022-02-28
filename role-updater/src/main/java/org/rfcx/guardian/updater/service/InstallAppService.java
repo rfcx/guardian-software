@@ -1,15 +1,15 @@
 package org.rfcx.guardian.updater.service;
 
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.util.Log;
+
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
-
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-import android.util.Log;
 
 public class InstallAppService extends Service {
 

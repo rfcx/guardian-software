@@ -3,14 +3,26 @@ package org.rfcx.guardian.admin.device.android.system;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
 import java.util.List;
 
 public class DeviceSensorDb {
+
+    static final String DATABASE = "device";
+    static final String C_MEASURED_AT = "measured_at";
+    static final String C_VALUE_1 = "value_1";
+    static final String C_VALUE_2 = "value_2";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2};
+    public final DbLightMeter dbLightMeter;
+    public final DbAccelerometer dbAccelerometer;
+    public final DbGeoPosition dbGeoPosition;
+    private int VERSION = 1;
+    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     public DeviceSensorDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
@@ -19,16 +31,6 @@ public class DeviceSensorDb {
         this.dbAccelerometer = new DbAccelerometer(context);
         this.dbGeoPosition = new DbGeoPosition(context);
     }
-
-    private int VERSION = 1;
-    static final String DATABASE = "device";
-    static final String C_MEASURED_AT = "measured_at";
-    static final String C_VALUE_1 = "value_1";
-    static final String C_VALUE_2 = "value_2";
-    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2};
-
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -76,9 +78,6 @@ public class DeviceSensorDb {
 
     }
 
-    public final DbLightMeter dbLightMeter;
-
-
     public class DbAccelerometer {
 
         final DbUtils dbUtils;
@@ -113,8 +112,6 @@ public class DeviceSensorDb {
 
     }
 
-    public final DbAccelerometer dbAccelerometer;
-
     public class DbGeoPosition {
 
         final DbUtils dbUtils;
@@ -148,7 +145,5 @@ public class DeviceSensorDb {
         }
 
     }
-
-    public final DbGeoPosition dbGeoPosition;
 
 }

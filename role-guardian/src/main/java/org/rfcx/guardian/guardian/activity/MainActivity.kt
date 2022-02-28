@@ -23,11 +23,8 @@ import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
-import org.rfcx.guardian.guardian.utils.AudioSettingUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
-import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 
 class MainActivity : Activity(),

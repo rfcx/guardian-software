@@ -19,15 +19,13 @@ import java.util.Locale;
 
 public class InstructionsUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsUtils");
+    private static final String[] localProtocols = new String[]{"socket", "contentprovider"};
+    private RfcxGuardian app;
+
     public InstructionsUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsUtils");
-
-    private RfcxGuardian app;
-
-    private static final String[] localProtocols = new String[]{"socket", "contentprovider"};
 
     public void processReceivedInstructionJson(JSONArray instrJsonArr, String originProtocol) {
         try {

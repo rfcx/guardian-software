@@ -1,7 +1,9 @@
 package org.rfcx.guardian.admin.comms.swm.api
 
 import android.util.Log
-import org.rfcx.guardian.admin.comms.swm.data.*
+import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -76,12 +78,12 @@ class SwmApi(private val connection: SwmConnection) {
         val result =
             connection.executeWithoutTimeout(Command.RT.name, "2").filter { !it.contains("OK") }
                 .firstOrNull()?.let { payload ->
-                Log.d("RfcxSwmCommand", "RT Res=$payload")
-                "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { match ->
-                    val (rssi) = match.destructured
-                    SwmRTBackgroundResponse(rssi = rssi.toInt())
+                    Log.d("RfcxSwmCommand", "RT Res=$payload")
+                    "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { match ->
+                        val (rssi) = match.destructured
+                        SwmRTBackgroundResponse(rssi = rssi.toInt())
+                    }
                 }
-            }
         Log.d("RfcxSwmCommand", "RT RSSI=${result?.rssi}")
         // Set the rate back to off
         connection.executeWithoutTimeout(Command.RT.name, "0")

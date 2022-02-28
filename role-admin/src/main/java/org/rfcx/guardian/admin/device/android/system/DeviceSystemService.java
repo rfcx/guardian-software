@@ -37,27 +37,21 @@ public class DeviceSystemService extends Service implements SensorEventListener,
     public static final String SERVICE_NAME = "DeviceSystem";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSystemService");
-
+    private final long[] captureCycleMeasuredDurations = new long[]{0, 0, 0};
+    private final double[] captureCyclePercentageMultipliers = new double[]{0, 0, 0};
     private RfcxGuardian app;
-
     private boolean runFlag = false;
     private DeviceSystemSvc deviceSystemSvc;
-
     private int referenceCycleDuration = 1;
     private int referenceLoopDuration = 1;
-
     private int innerLoopIncrement = 1;
     private int innerLoopsPerCaptureCycle = 1;
     private int innerLoopUponWhichToTriggerStatusCacheUpdate = 1;
     private long innerLoopDelayRemainderInMilliseconds = 0;
-
     // Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
     // This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
     private double captureCycleLastDurationPercentageMultiplier = 0.98;
     private long captureCycleLastStartTime = 0;
-    private final long[] captureCycleMeasuredDurations = new long[]{0, 0, 0};
-    private final double[] captureCyclePercentageMultipliers = new double[]{0, 0, 0};
-
     private int outerLoopIncrement = 0;
     private int outerLoopCaptureCount = 0;
 
@@ -164,58 +158,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         unRegisterListener("accel");
     }
 
-
-    private class DeviceSystemSvc extends Thread {
-
-        public DeviceSystemSvc() {
-            super("DeviceSystemService-DeviceSensorSvc");
-        }
-
-        @Override
-        public void run() {
-            DeviceSystemService deviceSystemService = DeviceSystemService.this;
-
-            app = (RfcxGuardian) getApplication();
-
-            while (deviceSystemService.runFlag) {
-
-                try {
-
-                    confirmOrSetCaptureParameters();
-
-                    if (innerLoopDelayRemainderInMilliseconds > 0) {
-                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-                    }
-
-                    // Sample CPU Stats
-                    app.deviceCPU.update();
-
-                    // Inner Loop Behavior
-                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
-
-                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
-                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                        // Outer Loop Behavior
-                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
-
-                    } else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
-
-                        // Trigger Status Cache Update in advance
-                        app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
-                    }
-
-                } catch (InterruptedException e) {
-                    deviceSystemService.runFlag = false;
-                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                    RfcxLog.logExc(logTag, e);
-                }
-            }
-            Log.v(logTag, "Stopping service: " + logTag);
-        }
-    }
-
-
     private boolean confirmOrSetCaptureParameters() {
 
         if ((app != null) && (innerLoopIncrement == 1)) {
@@ -248,7 +190,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
         return true;
     }
-
 
     private int triggerOrSkipInnerLoopBehavior(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
 
@@ -326,7 +267,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         return outerLoopIncrement;
     }
 
-
     private void setOrUnSetReducedCaptureModeListeners() {
 
         if (app.deviceUtils.isReducedCaptureModeActive) {
@@ -339,7 +279,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
         }
     }
-
 
     private void cacheSnapshotValues(String sensorAbbrev, double[] vals) {
 
@@ -385,7 +324,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 
     }
-
 
     private void registerListener(String sensorAbbrev) {
 
@@ -607,31 +545,15 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         }
     }
 
-
-    /*
-     *  These are methods for PhoneStateListener
-     */
-
-    public class SignalStrengthListener extends PhoneStateListener {
-        @Override
-        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-            super.onSignalStrengthsChanged(signalStrength);
-            app.deviceMobileNetwork.setTelephonySignalStrength(signalStrength);
-            cacheSnapshotValues("telephony", new double[]{});
-        }
-    }
-
-
-
-
-    /*
-     *  These are methods for SensorEventListener
-     */
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // TODO Auto-generated method stub
     }
+
+
+    /*
+     *  These are methods for PhoneStateListener
+     */
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -653,8 +575,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
     }
 
 
+
+
     /*
-     *  These are methods for LocationListener
+     *  These are methods for SensorEventListener
      */
 
     @Override
@@ -672,6 +596,11 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
     }
 
+
+    /*
+     *  These are methods for LocationListener
+     */
+
     @Override
     public void onProviderEnabled(String provider) {
         //	Log.e(logTag, "Running onProviderDisabled...");
@@ -684,6 +613,65 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         //	Log.e(logTag, "Running onStatusChanged...");
         // TODO Auto-generated method stub
 
+    }
+
+    private class DeviceSystemSvc extends Thread {
+
+        public DeviceSystemSvc() {
+            super("DeviceSystemService-DeviceSensorSvc");
+        }
+
+        @Override
+        public void run() {
+            DeviceSystemService deviceSystemService = DeviceSystemService.this;
+
+            app = (RfcxGuardian) getApplication();
+
+            while (deviceSystemService.runFlag) {
+
+                try {
+
+                    confirmOrSetCaptureParameters();
+
+                    if (innerLoopDelayRemainderInMilliseconds > 0) {
+                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+                    }
+
+                    // Sample CPU Stats
+                    app.deviceCPU.update();
+
+                    // Inner Loop Behavior
+                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
+
+                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
+                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+                        // Outer Loop Behavior
+                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
+
+                    } else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
+
+                        // Trigger Status Cache Update in advance
+                        app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
+                    }
+
+                } catch (InterruptedException e) {
+                    deviceSystemService.runFlag = false;
+                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                    RfcxLog.logExc(logTag, e);
+                }
+            }
+            Log.v(logTag, "Stopping service: " + logTag);
+        }
+    }
+
+    public class SignalStrengthListener extends PhoneStateListener {
+        @Override
+        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+            super.onSignalStrengthsChanged(signalStrength);
+            app.deviceMobileNetwork.setTelephonySignalStrength(signalStrength);
+            cacheSnapshotValues("telephony", new double[]{});
+        }
     }
 
 }

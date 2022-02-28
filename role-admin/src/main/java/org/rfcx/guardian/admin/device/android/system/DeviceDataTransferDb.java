@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.rfcx.guardian.utility.misc.DbUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -12,13 +11,6 @@ import java.util.List;
 
 public class DeviceDataTransferDb {
 
-    public DeviceDataTransferDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbTransferred = new DbTransferred(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "data";
     static final String C_CREATED_AT = "created_at";
     static final String C_START_TIME = "start_time";
@@ -31,10 +23,17 @@ public class DeviceDataTransferDb {
     static final String C_NETWORK_BYTES_SENT_CURRENT = "network_bytes_sent_current";
     static final String C_NETWORK_BYTES_RECEIVED_TOTAL = "network_bytes_received_total";
     static final String C_NETWORK_BYTES_SENT_TOTAL = "network_bytes_sent_total";
-    private static final String[] ALL_COLUMNS = new String[]{C_START_TIME, C_END_TIME, C_MOBILE_BYTES_RECEIVED_CURRENT, C_MOBILE_BYTES_SENT_CURRENT, C_MOBILE_BYTES_RECEIVED_TOTAL, C_MOBILE_BYTES_SENT_TOTAL, C_NETWORK_BYTES_RECEIVED_CURRENT, C_NETWORK_BYTES_SENT_CURRENT, C_NETWORK_BYTES_RECEIVED_TOTAL, C_NETWORK_BYTES_SENT_TOTAL};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_START_TIME, C_END_TIME, C_MOBILE_BYTES_RECEIVED_CURRENT, C_MOBILE_BYTES_SENT_CURRENT, C_MOBILE_BYTES_RECEIVED_TOTAL, C_MOBILE_BYTES_SENT_TOTAL, C_NETWORK_BYTES_RECEIVED_CURRENT, C_NETWORK_BYTES_SENT_CURRENT, C_NETWORK_BYTES_RECEIVED_TOTAL, C_NETWORK_BYTES_SENT_TOTAL};
+    public final DbTransferred dbTransferred;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public DeviceDataTransferDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbTransferred = new DbTransferred(context);
+    }
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -96,8 +95,6 @@ public class DeviceDataTransferDb {
             return DbUtils.getConcatRows(getAllRows());
         }
     }
-
-    public final DbTransferred dbTransferred;
 
 
 }

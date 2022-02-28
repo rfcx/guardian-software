@@ -3,14 +3,28 @@ package org.rfcx.guardian.admin.device.android.system;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
 import java.util.List;
 
 public class DeviceSystemDb {
+
+    static final String DATABASE = "device";
+    static final String C_MEASURED_AT = "measured_at";
+    static final String C_VALUE_1 = "value_1";
+    static final String C_VALUE_2 = "value_2";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2};
+    public final DbCPU dbCPU;
+    public final DbBattery dbBattery;
+    public final DbTelephony dbTelephony;
+    public final DbDateTimeOffsets dbDateTimeOffsets;
+    private int VERSION = 1;
+    private boolean DROP_TABLE_ON_UPGRADE = false;
+
 
     public DeviceSystemDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
@@ -20,16 +34,6 @@ public class DeviceSystemDb {
         this.dbTelephony = new DbTelephony(context);
         this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
     }
-
-    private int VERSION = 1;
-    static final String DATABASE = "device";
-    static final String C_MEASURED_AT = "measured_at";
-    static final String C_VALUE_1 = "value_1";
-    static final String C_VALUE_2 = "value_2";
-    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2};
-
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -77,9 +81,6 @@ public class DeviceSystemDb {
 
     }
 
-    public final DbCPU dbCPU;
-
-
     public class DbBattery {
 
         final DbUtils dbUtils;
@@ -113,9 +114,6 @@ public class DeviceSystemDb {
         }
 
     }
-
-    public final DbBattery dbBattery;
-
 
     public class DbTelephony {
 
@@ -154,8 +152,6 @@ public class DeviceSystemDb {
 
     }
 
-    public final DbTelephony dbTelephony;
-
     public class DbDateTimeOffsets {
 
         final DbUtils dbUtils;
@@ -189,7 +185,5 @@ public class DeviceSystemDb {
         }
 
     }
-
-    public final DbDateTimeOffsets dbDateTimeOffsets;
 
 }

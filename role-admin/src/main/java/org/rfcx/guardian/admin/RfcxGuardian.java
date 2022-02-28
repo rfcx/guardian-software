@@ -1,88 +1,5 @@
 package org.rfcx.guardian.admin;
 
-import org.rfcx.guardian.admin.asset.AssetUtils;
-import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
-import org.rfcx.guardian.admin.comms.swm.SwmDiagnosticService;
-import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
-import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
-import org.rfcx.guardian.admin.comms.swm.SwmMetaDb;
-import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
-import org.rfcx.guardian.admin.companion.CompanionSocketService;
-import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
-import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
-import org.rfcx.guardian.admin.device.android.capture.CameraCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureService;
-import org.rfcx.guardian.admin.device.android.control.AirplaneModeSetService;
-import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
-import org.rfcx.guardian.admin.device.android.control.SystemCPUGovernorService;
-import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
-import org.rfcx.guardian.admin.device.android.network.BluetoothStateSetService;
-import org.rfcx.guardian.admin.device.android.network.SSHStateSetService;
-import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
-import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
-import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchCycleService;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
-import org.rfcx.guardian.admin.comms.sbd.SbdMessageDb;
-import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
-import org.rfcx.guardian.admin.comms.swm.SwmDispatchTimeoutService;
-import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
-import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
-import org.rfcx.guardian.admin.device.android.network.ADBStateSetService;
-import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
-import org.rfcx.guardian.admin.device.android.network.WifiStateSetService;
-import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
-import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
-import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
-import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
-import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
-import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
-import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
-import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
-import org.rfcx.guardian.admin.status.AdminStatus;
-import org.rfcx.guardian.admin.status.StatusCacheService;
-import org.rfcx.guardian.admin.comms.swm.SwmMessageDb;
-import org.rfcx.guardian.admin.comms.swm.SwmUtils;
-import org.rfcx.guardian.i2c.DeviceI2cUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceBattery;
-import org.rfcx.guardian.utility.device.capture.DeviceCPU;
-import org.rfcx.guardian.utility.device.control.DeviceCPUGovernor;
-import org.rfcx.guardian.utility.device.telephony.DeviceMobileNetwork;
-import org.rfcx.guardian.utility.device.telephony.DeviceMobilePhone;
-import org.rfcx.guardian.utility.device.telephony.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.control.DeviceSystemProperties;
-import org.rfcx.guardian.gpio.DeviceGpioUtils;
-import org.rfcx.guardian.utility.device.control.DeviceSystemSettings;
-import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
-import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
-import org.rfcx.guardian.utility.network.SSHServerUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.rfcx.RfcxSvc;
-
-import org.rfcx.guardian.admin.device.android.capture.LogcatDb;
-import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScreenShotDb;
-import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScheduledLogcatCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScheduledScreenShotCaptureService;
-import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
-import org.rfcx.guardian.admin.device.android.control.ScheduledRebootService;
-import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
-import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
-import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
-import org.rfcx.guardian.admin.device.i2c.DeviceI2cService;
-import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
-import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
-import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
-import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
-
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -92,19 +9,101 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import org.rfcx.guardian.admin.asset.AssetUtils;
+import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchCycleService;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
+import org.rfcx.guardian.admin.comms.sbd.SbdMessageDb;
+import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
+import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
+import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
+import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
+import org.rfcx.guardian.admin.comms.swm.SwmDiagnosticService;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchTimeoutService;
+import org.rfcx.guardian.admin.comms.swm.SwmMessageDb;
+import org.rfcx.guardian.admin.comms.swm.SwmMetaDb;
+import org.rfcx.guardian.admin.comms.swm.SwmUtils;
+import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
+import org.rfcx.guardian.admin.companion.CompanionSocketService;
+import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
+import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
+import org.rfcx.guardian.admin.device.android.capture.CameraCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.LogcatDb;
+import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScheduledLogcatCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScheduledScreenShotCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScreenShotDb;
+import org.rfcx.guardian.admin.device.android.control.AirplaneModeSetService;
+import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
+import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
+import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
+import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
+import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
+import org.rfcx.guardian.admin.device.android.control.ScheduledRebootService;
+import org.rfcx.guardian.admin.device.android.control.SystemCPUGovernorService;
+import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
+import org.rfcx.guardian.admin.device.android.network.ADBStateSetService;
+import org.rfcx.guardian.admin.device.android.network.BluetoothStateSetService;
+import org.rfcx.guardian.admin.device.android.network.SSHStateSetService;
+import org.rfcx.guardian.admin.device.android.network.WifiStateSetService;
+import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
+import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
+import org.rfcx.guardian.admin.device.i2c.DeviceI2cService;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
+import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
+import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
+import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.admin.status.AdminStatus;
+import org.rfcx.guardian.admin.status.StatusCacheService;
+import org.rfcx.guardian.gpio.DeviceGpioUtils;
+import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.utility.device.DeviceConnectivity;
+import org.rfcx.guardian.utility.device.capture.DeviceBattery;
+import org.rfcx.guardian.utility.device.capture.DeviceCPU;
+import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.device.control.DeviceCPUGovernor;
+import org.rfcx.guardian.utility.device.control.DeviceSystemProperties;
+import org.rfcx.guardian.utility.device.control.DeviceSystemSettings;
+import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
+import org.rfcx.guardian.utility.device.telephony.DeviceMobileNetwork;
+import org.rfcx.guardian.utility.device.telephony.DeviceMobilePhone;
+import org.rfcx.guardian.utility.device.telephony.DeviceNetworkStats;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.network.SSHServerUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
+
 public class RfcxGuardian extends Application {
 
-    public String version;
-
     public static final String APP_ROLE = "Admin";
-
     private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
-
+    // Receivers
+    private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
+    private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
+    private final ComponentName devAdminReceiver = null;
+    public String version;
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;
     public AdminStatus rfcxStatus = null;
-
     public ScreenShotDb screenShotDb = null;
     public CameraCaptureDb cameraCaptureDb = null;
     public LogcatDb logcatDb = null;
@@ -120,10 +119,8 @@ public class RfcxGuardian extends Application {
     public SbdMessageDb sbdMessageDb = null;
     public SwmMessageDb swmMessageDb = null;
     public SwmMetaDb swmMetaDb = null;
-
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
     public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
-
     // Android Device Handlers
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
     public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
@@ -136,22 +133,12 @@ public class RfcxGuardian extends Application {
     public AssetUtils assetUtils = null;
     public CompanionSocketUtils companionSocketUtils = null;
     public CompanionPingJsonUtils companionPingJsonUtils = null;
-
     public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
     public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
-
     public SentinelPowerUtils sentinelPowerUtils = null;
     public SentryAccelUtils sentryAccelUtils = null;
-
     public SbdUtils sbdUtils = null;
     public SwmUtils swmUtils = null;
-
-
-    // Receivers
-    private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
-    private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
-    private final ComponentName devAdminReceiver = null;
-
     public String[] RfcxCoreServices =
             new String[]{
                     DeviceSystemService.SERVICE_NAME,

@@ -1,18 +1,16 @@
 package org.rfcx.guardian.guardian.api.protocols;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
+import android.content.Context;
+import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
-
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
@@ -21,24 +19,36 @@ import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import android.content.Context;
-import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
-
-import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
+
 public class ApiMqttUtils implements MqttCallback {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiMqttUtils");
+    private final RfcxGuardian app;
+    private final MqttUtils mqttCheckInClient;
+    private final String mqttTopic_Subscribe_Command;
+    private final String mqttTopic_Publish_CheckIn;
+    private final String mqttTopic_Publish_Ping;
+    private long checkInPublishTimeOutLength = 0;
+    private long checkInPublishCompletedAt = System.currentTimeMillis();
+    private int inFlightCheckInAttemptCounter = 0;
+    private int inFlightCheckInAttemptCounterLimit = 5;
+    private int[] failedCheckInThresholds = new int[0];
+    private boolean[] failedCheckInThresholdsReached = new boolean[0];
     public ApiMqttUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
@@ -58,24 +68,6 @@ public class ApiMqttUtils implements MqttCallback {
 
         confirmOrCreateConnectionToBroker(true);
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiMqttUtils");
-
-    private final RfcxGuardian app;
-    private final MqttUtils mqttCheckInClient;
-
-    private final String mqttTopic_Subscribe_Command;
-    private final String mqttTopic_Publish_CheckIn;
-    private final String mqttTopic_Publish_Ping;
-
-    private long checkInPublishTimeOutLength = 0;
-    private long checkInPublishCompletedAt = System.currentTimeMillis();
-
-    private int inFlightCheckInAttemptCounter = 0;
-    private int inFlightCheckInAttemptCounterLimit = 5;
-
-    private int[] failedCheckInThresholds = new int[0];
-    private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
     public void setOrResetBrokerConfig() {
         String[] authUserPswd = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_AUTH_CREDS).split(",");

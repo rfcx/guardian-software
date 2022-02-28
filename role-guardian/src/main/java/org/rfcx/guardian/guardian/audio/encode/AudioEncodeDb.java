@@ -1,26 +1,17 @@
 package org.rfcx.guardian.guardian.audio.encode;
 
-import java.util.Date;
-import java.util.List;
+import android.content.ContentValues;
+import android.content.Context;
 
 import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import android.content.ContentValues;
-import android.content.Context;
+import java.util.Date;
+import java.util.List;
 
 public class AudioEncodeDb {
 
-    public AudioEncodeDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbQueued = new DbQueued(context);
-        this.dbEncoded = new DbEncoded(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "audio";
-
     static final String C_CREATED_AT = "created_at";
     static final String C_TIMESTAMP = "timestamp";
     static final String C_FORMAT = "format";
@@ -34,11 +25,20 @@ public class AudioEncodeDb {
     static final String C_FILEPATH = "filepath";
     static final String C_INPUT_SAMPLE_RATE = "input_samplerate";
     static final String C_ATTEMPTS = "attempts";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION, C_ENCODE_PURPOSE, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_ATTEMPTS};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION, C_ENCODE_PURPOSE, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_ATTEMPTS};
+    public final DbQueued dbQueued;
+    public final DbEncoded dbEncoded;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+
+    public AudioEncodeDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbQueued = new DbQueued(context);
+        this.dbEncoded = new DbEncoded(context);
+    }
 
     private static String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -59,7 +59,6 @@ public class AudioEncodeDb {
                 .append(")");
         return sbOut.toString();
     }
-
 
     public class DbQueued {
 
@@ -121,8 +120,6 @@ public class AudioEncodeDb {
 
     }
 
-    public final DbQueued dbQueued;
-
     public class DbEncoded {
 
         final DbUtils dbUtils;
@@ -172,8 +169,6 @@ public class AudioEncodeDb {
         }
 
     }
-
-    public final DbEncoded dbEncoded;
 
 
 }

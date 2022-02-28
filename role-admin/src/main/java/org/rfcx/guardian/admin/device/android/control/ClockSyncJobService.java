@@ -1,17 +1,16 @@
 package org.rfcx.guardian.admin.device.android.control;
 
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.network.SntpUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.network.SntpUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ClockSyncJobService extends Service {
 

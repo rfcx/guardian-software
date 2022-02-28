@@ -15,22 +15,18 @@ import java.util.Locale;
 
 public class ApiPingUtils {
 
+    public static final long delayInitialRepeatingPingCycleByThisManyMs = 2 * 60 * 1000; // two minutes
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingUtils");
+    public long repeatingPingCycleDuration;
+    public long repeatingPingLastAttemptedAt = 0;
+    public long repeatingPingLastQueuedAt = 0;
+    public long repeatingPingLastCompletedOrSkippedAt = 0;
+    private RfcxGuardian app;
     public ApiPingUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
         updateRepeatingPingCycleDuration();
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingUtils");
-
-    private RfcxGuardian app;
-
-    public static final long delayInitialRepeatingPingCycleByThisManyMs = 2 * 60 * 1000; // two minutes
-    public long repeatingPingCycleDuration;
-
-    public long repeatingPingLastAttemptedAt = 0;
-    public long repeatingPingLastQueuedAt = 0;
-    public long repeatingPingLastCompletedOrSkippedAt = 0;
 
     public void updateRepeatingPingCycleDuration() {
         this.repeatingPingCycleDuration = (app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000);

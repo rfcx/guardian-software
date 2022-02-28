@@ -13,16 +13,14 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class AssetLibraryUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetLibraryUtils");
+    private RfcxGuardian app;
+
     public AssetLibraryUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetLibraryUtils");
-
-    private RfcxGuardian app;
-
 
     public String getLibraryAssetFilePath(String assetType, String assetId, String fileType) {
 

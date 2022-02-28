@@ -1,20 +1,5 @@
 package org.rfcx.guardian.guardian.api.methods.checkin;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import org.json.JSONObject;
-
-import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceStorage;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -23,33 +8,40 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
+import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class ApiCheckInArchiveService extends Service {
 
     public static final String SERVICE_NAME = "ApiCheckInArchive";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInArchiveService");
-
-    private RfcxGuardian app;
-
     private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM", Locale.US);
     private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.US);
     private static final SimpleDateFormat metaDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
-
+    private static final String[] tsvMetaColumns = new String[]{"measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration"};
+    private RfcxGuardian app;
     private String rfcxDeviceId;
     private long archiveTimestamp = System.currentTimeMillis();
-
     private String archiveSdCardDir;
     private String archiveTitle;
     private String archiveWorkDir;
     private String archiveTar;
     private String archiveTarFilePath;
     private String archiveFinalFilePath;
-
-    private static final String[] tsvMetaColumns = new String[]{"measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration"};
-
     private boolean runFlag = false;
     private ApiCheckInArchive apiCheckInArchive;
 
@@ -87,6 +79,19 @@ public class ApiCheckInArchiveService extends Service {
         this.apiCheckInArchive.interrupt();
         this.apiCheckInArchive = null;
 //		Log.v(logTag, "Stopping service: "+logTag);
+    }
+
+    private void setAndInitializeCheckInArchiveDirectories(Context context) {
+
+        archiveTitle = "archive_" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(archiveTimestamp));
+        archiveWorkDir = context.getFilesDir().toString() + "/archive/" + archiveTitle;
+        archiveTar = "archive/" + archiveTitle + ".tar";
+        archiveTarFilePath = context.getFilesDir().toString() + "/" + archiveTar;
+        archiveSdCardDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive/audio/" + dirDateFormat.format(new Date(archiveTimestamp));
+        archiveFinalFilePath = archiveSdCardDir + "/" + archiveTitle + ".tar";
+
+        FileUtils.initializeDirectoryRecursively(archiveSdCardDir, true);
+        FileUtils.initializeDirectoryRecursively(archiveWorkDir + "/audio", false);
     }
 
     private class ApiCheckInArchive extends Thread {
@@ -259,20 +264,6 @@ public class ApiCheckInArchiveService extends Service {
             app.rfcxSvc.setRunState(SERVICE_NAME, false);
             app.rfcxSvc.stopService(SERVICE_NAME, false);
         }
-    }
-
-
-    private void setAndInitializeCheckInArchiveDirectories(Context context) {
-
-        archiveTitle = "archive_" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(archiveTimestamp));
-        archiveWorkDir = context.getFilesDir().toString() + "/archive/" + archiveTitle;
-        archiveTar = "archive/" + archiveTitle + ".tar";
-        archiveTarFilePath = context.getFilesDir().toString() + "/" + archiveTar;
-        archiveSdCardDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive/audio/" + dirDateFormat.format(new Date(archiveTimestamp));
-        archiveFinalFilePath = archiveSdCardDir + "/" + archiveTitle + ".tar";
-
-        FileUtils.initializeDirectoryRecursively(archiveSdCardDir, true);
-        FileUtils.initializeDirectoryRecursively(archiveWorkDir + "/audio", false);
     }
 
 }

@@ -15,13 +15,10 @@ public class SbdDispatchCycleService extends Service {
     public static final String SERVICE_NAME = "SbdDispatchCycle";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdDispatchCycleService");
-
+    private final long sbdDispatchCycleDuration = 15000;
     private RfcxGuardian app;
-
     private boolean runFlag = false;
     private SbdDispatchCycleSvc sbdDispatchCycleSvc;
-
-    private final long sbdDispatchCycleDuration = 15000;
 
     @Override
     public IBinder onBind(Intent intent) {

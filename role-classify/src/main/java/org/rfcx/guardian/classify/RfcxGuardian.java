@@ -6,9 +6,9 @@ import android.content.ContentResolver;
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
 import org.rfcx.guardian.classify.service.AudioDetectionSendService;
 import org.rfcx.guardian.classify.status.ClassifyStatus;
-import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.classify.utils.AudioClassifyDb;
 import org.rfcx.guardian.classify.utils.AudioClassifyModelUtils;
+import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.classify.utils.AudioDetectionDb;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
@@ -19,12 +19,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class RfcxGuardian extends Application {
 
-    public String version;
-
     public static final String APP_ROLE = "Classify";
-
     private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
-
+    public String version;
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;

@@ -1,20 +1,19 @@
 package org.rfcx.guardian.admin.device.android.capture;
 
-import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import java.io.File;
-
-import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
+import java.io.File;
 
 public class LogcatCaptureService extends Service {
 

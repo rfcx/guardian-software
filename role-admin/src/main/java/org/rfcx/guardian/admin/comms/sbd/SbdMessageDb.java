@@ -3,14 +3,29 @@ package org.rfcx.guardian.admin.comms.sbd;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
 import java.util.List;
 
 public class SbdMessageDb {
+
+    static final String DATABASE = "sbd";
+    static final String C_CREATED_AT = "created_at";
+    static final String C_TIMESTAMP = "timestamp";
+    static final String C_ADDRESS = "address";
+    static final String C_BODY = "body";
+    static final String C_MESSAGE_ID = "message_id";
+    static final String C_LAST_ACCESSED_AT = "last_accessed_at";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_MESSAGE_ID, C_LAST_ACCESSED_AT};
+    public final DbSbdReceived dbSbdReceived;
+    public final DbSbdSent dbSbdSent;
+    public final DbSbdQueued dbSbdQueued;
+    private int VERSION = 1;
+    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     public SbdMessageDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
@@ -19,19 +34,6 @@ public class SbdMessageDb {
         this.dbSbdSent = new DbSbdSent(context);
         this.dbSbdQueued = new DbSbdQueued(context);
     }
-
-    private int VERSION = 1;
-    static final String DATABASE = "sbd";
-    static final String C_CREATED_AT = "created_at";
-    static final String C_TIMESTAMP = "timestamp";
-    static final String C_ADDRESS = "address";
-    static final String C_BODY = "body";
-    static final String C_MESSAGE_ID = "message_id";
-    static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_MESSAGE_ID, C_LAST_ACCESSED_AT};
-
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -85,8 +87,6 @@ public class SbdMessageDb {
 
     }
 
-    public final DbSbdReceived dbSbdReceived;
-
     public class DbSbdSent {
 
         final DbUtils dbUtils;
@@ -123,8 +123,6 @@ public class SbdMessageDb {
         }
 
     }
-
-    public final DbSbdSent dbSbdSent;
 
     public class DbSbdQueued {
 
@@ -167,7 +165,5 @@ public class SbdMessageDb {
         }
 
     }
-
-    public final DbSbdQueued dbSbdQueued;
 
 }

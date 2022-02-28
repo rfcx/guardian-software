@@ -3,8 +3,8 @@ package org.rfcx.guardian.guardian.asset.classifier;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -12,15 +12,7 @@ import java.util.List;
 
 public class AudioClassifierDb {
 
-    public AudioClassifierDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbActive = new DbActive(context);
-    }
-
-    private int VERSION = 1;
     static final String DATABASE = "audio-classifier";
-
     static final String C_CREATED_AT = "created_at";
     static final String C_CLASSIFIER_ID = "classifier_id";
     static final String C_CLASSIFIER_NAME = "classifier_name";
@@ -33,11 +25,17 @@ public class AudioClassifierDb {
     static final String C_WINDOW_SIZE = "window_size";
     static final String C_STEP_SIZE = "step_size";
     static final String C_CLASSES = "classes";
-
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_INPUT_GAIN, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES};
-
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{"0.6.81"}; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_INPUT_GAIN, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES};
+    public final DbActive dbActive;
+    private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
+
+    public AudioClassifierDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbActive = new DbActive(context);
+    }
 
     private static String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -57,7 +55,6 @@ public class AudioClassifierDb {
                 .append(")");
         return sbOut.toString();
     }
-
 
     public class DbActive {
 
@@ -108,8 +105,6 @@ public class AudioClassifierDb {
             return (int) this.dbUtils.getMaxValueOfColumn(TABLE, C_INPUT_SAMPLE_RATE, null, null);
         }
     }
-
-    public final DbActive dbActive;
 
 
 }

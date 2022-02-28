@@ -58,6 +58,18 @@ public class CameraCaptureService extends Service {
         this.cameraCapture = null;
     }
 
+    private boolean confirmOrSetCameraCaptureParameters() {
+
+        if (app != null) {
+
+
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
     private class CameraCapture extends Thread {
 
         public CameraCapture() {
@@ -99,18 +111,6 @@ public class CameraCaptureService extends Service {
                 app.rfcxSvc.stopService(SERVICE_NAME, false);
             }
         }
-    }
-
-    private boolean confirmOrSetCameraCaptureParameters() {
-
-        if (app != null) {
-
-
-        } else {
-            return false;
-        }
-
-        return true;
     }
 
 

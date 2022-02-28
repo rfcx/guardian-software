@@ -2,10 +2,8 @@ package org.rfcx.guardian.admin.device.android.control;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.control.DeviceSystemProperties;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;

@@ -15,19 +15,17 @@ import java.util.List;
 
 public class AssetUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetUtils");
+    private RfcxGuardian app;
+
     public AssetUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AssetUtils");
-
-    private RfcxGuardian app;
-
 
     // Asset Cleanup
-
 
     public void runFileSystemAssetCleanup() {
         runFileSystemAssetCleanup(ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES);

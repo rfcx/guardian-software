@@ -10,6 +10,14 @@ import java.nio.channels.FileChannel;
 
 public class FLACStreamEncoder {
 
+    static {
+        System.loadLibrary("ogg");
+        System.loadLibrary("flac");
+        System.loadLibrary("flacenc");
+    }
+
+    private long mObject;
+
     public EncodeStatus encode(File inputFile, File outputFile, int sampleRate, int channels, int bitsPerSample) throws IOException {
         String outputFilePath = outputFile.getAbsolutePath();
         init(outputFilePath, sampleRate, channels, bitsPerSample);
@@ -44,8 +52,6 @@ public class FLACStreamEncoder {
         return byteBuffer;
     }
 
-    private long mObject;
-
     //To initialize encoder
     native private void init(String outputFile, int sampleRate, int channels, int bitsPerSample);
 
@@ -57,10 +63,4 @@ public class FLACStreamEncoder {
 
     //To flush encoder
     native private void flush();
-
-    static {
-        System.loadLibrary("ogg");
-        System.loadLibrary("flac");
-        System.loadLibrary("flacenc");
-    }
 }

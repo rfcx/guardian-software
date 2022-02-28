@@ -16,19 +16,16 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import java.util.Date;
-
 public class ApiPingJsonUtils {
+
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingJsonUtils");
+    private RfcxGuardian app;
 
     public ApiPingJsonUtils(Context context) {
 
         this.app = (RfcxGuardian) context.getApplicationContext();
 
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingJsonUtils");
-
-    private RfcxGuardian app;
 
     public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, boolean printJsonToLogs, String[] excludeFieldsFromLogs) throws JSONException {
 

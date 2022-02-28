@@ -7,8 +7,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.List;
 

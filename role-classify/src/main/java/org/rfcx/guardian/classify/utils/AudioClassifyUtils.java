@@ -2,7 +2,6 @@ package org.rfcx.guardian.classify.utils;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,26 +25,50 @@ import java.util.Map;
 public class AudioClassifyUtils {
 
 
+    public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
+    public static final int DETECTION_SEND_FAILURE_SKIP_THRESHOLD = 10;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyUtils");
+    private final RfcxGuardian app;
+    private final Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
+    private final Map<String, String[]> classifierClassifications = new HashMap<String, String[]>();
+    private final Map<String, Integer> classifierSampleRates = new HashMap<String, Integer>();
+    private final Map<String, Float> classifierWindowSizes = new HashMap<String, Float>();
+    private final Map<String, Float> classifierStepSizes = new HashMap<String, Float>();
     public AudioClassifyUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         RfcxAudioFileUtils.initializeAudioDirectories(context);
         RfcxClassifierFileUtils.initializeClassifierDirectories(context);
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyUtils");
+    public static void cleanupClassifyDirectory(Context context, List<String[]> queuedForClassification, long maxAgeInMilliseconds) {
 
-    private final RfcxGuardian app;
+        ArrayList<String> audioQueuedForClassification = new ArrayList<String>();
+        for (String[] queuedRow : queuedForClassification) {
+            audioQueuedForClassification.add(queuedRow[6]);
+        }
 
-    public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
-    public static final int DETECTION_SEND_FAILURE_SKIP_THRESHOLD = 10;
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioClassifyDir(context)}, audioQueuedForClassification, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
-    private final Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
+    public static void cleanupClassifierDirectory(Context context, String[] excludeFilePaths, long maxAgeInMilliseconds) {
 
-    private final Map<String, String[]> classifierClassifications = new HashMap<String, String[]>();
-    private final Map<String, Integer> classifierSampleRates = new HashMap<String, Integer>();
-    private final Map<String, Float> classifierWindowSizes = new HashMap<String, Float>();
-    private final Map<String, Float> classifierStepSizes = new HashMap<String, Float>();
+        ArrayList<String> excludeFilePathList = new ArrayList<String>();
+        for (String filePath : excludeFilePaths) {
+            excludeFilePathList.add(filePath);
+        }
 
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxClassifierFileUtils.classifierActiveDir(context)}, excludeFilePathList, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
+
+    public static void cleanupSnippetDirectory(Context context, List<String[]> audioSnippetsQueued, long maxAgeInMilliseconds) {
+
+        ArrayList<String> audioSnippets = new ArrayList<String>();
+        for (String[] queuedRow : audioSnippetsQueued) {
+            audioSnippets.add(queuedRow[6]);
+        }
+
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioSnippetDir(context)}, audioSnippets, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
     public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, int sampleRate, float windowSize, float stepSize, String classificationsStr) {
 
@@ -108,7 +131,6 @@ public class AudioClassifyUtils {
         return 0;
     }
 
-
     public JSONObject classifyOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
 
         String[] classifierClassifications = app.audioClassifyUtils.getClassifierClassifications(classifierId);
@@ -140,7 +162,6 @@ public class AudioClassifyUtils {
         return jsonObj;
     }
 
-
     public void sendClassifyOutputToGuardianRole(String jsonObjStr) {
 
         Cursor sendDetectionsResponse =
@@ -151,37 +172,6 @@ public class AudioClassifyUtils {
         if (sendDetectionsResponse != null) {
             sendDetectionsResponse.close();
         }
-    }
-
-
-    public static void cleanupClassifyDirectory(Context context, List<String[]> queuedForClassification, long maxAgeInMilliseconds) {
-
-        ArrayList<String> audioQueuedForClassification = new ArrayList<String>();
-        for (String[] queuedRow : queuedForClassification) {
-            audioQueuedForClassification.add(queuedRow[6]);
-        }
-
-        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioClassifyDir(context)}, audioQueuedForClassification, Math.round(maxAgeInMilliseconds / 60000), false, false);
-    }
-
-    public static void cleanupClassifierDirectory(Context context, String[] excludeFilePaths, long maxAgeInMilliseconds) {
-
-        ArrayList<String> excludeFilePathList = new ArrayList<String>();
-        for (String filePath : excludeFilePaths) {
-            excludeFilePathList.add(filePath);
-        }
-
-        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxClassifierFileUtils.classifierActiveDir(context)}, excludeFilePathList, Math.round(maxAgeInMilliseconds / 60000), false, false);
-    }
-
-    public static void cleanupSnippetDirectory(Context context, List<String[]> audioSnippetsQueued, long maxAgeInMilliseconds) {
-
-        ArrayList<String> audioSnippets = new ArrayList<String>();
-        for (String[] queuedRow : audioSnippetsQueued) {
-            audioSnippets.add(queuedRow[6]);
-        }
-
-        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioSnippetDir(context)}, audioSnippets, Math.round(maxAgeInMilliseconds / 60000), false, false);
     }
 
 }

@@ -1,13 +1,12 @@
 package org.rfcx.guardian.admin.receiver;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import org.rfcx.guardian.admin.RfcxGuardian;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class BootReceiver extends BroadcastReceiver {
 

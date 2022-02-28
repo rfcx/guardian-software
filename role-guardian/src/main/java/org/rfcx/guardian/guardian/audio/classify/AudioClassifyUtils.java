@@ -29,16 +29,25 @@ import java.util.Locale;
 
 public class AudioClassifyUtils {
 
+    public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyUtils");
+
+    private final RfcxGuardian app;
+
     public AudioClassifyUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         RfcxClassifierFileUtils.initializeClassifierDirectories(context);
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyUtils");
+    public static void cleanupClassifyDirectory(Context context, List<String[]> queuedForClassification, long maxAgeInMilliseconds) {
 
-    private final RfcxGuardian app;
+        ArrayList<String> audioQueuedForClassification = new ArrayList<String>();
+        for (String[] queuedRow : queuedForClassification) {
+            audioQueuedForClassification.add(queuedRow[6]);
+        }
 
-    public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioClassifyDir(context)}, audioQueuedForClassification, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
     public void queueClassifyJobAcrossRoles(String audioId, String classifierId, String classifierVersion, int classifierSampleRate, String audioFilePath, String classifierFilePath, String classifierWindowSize, String classifierStepSize, String classifierClasses) {
 
@@ -67,7 +76,6 @@ public class AudioClassifyUtils {
             RfcxLog.logExc(logTag, e);
         }
     }
-
 
     public void parseIncomingClassificationPayloadAndSave(String classificationPayload) {
 
@@ -198,17 +206,6 @@ public class AudioClassifyUtils {
         app.audioClassifierDb.dbActive.deleteSingleRow(clsfrId);
 
         return (app.audioClassifierDb.dbActive.getCountByAssetId(clsfrId) == 0);
-    }
-
-
-    public static void cleanupClassifyDirectory(Context context, List<String[]> queuedForClassification, long maxAgeInMilliseconds) {
-
-        ArrayList<String> audioQueuedForClassification = new ArrayList<String>();
-        for (String[] queuedRow : queuedForClassification) {
-            audioQueuedForClassification.add(queuedRow[6]);
-        }
-
-        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioClassifyDir(context)}, audioQueuedForClassification, Math.round(maxAgeInMilliseconds / 60000), false, false);
     }
 
     public boolean isClassifyAllowedAtThisTimeOfDay(String classifierId) {

@@ -1,14 +1,13 @@
 package org.rfcx.guardian.admin.receiver;
 
-import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 

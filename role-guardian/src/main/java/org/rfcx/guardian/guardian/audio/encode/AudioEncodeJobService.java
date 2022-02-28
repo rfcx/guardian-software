@@ -1,18 +1,5 @@
 package org.rfcx.guardian.guardian.audio.encode;
 
-import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
-import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
-import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +7,19 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
+import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class AudioEncodeJobService extends Service {
 

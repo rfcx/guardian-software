@@ -14,13 +14,10 @@ public class SwmDispatchCycleService extends Service {
     public static final String SERVICE_NAME = "SwmDispatchCycle";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchCycleService");
-
+    private final long swmDispatchCycleDuration = 15000;
     private RfcxGuardian app;
-
     private boolean runFlag = false;
     private SwmDispatchCycleSvc swmDispatchCycleSvc;
-
-    private final long swmDispatchCycleDuration = 15000;
 
     @Override
     public IBinder onBind(Intent intent) {

@@ -14,15 +14,12 @@ public class CompanionSocketService extends Service {
     public static final String SERVICE_NAME = "CompanionSocket";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketService");
-
-    private RfcxGuardian app;
-
-    private boolean runFlag = false;
-    private CompanionSocketSvc companionSocketSvc;
-
     private static final long minPushCycleDurationMs = 667;
     private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
     private static final int maxSendFailureThreshold = 24;
+    private RfcxGuardian app;
+    private boolean runFlag = false;
+    private CompanionSocketSvc companionSocketSvc;
 
     @Override
     public IBinder onBind(Intent intent) {
