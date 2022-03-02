@@ -25,7 +25,7 @@ public class CompanionSocketUtils {
 	}
 
 	private static final String[] includePingFields = new String[] {
-			"battery", "instructions", "prefs_full", "software", "library", "device", "companion", "swm"
+			"battery", "instructions", "prefs_full", "software", "library", "device", "companion"
 	};
 
 	private static final String[] excludeFromLogs = new String[] { "prefs" };

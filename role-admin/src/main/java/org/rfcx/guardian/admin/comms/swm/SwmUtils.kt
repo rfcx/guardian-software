@@ -9,21 +9,13 @@ import org.rfcx.guardian.admin.comms.swm.api.SwmApi
 import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import org.rfcx.guardian.admin.comms.swm.api.SwmUartShell
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
-import org.rfcx.guardian.utility.misc.ArrayUtils
-import org.rfcx.guardian.utility.misc.FileUtils
-import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.util.*
 import org.rfcx.guardian.utility.misc.DateTimeUtils
 
-import android.text.TextUtils
 import org.rfcx.guardian.admin.comms.swm.control.SwmPower
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse
-import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg
 
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
-import kotlin.math.log
 
 class SwmUtils(private val context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
@@ -31,7 +23,10 @@ class SwmUtils(private val context: Context) {
     lateinit var api: SwmApi
 
     private var swmId: String? = null
-    private var isGPSConnected: Boolean? = null
+    private var dateTime: Long? = null
+    private var gps: Boolean? = null
+    private var backgroundNoise:  Int? = null
+    private var isDiagnosticRunning = false
 
     fun setupSwmUtils() {
         power = SwmPower(context)
@@ -122,17 +117,23 @@ class SwmUtils(private val context: Context) {
         }
     }
 
-    fun getSwmId(): String? {
-        if (swmId != null || !::api.isInitialized) return swmId
-        swmId = api.getSwarmDeviceId()
-        return swmId
-    }
+    fun getSwmId(): String? = swmId
 
-    fun getGPSConnection(): Boolean? {
-        if (isGPSConnected != null || !::api.isInitialized) return isGPSConnected
-        api.getGPSConnection() ?: return null
-        isGPSConnected = true
-        return isGPSConnected
+    fun getGPSConnection(): Boolean? = gps
+
+    fun getDateTime(): Long? = dateTime
+
+    fun getBackgroundNoise(): Int? = backgroundNoise
+
+    fun isDiagnosticRunning(): Boolean = isDiagnosticRunning
+
+    fun runDiagnostic() {
+        isDiagnosticRunning = true
+        swmId = api.getSwarmDeviceId()
+        dateTime = api.getDateTime()?.epochMs
+        gps = api.getGPSConnection() != null
+        backgroundNoise = api.getRTBackground()?.rssi
+        isDiagnosticRunning = false
     }
 
     companion object {

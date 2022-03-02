@@ -96,15 +96,24 @@ public class CompanionPingJsonUtils {
 			companionJsonObj.put("sim_info", simInfo);
 
 			if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
-				JSONObject satInfo = new JSONObject();
+				JSONObject satDiagnostic = new JSONObject();
 
-				String swarmId = app.swmUtils.getSwmId();
-				satInfo.put("sat_id", swarmId);
+				Boolean isDiagnosticRunning = app.swmUtils.isDiagnosticRunning();
+				satDiagnostic.put("is_diagnostic_running", isDiagnosticRunning);
+
+				Boolean isSwarmOn = app.swmUtils.power.getOn();
+				satDiagnostic.put("is_swarm_on", isSwarmOn);
+
+				String id = app.swmUtils.getSwmId();
+				satDiagnostic.put("id", id);
 
 				Boolean gpsConnection = app.swmUtils.getGPSConnection();
-				satInfo.put("is_gps_connected", gpsConnection);
+				satDiagnostic.put("is_gps_connected", gpsConnection);
 
-				companionJsonObj.put("sat_info", satInfo);
+				Integer backgroundNoise = app.swmUtils.getBackgroundNoise();
+				satDiagnostic.put("background_noise", backgroundNoise);
+
+				companionJsonObj.put("sat_diagnostic", satDiagnostic);
 			}
 
 			JSONObject speedTest = new JSONObject();

@@ -146,6 +146,10 @@ public class AdminContentProvider extends ContentProvider {
                 app.speedTest.setUploadSpeedTest(getContext(), appRole);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"speed_test", null, System.currentTimeMillis()});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "swm_diagnostic")) { logFuncVal = "control-swm_diagnostic";
+                app.swmUtils.runDiagnostic();
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"swm_diagnostic", null, System.currentTimeMillis()});
+
 
             } else if (RfcxComm.uriMatch(uri, appRole, "keycode", "*")) { logFuncVal = "keycode-*";
                 String pathSeg = uri.getLastPathSegment();
