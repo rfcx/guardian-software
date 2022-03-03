@@ -19,16 +19,12 @@ data class AudioSettings(
 
 class AudioSettingsDialog(context: Context) : AlertDialog(context) {
     //sample rate, bitrate display
-    private val sampleRateDisplayList =
-        context.resources.getStringArray(R.array.prefs_labels_audio_sample_rate)
-    private val bitRateDisplayList =
-        context.resources.getStringArray(R.array.prefs_labels_audio_encode_bitrate)
+    private val sampleRateDisplayList = context.resources.getStringArray(R.array.prefs_labels_audio_sample_rate)
+    private val bitRateDisplayList = context.resources.getStringArray(R.array.prefs_labels_audio_encode_bitrate)
 
     //sample rate, bitrate data
-    private val sampleRateList =
-        context.resources.getStringArray(R.array.prefs_values_audio_sample_rate)
-    private val bitRateList =
-        context.resources.getStringArray(R.array.prefs_values_audio_encode_bitrate)
+    private val sampleRateList = context.resources.getStringArray(R.array.prefs_values_audio_sample_rate)
+    private val bitRateList = context.resources.getStringArray(R.array.prefs_values_audio_encode_bitrate)
 
     private var fileFormat = ""
 
@@ -42,8 +38,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
     private lateinit var app: RfcxGuardian
 
     private fun initDialog() {
-        view =
-            layoutInflater.inflate(R.layout.audio_settings_picker_popup, null) as ConstraintLayout
+        view = layoutInflater.inflate(R.layout.audio_settings_picker_popup, null) as ConstraintLayout
         sampleRatePicker = view.findViewById(R.id.sampleRatePicker)
         bitRatePicker = view.findViewById(R.id.bitRatePicker)
         opusRadio = view.findViewById(R.id.opusRb)
@@ -89,8 +84,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
             } else {
                 bitRatePicker.visibility = View.GONE
                 bitRateLabel.visibility = View.GONE
-                bitRatePicker.value =
-                    bitRateList.indexOf(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE))
+                bitRatePicker.value = bitRateList.indexOf(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE))
                 fileFormat = "flac"
             }
         }

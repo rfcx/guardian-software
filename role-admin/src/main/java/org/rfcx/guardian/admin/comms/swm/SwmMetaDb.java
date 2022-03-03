@@ -13,6 +13,13 @@ import java.util.List;
 
 public class SwmMetaDb {
 
+    public SwmMetaDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbSwmDiagnostic = new DbSwmDiagnostic(context);
+    }
+
+    private int VERSION = 1;
     static final String DATABASE = "swm-meta";
     static final String C_CREATED_AT = "created_at";
     static final String C_RSSI_BACKGROUND = "rssi_background";
@@ -22,17 +29,10 @@ public class SwmMetaDb {
     static final String C_TIME = "time";
     static final String C_SAT_ID = "sat_id";
     static final String C_UNSENT_MESSAGE_COUNT = "unsent_message_count";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_RSSI_BACKGROUND, C_RSSI_SAT, C_SNR, C_FDEV, C_TIME, C_SAT_ID, C_UNSENT_MESSAGE_COUNT};
-    public final DbSwmDiagnostic dbSwmDiagnostic;
-    private int VERSION = 1;
-    private boolean DROP_TABLE_ON_UPGRADE = false;
+    private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_RSSI_BACKGROUND, C_RSSI_SAT, C_SNR, C_FDEV, C_TIME, C_SAT_ID, C_UNSENT_MESSAGE_COUNT };
 
-    public SwmMetaDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbSwmDiagnostic = new DbSwmDiagnostic(context);
-    }
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+    private boolean DROP_TABLE_ON_UPGRADE = false;
 
     private String createColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -101,4 +101,5 @@ public class SwmMetaDb {
         }
 
     }
+    public final DbSwmDiagnostic dbSwmDiagnostic;
 }

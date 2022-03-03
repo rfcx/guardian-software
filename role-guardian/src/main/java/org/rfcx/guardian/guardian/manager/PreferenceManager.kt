@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import java.util.*
 
-class PreferenceManager(context: Context) {
+class PreferenceManager(context: Context){
 
     private var sharedPreferences: SharedPreferences
 
@@ -33,8 +33,7 @@ class PreferenceManager(context: Context) {
     }
 
     init {
-        sharedPreferences =
-            context.applicationContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+        sharedPreferences = context.applicationContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     }
 
     fun getBoolean(key: String, defaultValue: Boolean = false): Boolean {
@@ -93,7 +92,7 @@ class PreferenceManager(context: Context) {
         sharedPreferences.edit().clear().apply()
     }
 
-    fun isTokenExpired(): Boolean {
+    fun isTokenExpired(): Boolean{
         return System.currentTimeMillis() > getLong(TOKEN_EXPIRED_AT, 0L)
     }
 

@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -13,129 +13,137 @@ import java.util.List;
 
 public class SentinelSensorDb {
 
-    static final String DATABASE = "sentinel-sensor";
-    static final String C_MEASURED_AT = "measured_at";
-    static final String C_VALUE_1 = "value_1";
-    static final String C_VALUE_2 = "value_2";
-    static final String C_VALUE_3 = "value_3";
-    static final String C_VALUE_4 = "value_4";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2, C_VALUE_3, C_VALUE_4};
-    public final DbEnvironment dbEnvironment;
-    public final DbBattery dbBattery;
-    private int VERSION = 1;
-    private boolean DROP_TABLE_ON_UPGRADE = false;
+	public SentinelSensorDb(Context context, String appVersion) {
+		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+		this.dbEnvironment = new DbEnvironment(context);
+		this.dbBattery = new DbBattery(context);
+	}
 
-    public SentinelSensorDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbEnvironment = new DbEnvironment(context);
-        this.dbBattery = new DbBattery(context);
-    }
+	private int VERSION = 1;
+	static final String DATABASE = "sentinel-sensor";
+	static final String C_MEASURED_AT = "measured_at";
+	static final String C_VALUE_1 = "value_1";
+	static final String C_VALUE_2 = "value_2";
+	static final String C_VALUE_3 = "value_3";
+	static final String C_VALUE_4 = "value_4";
+	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VALUE_1, C_VALUE_2, C_VALUE_3, C_VALUE_4 };
 
-    private String createColumnString(String tableName) {
-        StringBuilder sbOut = new StringBuilder();
-        sbOut.append("CREATE TABLE ").append(tableName)
-                .append("(").append(C_MEASURED_AT).append(" INTEGER")
-                .append(", ").append(C_VALUE_1).append(" TEXT")
-                .append(", ").append(C_VALUE_2).append(" TEXT")
-                .append(", ").append(C_VALUE_3).append(" TEXT")
-                .append(", ").append(C_VALUE_4).append(" TEXT")
-                .append(")");
-        return sbOut.toString();
-    }
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
-    public class DbEnvironment {
+	private String createColumnString(String tableName) {
+		StringBuilder sbOut = new StringBuilder();
+		sbOut.append("CREATE TABLE ").append(tableName)
+			.append("(").append(C_MEASURED_AT).append(" INTEGER")
+			.append(", ").append(C_VALUE_1).append(" TEXT")
+			.append(", ").append(C_VALUE_2).append(" TEXT")
+			.append(", ").append(C_VALUE_3).append(" TEXT")
+			.append(", ").append(C_VALUE_4).append(" TEXT")
+			.append(")");
+		return sbOut.toString();
+	}
 
-        final DbUtils dbUtils;
-        public String FILEPATH;
+	public class DbEnvironment {
 
-        private String TABLE = "environment";
+		final DbUtils dbUtils;
+		public String FILEPATH;
 
-        public DbEnvironment(Context context) {
-            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-            FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
-        }
+		private String TABLE = "environment";
 
-        public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
+		public DbEnvironment(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+		}
 
-            ContentValues values = new ContentValues();
-            values.put(C_MEASURED_AT, measured_at);
-            values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|", "-"));
-            values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|", "-"));
-            values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|", "-"));
-            values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|", "-"));
+		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
 
-            return this.dbUtils.insertRow(TABLE, values);
-        }
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measured_at);
+			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
 
-        public JSONArray getLatestRowAsJsonArray() {
-            return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
-        }
+			return this.dbUtils.insertRow(TABLE, values);
+		}
 
-        private List<String[]> getAllRows() {
-            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-        }
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public void clearRowsBefore(Date date) {
-            this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
-        }
+		private List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public String getConcatRows() {
-            return DbUtils.getConcatRows(getAllRows());
-        }
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
 
-        public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
-            return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
-        }
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
 
-    }
+		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+		}
 
-    public class DbBattery {
+	}
+	public final DbEnvironment dbEnvironment;
 
-        final DbUtils dbUtils;
-        public String FILEPATH;
+	public class DbBattery {
 
-        private String TABLE = "battery";
+		final DbUtils dbUtils;
+		public String FILEPATH;
 
-        public DbBattery(Context context) {
-            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-            FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
-        }
+		private String TABLE = "battery";
 
-        public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
+		public DbBattery(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+		}
 
-            ContentValues values = new ContentValues();
-            values.put(C_MEASURED_AT, measured_at);
-            values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|", "-"));
-            values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|", "-"));
-            values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|", "-"));
-            values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|", "-"));
+		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
 
-            return this.dbUtils.insertRow(TABLE, values);
-        }
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measured_at);
+			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
 
-        public JSONArray getLatestRowAsJsonArray() {
-            return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
-        }
+			return this.dbUtils.insertRow(TABLE, values);
+		}
 
-        private List<String[]> getAllRows() {
-            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-        }
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public void clearRowsBefore(Date date) {
-            this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
-        }
+		private List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public String getConcatRows() {
-            return DbUtils.getConcatRows(getAllRows());
-        }
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
 
-        public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
-            return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
-        }
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
 
-    }
+		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+		}
+
+	}
+	public final DbBattery dbBattery;
 
 
+	
+	
+
+	
+	
+
+	
 }

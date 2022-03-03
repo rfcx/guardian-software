@@ -12,32 +12,31 @@ import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class SSHStateSetService extends IntentService {
 
-    public static final String SERVICE_NAME = "SSHStateSet";
+	public static final String SERVICE_NAME = "SSHStateSet";
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SSHStateSetService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SSHStateSetService");
 
-    public SSHStateSetService() {
-        super(logTag);
-    }
+	public SSHStateSetService() {
+		super(logTag);
+	}
+	
+	@Override
+	protected void onHandleIntent(Intent inputIntent) {
+		Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 
-    @Override
-    protected void onHandleIntent(Intent inputIntent) {
-        Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-        sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-        ;
+		RfcxGuardian app = (RfcxGuardian) getApplication();
+		Context context = app.getApplicationContext();
 
-        RfcxGuardian app = (RfcxGuardian) getApplication();
-        Context context = app.getApplicationContext();
+		boolean prefsAdminSSHServerState = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER);
 
-        boolean prefsAdminSSHServerState = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER);
+		if (prefsAdminSSHServerState) {
+			SSHServerUtils.serverStart();
+		} else {
+			SSHServerUtils.serverStop();
+		}
 
-        if (prefsAdminSSHServerState) {
-            SSHServerUtils.serverStart();
-        } else {
-            SSHServerUtils.serverStop();
-        }
-
-    }
-
-
+	}
+	
+	
 }

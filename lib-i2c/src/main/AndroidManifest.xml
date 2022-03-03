@@ -1,1 +1,2 @@
-<manifest package="org.rfcx.guardian.i2c" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.rfcx.guardian.i2c"/>

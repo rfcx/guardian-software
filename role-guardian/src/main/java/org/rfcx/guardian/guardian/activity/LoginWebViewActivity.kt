@@ -31,19 +31,19 @@ import java.net.URLEncoder
 import javax.net.ssl.HttpsURLConnection
 
 
-class LoginWebViewActivity : Activity() {
+class LoginWebViewActivity : Activity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_webview)
 
         val uri = intent.data
-        if (uri != null) {
+        if(uri != null){
             val code = uri.getQueryParameter("code")
-            if (code != null) {
+            if(code != null){
                 preparePost(code)
             }
-        } else {
+        }else{
             Log.d("LoginWebViewActivity", baseUrl)
             val webpage = Uri.parse(baseUrl)
             val intent = Intent(Intent.ACTION_VIEW, webpage)
@@ -52,7 +52,7 @@ class LoginWebViewActivity : Activity() {
                 finish()
             }
         }
-        codeEditText.addTextChangedListener(object : TextWatcher {
+        codeEditText.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable?) {
             }
 
@@ -60,10 +60,10 @@ class LoginWebViewActivity : Activity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (count < 0) {
+                if(count < 0 ){
                     sendButton.isEnabled = false
                     sendButton.alpha = 0.5f
-                } else {
+                }else{
                     sendButton.isEnabled = true
                     sendButton.alpha = 1.0f
                 }
@@ -76,7 +76,7 @@ class LoginWebViewActivity : Activity() {
 
     }
 
-    private fun preparePost(code: String?) {
+    private fun preparePost(code: String?){
         val handler = Handler()
         loginProgressBar.visibility = View.VISIBLE
         loginLayout.visibility = View.INVISIBLE
@@ -97,13 +97,13 @@ class LoginWebViewActivity : Activity() {
 
             val postResponse = post(postUrl, body)
             Log.d("LoginWebViewActivity", postResponse)
-            if (postResponse.isNotEmpty()) {
+            if(postResponse.isNotEmpty()){
                 val response = JSONObject(postResponse)
                 val idToken = response.getString("id_token")
                 val accessToken = response.getString("access_token")
-                val credentials = Credentials(idToken, accessToken, null, null, 86400000)
+                val credentials = Credentials(idToken, accessToken,null, null, 86400000)
                 val result = CredentialVerifier(this).verify(credentials)
-                when (result) {
+                when(result){
                     is Err -> {
                         Log.d("LoginWebViewActivity", "login error")
                         loginProgressBar.visibility = View.INVISIBLE
@@ -116,7 +116,7 @@ class LoginWebViewActivity : Activity() {
                     }
                 }
                 Log.d("LoginWebViewActivity", credentials.idToken)
-            } else {
+            }else{
                 Log.d("LoginWebViewActivity", "post failed")
                 Toast.makeText(this, "code is incorrect.", Toast.LENGTH_LONG).show()
                 loginProgressBar.visibility = View.INVISIBLE
@@ -126,8 +126,7 @@ class LoginWebViewActivity : Activity() {
         }
         handler.post(runnable)
     }
-
-    private fun post(url: String, params: HashMap<String, String>): String {
+    private fun post(url: String, params: HashMap<String, String>): String{
         var response = ""
         try {
             val url = URL(url)
@@ -168,7 +167,7 @@ class LoginWebViewActivity : Activity() {
         return response
     }
 
-    private fun getPostDataString(params: HashMap<String, String>): String {
+    private fun getPostDataString(params: HashMap<String, String>): String{
         val result = StringBuilder()
         var first = true
         for (entry in params.entries) {
@@ -186,12 +185,11 @@ class LoginWebViewActivity : Activity() {
     }
 
 
-    companion object {
+    companion object{
         private const val redirectUrl = "rfcx://login"
         private const val audience = "https://rfcx.org"
         private const val scope = "openid%20email%20profile"
         private const val clientId = "CdlIIeJDapQxW29kn93wDw26fTTNyDkp"
-        const val baseUrl =
-            "https://auth.rfcx.org/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&audience=${audience}&scope=${scope}"
+        const val baseUrl = "https://auth.rfcx.org/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&audience=${audience}&scope=${scope}"
     }
 }

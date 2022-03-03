@@ -13,116 +13,119 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiSatUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSatUtils");
-    private RfcxGuardian app;
+	public ApiSatUtils(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+	}
 
-    public ApiSatUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-    }
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiSatUtils");
 
-    public boolean queueSatMsgToApiToSendImmediately(String msgBody, String satProtocol) {
-        return queueSatMsgToSend(null, msgBody, satProtocol);
-    }
+	private RfcxGuardian app;
 
-    public boolean queueSatMsgToApiToSendImmediately(String groupId, String msgBody, String satProtocol, int priority) {
-        return queueSatMsgToSendWithGroupId(null, groupId, msgBody, satProtocol, priority);
-    }
+	public boolean queueSatMsgToApiToSendImmediately(String msgBody, String satProtocol) {
+		return queueSatMsgToSend(null, msgBody, satProtocol);
+	}
 
-    public boolean queueSatMsgToSendWithGroupId(String sendAt, String groupId, String msgBody, String satProtocol, int priority) {
+	public boolean queueSatMsgToApiToSendImmediately(String groupId, String msgBody, String satProtocol, int priority) {
+		return queueSatMsgToSendWithGroupId(null, groupId, msgBody, satProtocol, priority);
+	}
 
-        try {
-            String satSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? "" + Long.parseLong(sendAt) : "" + System.currentTimeMillis();
-            String satMsgBody = (msgBody != null) ? msgBody : "";
-            String satMsgUrlBlob = TextUtils.join("|", new String[]{satSendAt, groupId, RfcxComm.urlEncode(satMsgBody), priority + ""});
+	public boolean queueSatMsgToSendWithGroupId(String sendAt, String groupId, String msgBody, String satProtocol, int priority) {
 
-            Cursor satQueueResponse = app.getResolver().query(
-                    RfcxComm.getUri("admin", satProtocol + "_queue", satMsgUrlBlob),
-                    RfcxComm.getProjection("admin", satProtocol + "_queue"),
-                    null, null, null);
-            if (satQueueResponse != null) {
-                satQueueResponse.close();
-                return true;
-            }
+		try {
+			String satSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? ""+Long.parseLong(sendAt) : ""+System.currentTimeMillis();
+			String satMsgBody = (msgBody != null) ? msgBody : "";
+			String satMsgUrlBlob = TextUtils.join("|", new String[]{ satSendAt, groupId, RfcxComm.urlEncode(satMsgBody), priority+"" });
 
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
-        }
-        return false;
-    }
+			Cursor satQueueResponse = app.getResolver().query(
+					RfcxComm.getUri("admin", satProtocol+"_queue", satMsgUrlBlob),
+					RfcxComm.getProjection("admin", satProtocol+"_queue"),
+					null, null, null);
+			if (satQueueResponse != null) {
+				satQueueResponse.close();
+				return true;
+			}
 
-    public boolean queueSatMsgToSend(String sendAt, String msgBody, String satProtocol) {
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return false;
+	}
 
-        try {
-            String satSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? "" + Long.parseLong(sendAt) : "" + System.currentTimeMillis();
-            String satMsgBody = (msgBody != null) ? msgBody : "";
-            String satMsgUrlBlob = TextUtils.join("|", new String[]{satSendAt, RfcxComm.urlEncode(satMsgBody)});
+	public boolean queueSatMsgToSend(String sendAt, String msgBody, String satProtocol) {
 
-            Cursor satQueueResponse = app.getResolver().query(
-                    RfcxComm.getUri("admin", satProtocol + "_queue", satMsgUrlBlob),
-                    RfcxComm.getProjection("admin", satProtocol + "_queue"),
-                    null, null, null);
-            if (satQueueResponse != null) {
-                satQueueResponse.close();
-                return true;
-            }
+		try {
+			String satSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? ""+Long.parseLong(sendAt) : ""+System.currentTimeMillis();
+			String satMsgBody = (msgBody != null) ? msgBody : "";
+			String satMsgUrlBlob = TextUtils.join("|", new String[]{ satSendAt, RfcxComm.urlEncode(satMsgBody) });
 
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
-        }
-        return false;
-    }
+			Cursor satQueueResponse = app.getResolver().query(
+							RfcxComm.getUri("admin", satProtocol+"_queue", satMsgUrlBlob),
+							RfcxComm.getProjection("admin", satProtocol+"_queue"),
+							null, null, null);
+			if (satQueueResponse != null) {
+				satQueueResponse.close();
+				return true;
+			}
 
-
-    public boolean sendSatPing(String pingJson, int priority) {
-
-        boolean isSent = false;
-
-        if (areSatApiMessagesAllowed()) {
-            try {
-
-                String apiSatelliteProtocol = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL);
-
-                String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", apiSatelliteProtocol, pingJson, null);
-
-                app.apiSegmentUtils.queueSegmentsForDispatch(groupId, priority);
-
-                isSent = true;
-
-            } catch (Exception e) {
-
-                RfcxLog.logExc(logTag, e, "sendSatPing");
-                handleSatPingPublicationExceptions(e);
-
-            }
-        }
-
-        return isSent;
-    }
-
-    private void handleSatPingPublicationExceptions(Exception inputExc) {
-
-        try {
-            String excStr = RfcxLog.getExceptionContentAsString(inputExc);
-
-            // This is where we would put contingencies and reactions for various exceptions. See ApiMqttUtils for reference.
-
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e, "handleSatPingPublicationExceptions");
-        }
-    }
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return false;
+	}
 
 
-    private boolean areSatApiMessagesAllowed() {
 
-        if ((app != null)
-                && ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "sat")
-                && !app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("off")
-        ) {
-            return true;
-        }
-        Log.d(logTag, "Satellite API interaction blocked.");
-        return false;
-    }
+
+	public boolean sendSatPing(String pingJson, int priority) {
+
+		boolean isSent = false;
+
+		if (areSatApiMessagesAllowed()) {
+			try {
+
+				String apiSatelliteProtocol = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL);
+
+				String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", apiSatelliteProtocol, pingJson, null);
+
+				app.apiSegmentUtils.queueSegmentsForDispatch(groupId, priority);
+
+				isSent = true;
+
+			} catch (Exception e) {
+
+				RfcxLog.logExc(logTag, e, "sendSatPing");
+				handleSatPingPublicationExceptions(e);
+
+			}
+		}
+
+		return isSent;
+	}
+
+	private void handleSatPingPublicationExceptions(Exception inputExc) {
+
+		try {
+			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
+
+			// This is where we would put contingencies and reactions for various exceptions. See ApiMqttUtils for reference.
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e, "handleSatPingPublicationExceptions");
+		}
+	}
+
+
+	private boolean areSatApiMessagesAllowed() {
+
+		if (	(app != null)
+			&& 	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "sat")
+			&&	!app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("off")
+		) {
+			return true;
+		}
+		Log.d(logTag, "Satellite API interaction blocked.");
+		return false;
+	}
 
 
 }

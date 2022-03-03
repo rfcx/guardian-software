@@ -1,9 +1,6 @@
 package org.rfcx.guardian.classify.utils
 
-import java.io.BufferedInputStream
-import java.io.DataInputStream
-import java.io.File
-import java.io.FileInputStream
+import java.io.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -17,9 +14,7 @@ object AudioConverter {
         val dis = DataInputStream(input)
         dis.readFully(buff)
         // remove wav header at first 44 bytes
-        return floatMe(shortMe(buff.sliceArray(44 until buff.size)) ?: ShortArray(0)) ?: FloatArray(
-            0
-        )
+        return floatMe(shortMe(buff.sliceArray(44 until buff.size)) ?: ShortArray(0)) ?: FloatArray(0)
     }
 
     private fun shortMe(bytes: ByteArray): ShortArray? {
@@ -46,16 +41,12 @@ object AudioConverter {
      * output:
      * [[0.9, 0.1], [0.8, 0.2]]
      */
-    fun FloatArray.slidingWindow(
-        sampleRate: Int,
-        step: Float,
-        windowSize: Float
-    ): List<FloatArray> {
+    fun FloatArray.slidingWindow(sampleRate: Int, step: Float, windowSize: Float): List<FloatArray> {
         val slicedAudio = arrayListOf<FloatArray>()
         val windowLength = (sampleRate * windowSize).toInt()
         var startAt = 0
         var endAt = windowLength
-        val stepSize = (windowLength * step).toInt()
+        val stepSize =  (windowLength * step).toInt()
         while ((startAt + windowLength) < this.size) {
             slicedAudio.add(this.pickBetween(startAt, endAt))
             startAt += stepSize

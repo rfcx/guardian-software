@@ -1,75 +1,66 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="org.rfcx.guardian.classify">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+	package="org.rfcx.guardian.classify">
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!--	<uses-permission android:name="android.permission.INTERNET" />-->
+<!--	<uses-permission android:name="android.permission.INTERNET" />-->
 
-    <!--	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />-->
-    <!--	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />-->
-    <!--	<uses-permission android:name="android.permission.BLUETOOTH" />-->
-    <!--	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
-    <!--	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
-    <!--	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
+<!--	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />-->
+<!--	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />-->
+<!--	<uses-permission android:name="android.permission.BLUETOOTH" />-->
+<!--	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
+<!--	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+<!--	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
-    <!--  	<uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
-    <!--  	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> -->
+	<!--  	<uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
+	<!--  	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> -->
 
-    <!--	<uses-permission android:name="android.permission.READ_LOGS" />-->
-    <!--	<uses-permission android:name="android.permission.WRITE_SETTINGS" />-->
-    <!--	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />-->
-    <!--	<uses-permission android:name="android.permission.SET_TIME_ZONE" />-->
+<!--	<uses-permission android:name="android.permission.READ_LOGS" />-->
+<!--	<uses-permission android:name="android.permission.WRITE_SETTINGS" />-->
+<!--	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />-->
+<!--	<uses-permission android:name="android.permission.SET_TIME_ZONE" />-->
 
-    <!--	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />-->
-    <!--	<uses-permission android:name="android.permission.WAKE_LOCK" />-->
+<!--	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />-->
+<!--	<uses-permission android:name="android.permission.WAKE_LOCK" />-->
 
-    <!--	<uses-permission android:name="android.permission.CALL_PHONE" />-->
-    <!--	<uses-permission android:name="android.permission.RECEIVE_SMS" />-->
-    <!--	<uses-permission android:name="android.permission.SEND_SMS" />-->
-    <!--	<uses-permission android:name="android.permission.WRITE_SMS"/>-->
-    <!--	<uses-permission android:name="android.permission.READ_SMS"/>-->
+<!--	<uses-permission android:name="android.permission.CALL_PHONE" />-->
+<!--	<uses-permission android:name="android.permission.RECEIVE_SMS" />-->
+<!--	<uses-permission android:name="android.permission.SEND_SMS" />-->
+<!--	<uses-permission android:name="android.permission.WRITE_SMS"/>-->
+<!--	<uses-permission android:name="android.permission.READ_SMS"/>-->
 
-    <!--	<uses-permission android:name="android.permission.SET_WALLPAPER" />-->
-    <!--    <uses-permission android:name="android.permission.CAMERA" />-->
-    <!--	<uses-permission android:name="android.permission.DEVICE_POWER" tools:ignore="ProtectedPermissions" />-->
+<!--	<uses-permission android:name="android.permission.SET_WALLPAPER" />-->
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
+<!--	<uses-permission android:name="android.permission.DEVICE_POWER" tools:ignore="ProtectedPermissions" />-->
 
-    <uses-permission
-            android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
-            android:protectionLevel="signature"
-            tools:ignore="ProtectedPermissions" />
-    <uses-permission
-            android:name="android.permission.SHUTDOWN"
-            tools:ignore="ProtectedPermissions" />
+	<uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature" tools:ignore="ProtectedPermissions"/>
+	<uses-permission android:name="android.permission.SHUTDOWN" tools:ignore="ProtectedPermissions" />
 
-    <uses-permission android:name="org.rfcx.guardian.READ" />
-    <uses-permission android:name="org.rfcx.guardian.WRITE" />
-
-    <permission
-            android:name="org.rfcx.guardian.READ"
-            android:protectionLevel="signature" />
-    <permission
-            android:name="org.rfcx.guardian.WRITE"
-            android:protectionLevel="signature" />
+	<uses-permission android:name="org.rfcx.guardian.READ" />
+	<uses-permission android:name="org.rfcx.guardian.WRITE" />
+	<permission android:name="org.rfcx.guardian.READ" android:protectionLevel="signature" />
+	<permission android:name="org.rfcx.guardian.WRITE" android:protectionLevel="signature" />
 
     <application
-            android:name=".RfcxGuardian"
-            android:allowBackup="true"
-            android:icon="@drawable/ic_launcher_classify"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme">
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher_classify"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:name=".RfcxGuardian"
+        >
+
 
 
         <activity
-                android:name=".activity.MainActivity"
-                android:label="@string/app_name">
+            android:name=".activity.MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -77,43 +68,40 @@
         </activity>
 
 
-        <!-- Services -->
-        <service android:name=".service.AudioClassifyJobService" />
-        <service android:name=".service.AudioDetectionSendService" />
+		<!-- Services -->
+		<service android:name=".service.AudioClassifyJobService" />
+		<service android:name=".service.AudioDetectionSendService" />
 
-        <!-- IntentServices -->
-        <service
-                android:name=".ServiceMonitor"
-                android:exported="false" />
+		<!-- IntentServices -->
+		<service android:name=".ServiceMonitor" android:exported="false" />
 
 
-        <receiver android:name=".receiver.BootReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
-        <provider
-                android:name=".contentprovider.ClassifyContentProvider"
-                android:authorities="org.rfcx.guardian.classify"
-                android:exported="true"
-                android:grantUriPermissions="true"
-                android:readPermission="org.rfcx.guardian.READ"
-                android:writePermission="org.rfcx.guardian.WRITE">
-            <meta-data
-                    android:name="android.support.FILE_PROVIDER_PATHS"
-                    android:resource="@xml/file_provider_paths" />
-        </provider>
+		<receiver android:name=".receiver.BootReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+			</intent-filter>
+		</receiver>
+		
+		<provider 
+				android:name=".contentprovider.ClassifyContentProvider"
+				android:authorities="org.rfcx.guardian.classify"
+				android:readPermission="org.rfcx.guardian.READ"
+				android:writePermission="org.rfcx.guardian.WRITE"
+				android:grantUriPermissions="true"
+				android:exported="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />
+		</provider>
 
-        <!--		<provider-->
-        <!--				android:name="androidx.core.content.FileProvider"-->
-        <!--				android:authorities="org.rfcx.guardian.classify"-->
-        <!--				android:readPermission="org.rfcx.guardian.READ"-->
-        <!--				android:writePermission="org.rfcx.guardian.WRITE"-->
-        <!--				android:grantUriPermissions="true"-->
-        <!--				android:exported="true">-->
-        <!--			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />-->
-        <!--		</provider>-->
+<!--		<provider-->
+<!--				android:name="androidx.core.content.FileProvider"-->
+<!--				android:authorities="org.rfcx.guardian.classify"-->
+<!--				android:readPermission="org.rfcx.guardian.READ"-->
+<!--				android:writePermission="org.rfcx.guardian.WRITE"-->
+<!--				android:grantUriPermissions="true"-->
+<!--				android:exported="true">-->
+<!--			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />-->
+<!--		</provider>-->
 
     </application>
 

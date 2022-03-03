@@ -10,66 +10,68 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class InstructionsSchedulerService extends Service {
 
-    public static final String SERVICE_NAME = "InstructionsScheduler";
-    public static final long CYCLE_DURATION = 60 * 1000;
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsSchedulerService");
-    private RfcxGuardian app;
-    private boolean runFlag = false;
-    private InstructionsSchedulerSvc instructionsSchedulerSvc;
+	public static final String SERVICE_NAME = "InstructionsScheduler";
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsSchedulerService");
+	
+	private RfcxGuardian app;
+	
+	private boolean runFlag = false;
+	private InstructionsSchedulerSvc instructionsSchedulerSvc;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        this.instructionsSchedulerSvc = new InstructionsSchedulerSvc();
-        app = (RfcxGuardian) getApplication();
-    }
+	public static final long CYCLE_DURATION = 60 * 1000;
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-        Log.v(logTag, "Starting service: " + logTag);
-        this.runFlag = true;
-        app.rfcxSvc.setRunState(SERVICE_NAME, true);
-        try {
-            this.instructionsSchedulerSvc.start();
-        } catch (IllegalThreadStateException e) {
-            RfcxLog.logExc(logTag, e);
-        }
-        return START_NOT_STICKY;
-    }
+	@Override
+	public IBinder onBind(Intent intent) {
+		return null;
+	}
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		this.instructionsSchedulerSvc = new InstructionsSchedulerSvc();
+		app = (RfcxGuardian) getApplication();
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		super.onStartCommand(intent, flags, startId);
+		Log.v(logTag, "Starting service: "+logTag);
+		this.runFlag = true;
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
+		try {
+			this.instructionsSchedulerSvc.start();
+		} catch (IllegalThreadStateException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return START_NOT_STICKY;
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.runFlag = false;
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
+		this.instructionsSchedulerSvc.interrupt();
+		this.instructionsSchedulerSvc = null;
+	}
+	
+	
+	private class InstructionsSchedulerSvc extends Thread {
+		
+		public InstructionsSchedulerSvc() { super("InstructionsSchedulerService-InstructionsSchedulerSvc"); }
+		
+		@Override
+		public void run() {
+			InstructionsSchedulerService instructionsSchedulerInstance = InstructionsSchedulerService.this;
+			
+			app = (RfcxGuardian) getApplication();
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        this.runFlag = false;
-        app.rfcxSvc.setRunState(SERVICE_NAME, false);
-        this.instructionsSchedulerSvc.interrupt();
-        this.instructionsSchedulerSvc = null;
-    }
+			while (instructionsSchedulerInstance.runFlag) {
 
+				try {
 
-    private class InstructionsSchedulerSvc extends Thread {
-
-        public InstructionsSchedulerSvc() {
-            super("InstructionsSchedulerService-InstructionsSchedulerSvc");
-        }
-
-        @Override
-        public void run() {
-            InstructionsSchedulerService instructionsSchedulerInstance = InstructionsSchedulerService.this;
-
-            app = (RfcxGuardian) getApplication();
-
-            while (instructionsSchedulerInstance.runFlag) {
-
-                try {
-
-                    app.rfcxSvc.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 //					if (app.instructionsDb.dbQueued.getCount() > 0) {
 //
@@ -77,20 +79,20 @@ public class InstructionsSchedulerService extends Service {
 //
 //					}
 
-                    Thread.sleep(CYCLE_DURATION);
+					Thread.sleep(CYCLE_DURATION);
 
-                } catch (Exception e) {
-                    RfcxLog.logExc(logTag, e);
-                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                    instructionsSchedulerInstance.runFlag = false;
-                }
-            }
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+					app.rfcxSvc.setRunState(SERVICE_NAME, false);
+					instructionsSchedulerInstance.runFlag = false;
+				}
+			}
 
-            app.rfcxSvc.setRunState(SERVICE_NAME, false);
-            instructionsSchedulerInstance.runFlag = false;
-            Log.v(logTag, "Stopping service: " + logTag);
-        }
-    }
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
+			instructionsSchedulerInstance.runFlag = false;
+			Log.v(logTag, "Stopping service: "+logTag);
+		}
+	}
 
-
+	
 }

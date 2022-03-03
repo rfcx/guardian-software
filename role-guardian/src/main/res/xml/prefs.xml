@@ -1,701 +1,705 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_show_ui"
-            android:dialogTitle="show_ui"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="show_ui"
-            android:summary="string - true/false"
-            android:title="show_ui" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_verbose_sentinel"
-            android:dialogTitle="admin_verbose_sentinel"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_verbose_sentinel"
-            android:summary="string - true/false"
-            android:title="admin_verbose_sentinel" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_verbose_cpu"
-            android:dialogTitle="admin_verbose_cpu"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_verbose_cpu"
-            android:summary="string - true/false"
-            android:title="admin_verbose_cpu" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_verbose_network"
-            android:dialogTitle="admin_verbose_network"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_verbose_network"
-            android:summary="string - true/false"
-            android:title="admin_verbose_network" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_audio_capture"
-            android:dialogTitle="enable_audio_capture"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_audio_capture"
-            android:summary="string - true/false"
-            android:title="enable_audio_capture" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_audio_stream"
-            android:dialogTitle="enable_audio_stream"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_audio_stream"
-            android:summary="string - true/false"
-            android:title="enable_audio_stream" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_audio_vault"
-            android:dialogTitle="enable_audio_vault"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_audio_vault"
-            android:summary="string - true/false"
-            android:title="enable_audio_vault" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_audio_classify"
-            android:dialogTitle="enable_audio_classify"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_audio_classify"
-            android:summary="string - true/false"
-            android:title="enable_audio_classify" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_audio_cast"
-            android:dialogTitle="enable_audio_cast"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_audio_cast"
-            android:summary="string - true/false"
-            android:title="enable_audio_cast" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_checkin_publish"
-            android:dialogTitle="enable_checkin_publish"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_checkin_publish"
-            android:summary="string - true/false"
-            android:title="enable_checkin_publish" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_checkin_archive"
-            android:dialogTitle="enable_checkin_archive"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_checkin_archive"
-            android:summary="string - true/false"
-            android:title="enable_checkin_archive" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_cutoffs_internal_battery"
-            android:dialogTitle="enable_cutoffs_internal_battery"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_cutoffs_internal_battery"
-            android:summary="string - true/false"
-            android:title="enable_cutoffs_internal_battery" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_cutoffs_schedule_off_hours"
-            android:dialogTitle="enable_cutoffs_schedule_off_hours"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_cutoffs_schedule_off_hours"
-            android:summary="string - true/false"
-            android:title="enable_cutoffs_schedule_off_hours" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_cutoffs_sampling_ratio"
-            android:dialogTitle="enable_cutoffs_sampling_ratio"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_cutoffs_sampling_ratio"
-            android:summary="string - true/false"
-            android:title="enable_cutoffs_sampling_ratio" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_cutoffs_sentinel_battery"
-            android:dialogTitle="enable_cutoffs_sentinel_battery"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_cutoffs_sentinel_battery"
-            android:summary="string - true/false"
-            android:title="enable_cutoffs_sentinel_battery" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_mqtt_host"
-            android:enabled="true"
-            android:key="api_mqtt_host"
-            android:summary="string - checkin api address (mqtt)"
-            android:title="api_mqtt_host" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_api_mqtt_protocol"
-            android:dialogTitle="api_mqtt_protocol"
-            android:entries="@array/prefs_values_tcp_or_ssl"
-            android:entryValues="@array/prefs_values_tcp_or_ssl"
-            android:key="api_mqtt_protocol"
-            android:summary="string - checkin api protocol (mqtt)"
-            android:title="api_mqtt_protocol" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_mqtt_port"
-            android:enabled="true"
-            android:key="api_mqtt_port"
-            android:summary="string - checkin api port (mqtt)"
-            android:title="api_mqtt_port" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_mqtt_auth"
-            android:dialogTitle="enable_mqtt_auth"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_mqtt_auth"
-            android:summary="string - true/false"
-            android:title="enable_mqtt_auth" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_mqtt_auth_creds"
-            android:enabled="true"
-            android:key="api_mqtt_auth_creds"
-            android:summary="string - broker user/password (mqtt) - comma separated"
-            android:title="api_mqtt_auth_creds" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_rest_host"
-            android:enabled="true"
-            android:key="api_rest_host"
-            android:summary="string - rest api address"
-            android:title="api_rest_host" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_api_rest_protocol"
-            android:dialogTitle="api_rest_protocol"
-            android:entries="@array/prefs_values_http_or_https"
-            android:entryValues="@array/prefs_values_http_or_https"
-            android:key="api_rest_protocol"
-            android:summary="string - rest api protocol"
-            android:title="api_rest_protocol" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_ntp_host"
-            android:enabled="true"
-            android:key="api_ntp_host"
-            android:summary="string - hostname"
-            android:title="api_ntp_host" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_sms_address"
-            android:enabled="true"
-            android:key="api_sms_address"
-            android:summary="string - phone number/code"
-            android:title="api_sms_address" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_api_satellite_protocol"
-            android:dialogTitle="api_satellite_protocol"
-            android:entries="@array/prefs_values_api_satellite_protocol"
-            android:entryValues="@array/prefs_values_api_satellite_protocol"
-            android:key="api_satellite_protocol"
-            android:summary="string - off/swm/sbd"
-            android:title="api_satellite_protocol" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_api_protocol_escalation_order"
-            android:enabled="true"
-            android:key="api_protocol_escalation_order"
-            android:summary="string - protocols, ordered, comma separated"
-            android:title="api_protocol_escalation_order" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_ping_schedule_off_hours"
-            android:enabled="true"
-            android:key="api_ping_schedule_off_hours"
-            android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
-            android:title="api_ping_schedule_off_hours" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_satellite_off_hours"
-            android:enabled="true"
-            android:key="api_satellite_off_hours"
-            android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
-            android:title="api_satellite_off_hours" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_checkin_publish_schedule_off_hours"
-            android:enabled="true"
-            android:key="api_checkin_publish_schedule_off_hours"
-            android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
-            android:title="api_checkin_publish_schedule_off_hours" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_checkin_requeue_schedule_off_hours"
-            android:enabled="true"
-            android:key="api_checkin_requeue_schedule_off_hours"
-            android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
-            android:title="api_checkin_requeue_schedule_off_hours" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_audio_classify_schedule_off_hours"
-            android:enabled="true"
-            android:key="audio_classify_schedule_off_hours"
-            android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
-            android:title="audio_classify_schedule_off_hours" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_reboot_forced_daily_at"
-            android:enabled="true"
-            android:key="reboot_forced_daily_at"
-            android:summary="string - time - Ex: HH:mm:ss"
-            android:title="reboot_forced_daily_at" />
-
-    <!-- Audio Capture Controls -->
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_audio_cycle_duration"
-            android:enabled="true"
-            android:key="audio_cycle_duration"
-            android:summary="int - seconds"
-            android:title="audio_cycle_duration" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_audio_capture_schedule_off_hours"
-            android:enabled="true"
-            android:key="audio_capture_schedule_off_hours"
-            android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
-            android:title="audio_capture_schedule_off_hours" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_audio_sampling_ratio"
-            android:enabled="true"
-            android:key="audio_sampling_ratio"
-            android:summary="ratio - capture to silence"
-            android:title="audio_sampling_ratio" />
-
-    <!-- Audio Capture Formatting -->
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_audio_capture_gain"
-            android:enabled="true"
-            android:key="audio_capture_gain"
-            android:summary="float - volume increase/decrease"
-            android:title="audio_capture_gain" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_stream_sample_rate"
-            android:dialogTitle="audio_stream_sample_rate"
-            android:entries="@array/prefs_labels_audio_sample_rate"
-            android:entryValues="@array/prefs_values_audio_sample_rate"
-            android:key="audio_stream_sample_rate"
-            android:summary="int - hertz"
-            android:title="audio_stream_sample_rate" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_stream_codec"
-            android:dialogTitle="audio_stream_codec"
-            android:entries="@array/prefs_values_opus_or_flac"
-            android:entryValues="@array/prefs_values_opus_or_flac"
-            android:key="audio_stream_codec"
-            android:summary="string - codec"
-            android:title="audio_stream_codec" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_stream_bitrate"
-            android:dialogTitle="audio_stream_bitrate"
-            android:entries="@array/prefs_labels_audio_encode_bitrate"
-            android:entryValues="@array/prefs_values_audio_encode_bitrate"
-            android:key="audio_stream_bitrate"
-            android:summary="int - kbits per second"
-            android:title="audio_stream_bitrate" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_vault_sample_rate"
-            android:dialogTitle="audio_vault_sample_rate"
-            android:entries="@array/prefs_labels_audio_sample_rate"
-            android:entryValues="@array/prefs_values_audio_sample_rate"
-            android:key="audio_vault_sample_rate"
-            android:summary="int - hertz"
-            android:title="audio_vault_sample_rate" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_vault_codec"
-            android:dialogTitle="audio_vault_codec"
-            android:entries="@array/prefs_values_opus_or_flac"
-            android:entryValues="@array/prefs_values_opus_or_flac"
-            android:key="audio_vault_codec"
-            android:summary="string - codec"
-            android:title="audio_vault_codec" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_vault_bitrate"
-            android:dialogTitle="audio_vault_bitrate"
-            android:entries="@array/prefs_labels_audio_encode_bitrate"
-            android:entryValues="@array/prefs_values_audio_encode_bitrate"
-            android:key="audio_vault_bitrate"
-            android:summary="int - kbits per second"
-            android:title="audio_vault_bitrate" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_cast_sample_rate_minimum"
-            android:dialogTitle="audio_cast_sample_rate_minimum"
-            android:entries="@array/prefs_labels_audio_sample_rate"
-            android:entryValues="@array/prefs_values_audio_sample_rate"
-            android:key="audio_cast_sample_rate_minimum"
-            android:summary="int - hertz"
-            android:title="audio_cast_sample_rate_minimum" />
-
-
-    <!-- Battery Cutoff Thresholds -->
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_checkin_cutoff_internal_battery"
-            android:dialogTitle="checkin_cutoff_internal_battery"
-            android:entries="@array/prefs_labels_percent"
-            android:entryValues="@array/prefs_values_percent"
-            android:key="checkin_cutoff_internal_battery"
-            android:summary="int - percentage"
-            android:title="checkin_cutoff_internal_battery" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_cutoff_internal_battery"
-            android:dialogTitle="audio_cutoff_internal_battery"
-            android:entries="@array/prefs_labels_percent"
-            android:entryValues="@array/prefs_values_percent"
-            android:key="audio_cutoff_internal_battery"
-            android:summary="int - percentage"
-            android:title="audio_cutoff_internal_battery" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_install_cutoff_internal_battery"
-            android:dialogTitle="install_cutoff_internal_battery"
-            android:entries="@array/prefs_labels_percent"
-            android:entryValues="@array/prefs_values_percent"
-            android:key="install_cutoff_internal_battery"
-            android:summary="int - percentage"
-            android:title="install_cutoff_internal_battery" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_checkin_cutoff_sentinel_battery"
-            android:dialogTitle="checkin_cutoff_sentinel_battery"
-            android:entries="@array/prefs_labels_percent"
-            android:entryValues="@array/prefs_values_percent"
-            android:key="checkin_cutoff_sentinel_battery"
-            android:summary="int - percentage"
-            android:title="checkin_cutoff_sentinel_battery" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_audio_cutoff_sentinel_battery"
-            android:dialogTitle="audio_cutoff_sentinel_battery"
-            android:entries="@array/prefs_labels_percent"
-            android:entryValues="@array/prefs_values_percent"
-            android:key="audio_cutoff_sentinel_battery"
-            android:summary="int - percentage"
-            android:title="audio_cutoff_sentinel_battery" />
-
-    <!-- CheckIn Triggering Controls -->
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_failure_thresholds"
-            android:enabled="true"
-            android:key="checkin_failure_thresholds"
-            android:summary="string - minutes, comma separated"
-            android:title="checkin_failure_thresholds" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_failure_limit"
-            android:enabled="true"
-            android:key="checkin_failure_limit"
-            android:summary="int - count"
-            android:title="checkin_failure_limit" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_queue_filesize_limit"
-            android:enabled="true"
-            android:key="checkin_queue_filesize_limit"
-            android:summary="int - megabytes"
-            android:title="checkin_queue_filesize_limit" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_sent_filesize_buffer"
-            android:enabled="true"
-            android:key="checkin_sent_filesize_buffer"
-            android:summary="int - megabytes"
-            android:title="checkin_sent_filesize_buffer" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_stash_filesize_buffer"
-            android:enabled="true"
-            android:key="checkin_stash_filesize_buffer"
-            android:summary="int - megabytes"
-            android:title="checkin_stash_filesize_buffer" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_archive_filesize_target"
-            android:enabled="true"
-            android:key="checkin_archive_filesize_target"
-            android:summary="int - megabytes"
-            android:title="checkin_archive_filesize_target" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_meta_send_bundle_limit"
-            android:enabled="true"
-            android:key="checkin_meta_send_bundle_limit"
-            android:summary="int - count"
-            android:title="checkin_meta_send_bundle_limit" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_checkin_meta_queue_filesize_limit"
-            android:enabled="true"
-            android:key="checkin_meta_queue_filesize_limit"
-            android:summary="int - megabytes"
-            android:title="checkin_meta_queue_filesize_limit" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_clock_sync_cycle_duration"
-            android:enabled="true"
-            android:key="api_clock_sync_cycle_duration"
-            android:summary="int - minutes"
-            android:title="api_clock_sync_cycle_duration" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_ping_cycle_duration"
-            android:enabled="true"
-            android:key="api_ping_cycle_duration"
-            android:summary="int - minutes"
-            android:title="api_ping_cycle_duration" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_api_ping_cycle_fields"
-            android:enabled="true"
-            android:key="api_ping_cycle_fields"
-            android:summary="string - comma separated"
-            android:title="api_ping_cycle_fields" />
-
-    <!-- Admin Controls -->
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_log_capture_cycle"
-            android:enabled="true"
-            android:key="admin_log_capture_cycle"
-            android:summary="int - minutes"
-            android:title="admin_log_capture_cycle" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_log_capture_level"
-            android:enabled="true"
-            android:entries="@array/prefs_values_logcat_log_levels"
-            android:entryValues="@array/prefs_values_logcat_log_levels"
-            android:key="admin_log_capture_level"
-            android:summary="string - log verbosity level"
-            android:title="admin_log_capture_level" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_log_capture"
-            android:dialogTitle="admin_enable_log_capture"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_log_capture"
-            android:summary="string - true/false"
-            android:title="admin_enable_log_capture" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_geoposition_capture"
-            android:dialogTitle="admin_enable_geoposition_capture"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_geoposition_capture"
-            android:summary="string - true/false"
-            android:title="admin_enable_geoposition_capture" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_geoposition_capture_cycle"
-            android:enabled="true"
-            android:key="admin_geoposition_capture_cycle"
-            android:summary="int - minutes"
-            android:title="admin_geoposition_capture_cycle" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_screenshot_capture_cycle"
-            android:enabled="true"
-            android:key="admin_screenshot_capture_cycle"
-            android:summary="int - minutes"
-            android:title="admin_screenshot_capture_cycle" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_screenshot_capture"
-            android:dialogTitle="admin_enable_screenshot_capture"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_screenshot_capture"
-            android:summary="string - true/false"
-            android:title="admin_enable_screenshot_capture" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_camera_capture_cycle"
-            android:enabled="true"
-            android:key="admin_camera_capture_cycle"
-            android:summary="int - minutes"
-            android:title="admin_camera_capture_cycle" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_camera_capture"
-            android:dialogTitle="admin_enable_camera_capture"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_camera_capture"
-            android:summary="string - true/false"
-            android:title="admin_enable_camera_capture" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_adb_server"
-            android:dialogTitle="admin_enable_adb_server"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_adb_server"
-            android:summary="string - true/false"
-            android:title="admin_enable_adb_server" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_power"
-            android:dialogTitle="admin_enable_sentinel_power"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_sentinel_power"
-            android:summary="string - true/false"
-            android:title="admin_enable_sentinel_power" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_sensor"
-            android:dialogTitle="admin_enable_sentinel_sensor"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_sentinel_sensor"
-            android:summary="string - true/false"
-            android:title="admin_enable_sentinel_sensor" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_sentry_sensor"
-            android:dialogTitle="admin_enable_sentry_sensor"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_sentry_sensor"
-            android:summary="string - true/false"
-            android:title="admin_enable_sentry_sensor" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_telemetry_capture_cycle"
-            android:enabled="true"
-            android:key="admin_telemetry_capture_cycle"
-            android:summary="int - milliseconds"
-            android:title="admin_telemetry_capture_cycle" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_companion_telemetry_push_cycle"
-            android:enabled="true"
-            android:key="companion_telemetry_push_cycle"
-            android:summary="int - milliseconds"
-            android:title="companion_telemetry_push_cycle" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_system_timezone"
-            android:dialogTitle="admin_system_timezone"
-            android:entries="@array/tz_timezones"
-            android:entryValues="@array/tz_timezones"
-            android:key="admin_system_timezone"
-            android:summary="string - Region/Zone"
-            android:title="admin_system_timezone" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_system_settings_override"
-            android:enabled="true"
-            android:key="admin_system_settings_override"
-            android:summary="string - comma separated, semicolon separated"
-            android:title="admin_system_settings_override" />
-
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_ssh_server"
-            android:dialogTitle="admin_enable_ssh_server"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_ssh_server"
-            android:summary="string - On/Off"
-            android:title="admin_enable_ssh_server" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_socket_server"
-            android:dialogTitle="admin_enable_socket_server"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_socket_server"
-            android:summary="string - On/Off"
-            android:title="admin_enable_socket_server" />
-
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_wifi_function"
-            android:dialogTitle="admin_wifi_function"
-            android:entries="@array/prefs_values_admin_wifi_function"
-            android:entryValues="@array/prefs_values_admin_wifi_function"
-            android:key="admin_wifi_function"
-            android:summary="string - off/hotspot/client"
-            android:title="admin_wifi_function" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_wifi_client_auth_creds"
-            android:enabled="true"
-            android:key="admin_wifi_client_auth_creds"
-            android:summary="string - colon separated (default to known networks)"
-            android:title="admin_wifi_client_auth_creds" />
-
-    <EditTextPreference
-            android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_auth_creds"
-            android:enabled="true"
-            android:key="admin_wifi_hotspot_auth_creds"
-            android:summary="string - colon separated"
-            android:title="admin_wifi_hotspot_auth_creds" />
-
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_bluetooth_function"
-            android:dialogTitle="admin_bluetooth_function"
-            android:entries="@array/prefs_values_admin_bluetooth_function"
-            android:entryValues="@array/prefs_values_admin_bluetooth_function"
-            android:key="admin_bluetooth_function"
-            android:summary="string - off/pan"
-            android:title="admin_bluetooth_function" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_admin_enable_airplane_mode"
-            android:dialogTitle="admin_enable_airplane_mode"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="admin_enable_airplane_mode"
-            android:summary="string - true/false"
-            android:title="admin_enable_airplane_mode" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_file_socket"
-            android:dialogTitle="enable_file_socket"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_file_socket"
-            android:summary="string - true/false"
-            android:title="enable_file_socket" />
-
-
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<ListPreference
+		android:key="show_ui"
+		android:title="show_ui"
+		android:dialogTitle="show_ui"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_show_ui" />
+
+	<ListPreference
+			android:key="admin_verbose_sentinel"
+			android:title="admin_verbose_sentinel"
+			android:dialogTitle="admin_verbose_sentinel"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_sentinel" />
+
+	<ListPreference
+			android:key="admin_verbose_cpu"
+			android:title="admin_verbose_cpu"
+			android:dialogTitle="admin_verbose_cpu"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_cpu" />
+
+	<ListPreference
+			android:key="admin_verbose_network"
+			android:title="admin_verbose_network"
+			android:dialogTitle="admin_verbose_network"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_network" />
+
+	<ListPreference
+			android:key="enable_audio_capture"
+			android:title="enable_audio_capture"
+			android:dialogTitle="enable_audio_capture"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_capture" />
+
+	<ListPreference
+			android:key="enable_audio_stream"
+			android:title="enable_audio_stream"
+			android:dialogTitle="enable_audio_stream"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_stream" />
+
+	<ListPreference
+			android:key="enable_audio_vault"
+			android:title="enable_audio_vault"
+			android:dialogTitle="enable_audio_vault"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_vault" />
+
+	<ListPreference
+			android:key="enable_audio_classify"
+			android:title="enable_audio_classify"
+			android:dialogTitle="enable_audio_classify"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_classify" />
+
+	<ListPreference
+			android:key="enable_audio_cast"
+			android:title="enable_audio_cast"
+			android:dialogTitle="enable_audio_cast"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_cast" />
+
+	<ListPreference
+			android:key="enable_checkin_publish"
+			android:title="enable_checkin_publish"
+			android:dialogTitle="enable_checkin_publish"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_checkin_publish" />
+
+	<ListPreference
+			android:key="enable_checkin_archive"
+			android:title="enable_checkin_archive"
+			android:dialogTitle="enable_checkin_archive"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_checkin_archive" />
+        
+	<ListPreference
+		android:key="enable_cutoffs_internal_battery"
+		android:title="enable_cutoffs_internal_battery"
+		android:dialogTitle="enable_cutoffs_internal_battery"
+        android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_internal_battery" />
+ 	
+  	<ListPreference
+		android:key="enable_cutoffs_schedule_off_hours"
+		android:title="enable_cutoffs_schedule_off_hours"
+		android:dialogTitle="enable_cutoffs_schedule_off_hours"
+        android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_schedule_off_hours" />
+
+	<ListPreference
+		android:key="enable_cutoffs_sampling_ratio"
+		android:title="enable_cutoffs_sampling_ratio"
+		android:dialogTitle="enable_cutoffs_sampling_ratio"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sampling_ratio" />
+
+	<ListPreference
+		android:key="enable_cutoffs_sentinel_battery"
+		android:title="enable_cutoffs_sentinel_battery"
+		android:dialogTitle="enable_cutoffs_sentinel_battery"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sentinel_battery" />
+
+ 	<EditTextPreference
+        android:key="api_mqtt_host"
+        android:title="api_mqtt_host"
+        android:summary="string - checkin api address (mqtt)"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_api_mqtt_host" />
+ 	
+ 	<ListPreference
+		android:key="api_mqtt_protocol"
+		android:title="api_mqtt_protocol"
+		android:dialogTitle="api_mqtt_protocol"
+        android:summary="string - checkin api protocol (mqtt)"
+		android:entries="@array/prefs_values_tcp_or_ssl"
+		android:entryValues="@array/prefs_values_tcp_or_ssl"
+		android:defaultValue="@string/prefs_value_default_api_mqtt_protocol" />
+    
+ 	<EditTextPreference
+        android:key="api_mqtt_port"
+        android:title="api_mqtt_port"
+        android:summary="string - checkin api port (mqtt)"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_api_mqtt_port" />
+
+	<ListPreference
+		android:key="enable_mqtt_auth"
+		android:title="enable_mqtt_auth"
+		android:dialogTitle="enable_mqtt_auth"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_mqtt_auth" />
+
+	<EditTextPreference
+		android:key="api_mqtt_auth_creds"
+		android:title="api_mqtt_auth_creds"
+		android:summary="string - broker user/password (mqtt) - comma separated"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_mqtt_auth_creds" />
+
+	<EditTextPreference
+		android:key="api_rest_host"
+		android:title="api_rest_host"
+		android:summary="string - rest api address"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_rest_host" />
+
+	<ListPreference
+		android:key="api_rest_protocol"
+		android:title="api_rest_protocol"
+		android:dialogTitle="api_rest_protocol"
+		android:summary="string - rest api protocol"
+		android:entries="@array/prefs_values_http_or_https"
+		android:entryValues="@array/prefs_values_http_or_https"
+		android:defaultValue="@string/prefs_value_default_api_rest_protocol" />
+
+ 	<EditTextPreference
+        android:key="api_ntp_host"
+        android:title="api_ntp_host"
+        android:summary="string - hostname"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_api_ntp_host" />
+
+	<EditTextPreference
+		android:key="api_sms_address"
+		android:title="api_sms_address"
+		android:summary="string - phone number/code"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_sms_address" />
+
+	<ListPreference
+		android:key="api_satellite_protocol"
+		android:title="api_satellite_protocol"
+		android:dialogTitle="api_satellite_protocol"
+		android:summary="string - off/swm/sbd"
+		android:entries="@array/prefs_values_api_satellite_protocol"
+		android:entryValues="@array/prefs_values_api_satellite_protocol"
+		android:defaultValue="@string/prefs_value_default_api_satellite_protocol" />
+
+	<EditTextPreference
+		android:key="api_protocol_escalation_order"
+		android:title="api_protocol_escalation_order"
+		android:summary="string - protocols, ordered, comma separated"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_api_protocol_escalation_order" />
+
+	<EditTextPreference
+		android:key="api_ping_schedule_off_hours"
+		android:title="api_ping_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_ping_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="api_satellite_off_hours"
+		android:title="api_satellite_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_satellite_off_hours" />
+
+	<EditTextPreference
+		android:key="api_checkin_publish_schedule_off_hours"
+		android:title="api_checkin_publish_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_checkin_publish_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="api_checkin_requeue_schedule_off_hours"
+		android:title="api_checkin_requeue_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_checkin_requeue_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="audio_classify_schedule_off_hours"
+		android:title="audio_classify_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_classify_schedule_off_hours" />
+ 	
+ 	<EditTextPreference
+        android:key="reboot_forced_daily_at"
+        android:title="reboot_forced_daily_at"
+        android:summary="string - time - Ex: HH:mm:ss"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_reboot_forced_daily_at" />
+ 	
+ 	<!-- Audio Capture Controls -->
+ 	
+ 	<EditTextPreference
+        android:key="audio_cycle_duration"
+        android:title="audio_cycle_duration"
+        android:summary="int - seconds"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_audio_cycle_duration" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_capture_schedule_off_hours"
+        android:title="audio_capture_schedule_off_hours"
+        android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_audio_capture_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="audio_sampling_ratio"
+		android:title="audio_sampling_ratio"
+		android:summary="ratio - capture to silence"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_sampling_ratio" />
+ 	
+ 	<!-- Audio Capture Formatting -->
+
+	<EditTextPreference
+		android:key="audio_capture_gain"
+		android:title="audio_capture_gain"
+		android:summary="float - volume increase/decrease"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_capture_gain" />
+
+	<ListPreference
+		android:key="audio_stream_sample_rate"
+		android:title="audio_stream_sample_rate"
+		android:dialogTitle="audio_stream_sample_rate"
+		android:summary="int - hertz"
+		android:entries="@array/prefs_labels_audio_sample_rate"
+		android:entryValues="@array/prefs_values_audio_sample_rate"
+		android:defaultValue="@string/prefs_value_default_audio_stream_sample_rate" />
+
+	<ListPreference
+		android:key="audio_stream_codec"
+		android:title="audio_stream_codec"
+		android:dialogTitle="audio_stream_codec"
+		android:summary="string - codec"
+		android:entries="@array/prefs_values_opus_or_flac"
+		android:entryValues="@array/prefs_values_opus_or_flac"
+		android:defaultValue="@string/prefs_value_default_audio_stream_codec" />
+
+	<ListPreference
+		android:key="audio_stream_bitrate"
+		android:title="audio_stream_bitrate"
+		android:dialogTitle="audio_stream_bitrate"
+		android:summary="int - kbits per second"
+		android:entries="@array/prefs_labels_audio_encode_bitrate"
+		android:entryValues="@array/prefs_values_audio_encode_bitrate"
+		android:defaultValue="@string/prefs_value_default_audio_stream_bitrate" />
+
+	<ListPreference
+			android:key="audio_vault_sample_rate"
+			android:title="audio_vault_sample_rate"
+			android:dialogTitle="audio_vault_sample_rate"
+			android:summary="int - hertz"
+			android:entries="@array/prefs_labels_audio_sample_rate"
+			android:entryValues="@array/prefs_values_audio_sample_rate"
+			android:defaultValue="@string/prefs_value_default_audio_vault_sample_rate" />
+
+	<ListPreference
+			android:key="audio_vault_codec"
+			android:title="audio_vault_codec"
+			android:dialogTitle="audio_vault_codec"
+			android:summary="string - codec"
+			android:entries="@array/prefs_values_opus_or_flac"
+			android:entryValues="@array/prefs_values_opus_or_flac"
+			android:defaultValue="@string/prefs_value_default_audio_vault_codec" />
+
+	<ListPreference
+			android:key="audio_vault_bitrate"
+			android:title="audio_vault_bitrate"
+			android:dialogTitle="audio_vault_bitrate"
+			android:summary="int - kbits per second"
+			android:entries="@array/prefs_labels_audio_encode_bitrate"
+			android:entryValues="@array/prefs_values_audio_encode_bitrate"
+			android:defaultValue="@string/prefs_value_default_audio_vault_bitrate" />
+
+	<ListPreference
+			android:key="audio_cast_sample_rate_minimum"
+			android:title="audio_cast_sample_rate_minimum"
+			android:dialogTitle="audio_cast_sample_rate_minimum"
+			android:summary="int - hertz"
+			android:entries="@array/prefs_labels_audio_sample_rate"
+			android:entryValues="@array/prefs_values_audio_sample_rate"
+			android:defaultValue="@string/prefs_value_default_audio_cast_sample_rate_minimum" />
+
+
+
+ 	
+ 	<!-- Battery Cutoff Thresholds -->
+        
+	<ListPreference
+		android:key="checkin_cutoff_internal_battery"
+		android:title="checkin_cutoff_internal_battery"
+		android:dialogTitle="checkin_cutoff_internal_battery"
+        android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_checkin_cutoff_internal_battery" />
+        
+	<ListPreference
+		android:key="audio_cutoff_internal_battery"
+		android:title="audio_cutoff_internal_battery"
+		android:dialogTitle="audio_cutoff_internal_battery"
+        android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_audio_cutoff_internal_battery" />
+
+	<ListPreference
+			android:key="install_cutoff_internal_battery"
+			android:title="install_cutoff_internal_battery"
+			android:dialogTitle="install_cutoff_internal_battery"
+			android:summary="int - percentage"
+			android:entries="@array/prefs_labels_percent"
+			android:entryValues="@array/prefs_values_percent"
+			android:defaultValue="@string/prefs_value_default_install_cutoff_internal_battery" />
+
+	<ListPreference
+		android:key="checkin_cutoff_sentinel_battery"
+		android:title="checkin_cutoff_sentinel_battery"
+		android:dialogTitle="checkin_cutoff_sentinel_battery"
+		android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_checkin_cutoff_sentinel_battery" />
+
+	<ListPreference
+		android:key="audio_cutoff_sentinel_battery"
+		android:title="audio_cutoff_sentinel_battery"
+		android:dialogTitle="audio_cutoff_sentinel_battery"
+		android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_audio_cutoff_sentinel_battery" />
+ 	
+ 	<!-- CheckIn Triggering Controls -->
+ 	
+ 	<EditTextPreference
+        android:key="checkin_failure_thresholds"
+        android:title="checkin_failure_thresholds"
+        android:summary="string - minutes, comma separated"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_checkin_failure_thresholds" />
+ 	 	
+ 	<EditTextPreference
+        android:key="checkin_failure_limit"
+        android:title="checkin_failure_limit"
+        android:summary="int - count"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_checkin_failure_limit" />
+
+	<EditTextPreference
+		android:key="checkin_queue_filesize_limit"
+		android:title="checkin_queue_filesize_limit"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_queue_filesize_limit" />
+
+	<EditTextPreference
+		android:key="checkin_sent_filesize_buffer"
+		android:title="checkin_sent_filesize_buffer"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_sent_filesize_buffer" />
+
+	<EditTextPreference
+		android:key="checkin_stash_filesize_buffer"
+		android:title="checkin_stash_filesize_buffer"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_stash_filesize_buffer" />
+ 	
+ 	<EditTextPreference
+        android:key="checkin_archive_filesize_target"
+        android:title="checkin_archive_filesize_target"
+        android:summary="int - megabytes"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_checkin_archive_filesize_target" />
+
+	<EditTextPreference
+		android:key="checkin_meta_send_bundle_limit"
+		android:title="checkin_meta_send_bundle_limit"
+		android:summary="int - count"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_meta_send_bundle_limit" />
+
+	<EditTextPreference
+		android:key="checkin_meta_queue_filesize_limit"
+		android:title="checkin_meta_queue_filesize_limit"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_meta_queue_filesize_limit" />
+
+	<EditTextPreference
+		android:key="api_clock_sync_cycle_duration"
+		android:title="api_clock_sync_cycle_duration"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_clock_sync_cycle_duration" />
+
+	<EditTextPreference
+		android:key="api_ping_cycle_duration"
+		android:title="api_ping_cycle_duration"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_ping_cycle_duration" />
+
+	<EditTextPreference
+			android:key="api_ping_cycle_fields"
+			android:title="api_ping_cycle_fields"
+			android:summary="string - comma separated"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_api_ping_cycle_fields" />
+ 	
+ 	<!-- Admin Controls -->
+ 	
+ 	<EditTextPreference
+        android:key="admin_log_capture_cycle"
+        android:title="admin_log_capture_cycle"
+        android:summary="int - minutes"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_admin_log_capture_cycle" />
+ 	
+ 	<ListPreference
+        android:key="admin_log_capture_level"
+        android:title="admin_log_capture_level"
+        android:summary="string - log verbosity level"
+		android:entries="@array/prefs_values_logcat_log_levels"
+		android:entryValues="@array/prefs_values_logcat_log_levels"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_admin_log_capture_level" />
+ 	
+ 	<ListPreference
+        android:key="admin_enable_log_capture"
+        android:title="admin_enable_log_capture"
+		android:dialogTitle="admin_enable_log_capture"
+        android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_log_capture" />
+
+	<ListPreference
+		android:key="admin_enable_geoposition_capture"
+		android:title="admin_enable_geoposition_capture"
+		android:dialogTitle="admin_enable_geoposition_capture"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_geoposition_capture" />
+
+	<EditTextPreference
+		android:key="admin_geoposition_capture_cycle"
+		android:title="admin_geoposition_capture_cycle"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_admin_geoposition_capture_cycle" />
+ 	
+ 	<EditTextPreference
+        android:key="admin_screenshot_capture_cycle"
+        android:title="admin_screenshot_capture_cycle"
+        android:summary="int - minutes"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_admin_screenshot_capture_cycle" />
+ 	
+ 	<ListPreference
+        android:key="admin_enable_screenshot_capture"
+        android:title="admin_enable_screenshot_capture"
+		android:dialogTitle="admin_enable_screenshot_capture"
+        android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_screenshot_capture" />
+
+	<EditTextPreference
+			android:key="admin_camera_capture_cycle"
+			android:title="admin_camera_capture_cycle"
+			android:summary="int - minutes"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_camera_capture_cycle" />
+
+	<ListPreference
+			android:key="admin_enable_camera_capture"
+			android:title="admin_enable_camera_capture"
+			android:dialogTitle="admin_enable_camera_capture"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_camera_capture" />
+
+	<ListPreference
+		android:key="admin_enable_adb_server"
+		android:title="admin_enable_adb_server"
+		android:dialogTitle="admin_enable_adb_server"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_adb_server" />
+
+	<ListPreference
+		android:key="admin_enable_sentinel_power"
+		android:title="admin_enable_sentinel_power"
+		android:dialogTitle="admin_enable_sentinel_power"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_power" />
+
+	<ListPreference
+		android:key="admin_enable_sentinel_sensor"
+		android:title="admin_enable_sentinel_sensor"
+		android:dialogTitle="admin_enable_sentinel_sensor"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_sensor" />
+
+	<ListPreference
+			android:key="admin_enable_sentry_sensor"
+			android:title="admin_enable_sentry_sensor"
+			android:dialogTitle="admin_enable_sentry_sensor"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_sentry_sensor" />
+
+	<EditTextPreference
+			android:key="admin_telemetry_capture_cycle"
+			android:title="admin_telemetry_capture_cycle"
+			android:summary="int - milliseconds"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_telemetry_capture_cycle" />
+
+	<EditTextPreference
+			android:key="companion_telemetry_push_cycle"
+			android:title="companion_telemetry_push_cycle"
+			android:summary="int - milliseconds"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_companion_telemetry_push_cycle" />
+
+	<ListPreference
+			android:key="admin_system_timezone"
+			android:title="admin_system_timezone"
+			android:dialogTitle="admin_system_timezone"
+			android:summary="string - Region/Zone"
+			android:entries="@array/tz_timezones"
+			android:entryValues="@array/tz_timezones"
+			android:defaultValue="@string/prefs_value_default_admin_system_timezone" />
+
+	<EditTextPreference
+			android:key="admin_system_settings_override"
+			android:title="admin_system_settings_override"
+			android:summary="string - comma separated, semicolon separated"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_system_settings_override" />
+
+
+	<ListPreference
+			android:key="admin_enable_ssh_server"
+			android:title="admin_enable_ssh_server"
+			android:dialogTitle="admin_enable_ssh_server"
+			android:summary="string - On/Off"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_ssh_server" />
+
+	<ListPreference
+			android:key="admin_enable_socket_server"
+			android:title="admin_enable_socket_server"
+			android:dialogTitle="admin_enable_socket_server"
+			android:summary="string - On/Off"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_socket_server"/>
+
+
+	<ListPreference
+			android:key="admin_wifi_function"
+			android:title="admin_wifi_function"
+			android:dialogTitle="admin_wifi_function"
+			android:summary="string - off/hotspot/client"
+			android:entries="@array/prefs_values_admin_wifi_function"
+			android:entryValues="@array/prefs_values_admin_wifi_function"
+			android:defaultValue="@string/prefs_value_default_admin_wifi_function" />
+
+	<EditTextPreference
+			android:key="admin_wifi_client_auth_creds"
+			android:title="admin_wifi_client_auth_creds"
+			android:summary="string - colon separated (default to known networks)"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_wifi_client_auth_creds" />
+
+	<EditTextPreference
+			android:key="admin_wifi_hotspot_auth_creds"
+			android:title="admin_wifi_hotspot_auth_creds"
+			android:summary="string - colon separated"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_auth_creds" />
+
+
+	<ListPreference
+			android:key="admin_bluetooth_function"
+			android:title="admin_bluetooth_function"
+			android:dialogTitle="admin_bluetooth_function"
+			android:summary="string - off/pan"
+			android:entries="@array/prefs_values_admin_bluetooth_function"
+			android:entryValues="@array/prefs_values_admin_bluetooth_function"
+			android:defaultValue="@string/prefs_value_default_admin_bluetooth_function" />
+
+	<ListPreference
+			android:key="admin_enable_airplane_mode"
+			android:title="admin_enable_airplane_mode"
+			android:dialogTitle="admin_enable_airplane_mode"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_airplane_mode" />
+
+	<ListPreference
+			android:key="enable_file_socket"
+			android:title="enable_file_socket"
+			android:dialogTitle="enable_file_socket"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_file_socket" />
+
+
+
+ 	
 </PreferenceScreen>

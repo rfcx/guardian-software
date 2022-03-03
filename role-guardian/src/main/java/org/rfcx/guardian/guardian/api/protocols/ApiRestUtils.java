@@ -17,108 +17,112 @@ import java.util.List;
 
 public class ApiRestUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiRestUtils");
-    HttpGet httpGet;
-    HttpPostMultipart httpPost;
-    private RfcxGuardian app;
-    private String restUrlPath_Ping;
+	public ApiRestUtils(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+		this.httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
+		this.httpPost = new HttpPostMultipart(context, RfcxGuardian.APP_ROLE);
+		setHttpHeaders();
+		setHttpTimeouts();
 
-    public ApiRestUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-        this.httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
-        this.httpPost = new HttpPostMultipart(context, RfcxGuardian.APP_ROLE);
-        setHttpHeaders();
-        setHttpTimeouts();
+		this.restUrlPath_Ping = "/v2/guardians/" + app.rfcxGuardianIdentity.getGuid() + "/pings";
+	}
 
-        this.restUrlPath_Ping = "/v2/guardians/" + app.rfcxGuardianIdentity.getGuid() + "/pings";
-    }
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiRestUtils");
 
-    private void setHttpTimeouts() {
-        this.httpGet.setTimeOuts(30000, 30000);
-        this.httpPost.setTimeOuts(30000, 30000);
-    }
+	private RfcxGuardian app;
 
-    private void setHttpHeaders() {
-        List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-        rfcxAuthHeaders.add(new String[]{"x-auth-user", "guardian/" + app.rfcxGuardianIdentity.getGuid()});
-        rfcxAuthHeaders.add(new String[]{"x-auth-token", app.rfcxGuardianIdentity.getAuthToken()});
-        this.httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
-        this.httpPost.setCustomHttpHeaders(rfcxAuthHeaders);
-    }
+	HttpGet httpGet;
+	HttpPostMultipart httpPost;
 
-    private String apiRequestUrl(String requestPath, boolean includeTimestampQueryParam) {
+	private String restUrlPath_Ping;
 
-        StringBuilder requestUrl = new StringBuilder();
+	private void setHttpTimeouts() {
+		this.httpGet.setTimeOuts(30000, 30000);
+		this.httpPost.setTimeOuts(30000, 30000);
+	}
 
-        requestUrl.append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_PROTOCOL)).append("://");
-        requestUrl.append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_HOST));
+	private void setHttpHeaders() {
+		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
+		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxGuardianIdentity.getGuid() });
+		rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxGuardianIdentity.getAuthToken() });
+		this.httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
+		this.httpPost.setCustomHttpHeaders(rfcxAuthHeaders);
+	}
 
-        requestUrl.append(requestPath);
+	private String apiRequestUrl(String requestPath, boolean includeTimestampQueryParam) {
 
-        List<String> queryParams = new ArrayList<String>();
-        if (includeTimestampQueryParam) {
-            queryParams.add("timestamp=" + System.currentTimeMillis());
-        }
+		StringBuilder requestUrl = new StringBuilder();
 
-        if (queryParams.size() > 0) {
-            requestUrl.append("?").append(TextUtils.join("&", queryParams));
-        }
+		requestUrl.append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_PROTOCOL)).append("://");
+		requestUrl.append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_HOST));
 
-        return requestUrl.toString();
+		requestUrl.append(requestPath);
 
-    }
+		List<String> queryParams = new ArrayList<String>();
+		if (includeTimestampQueryParam) { queryParams.add("timestamp="+System.currentTimeMillis()); }
 
-    public boolean sendRestPing(String pingJson) {
+		if (queryParams.size() > 0) {
+			requestUrl.append("?").append(TextUtils.join("&", queryParams));
+		}
 
-        boolean isSent = false;
+		return requestUrl.toString();
 
-        if (areRestApiRequestsAllowed()) {
-            try {
-                List<String[]> postParams = new ArrayList<>();
-                postParams.add(new String[]{"json", StringUtils.stringToGZipBase64(pingJson)});
+	}
 
-                String pingResponse = httpPost.doMultipartPost(apiRequestUrl(restUrlPath_Ping, false), postParams, null);
+	public boolean sendRestPing(String pingJson) {
 
-                if (pingResponse != null) {
-                    app.apiCommandUtils.processApiCommandJson(pingResponse, "rest");
-                    isSent = true;
-                }
+		boolean isSent = false;
 
-            } catch (Exception e) {
+		if (areRestApiRequestsAllowed()) {
+			try {
+				List<String[]> postParams = new ArrayList<>();
+				postParams.add(new String[] { "json", StringUtils.stringToGZipBase64( pingJson ) });
 
-                RfcxLog.logExc(logTag, e, "sendRestPing");
-                handleRestPingPublicationExceptions(e);
+				String pingResponse = httpPost.doMultipartPost( apiRequestUrl(restUrlPath_Ping, false), postParams, null);
 
-            }
-        }
+				if (pingResponse != null) {
+					app.apiCommandUtils.processApiCommandJson(pingResponse, "rest");
+					isSent = true;
+				}
 
-        return isSent;
-    }
+			} catch (Exception e) {
+
+				RfcxLog.logExc(logTag, e, "sendRestPing");
+				handleRestPingPublicationExceptions(e);
+
+			}
+		}
+
+		return isSent;
+	}
 
 
-    private void handleRestPingPublicationExceptions(Exception inputExc) {
 
-        try {
-            String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-            // This is where we would put contingencies and reactions for various exceptions. See ApiMqttUtils for reference.
+	private void handleRestPingPublicationExceptions(Exception inputExc) {
 
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e, "handleRestPingPublicationExceptions");
-        }
-    }
+		try {
+			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-    private boolean areRestApiRequestsAllowed() {
+		// This is where we would put contingencies and reactions for various exceptions. See ApiMqttUtils for reference.
 
-        if ((app != null)
-                && ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")
-                && app.deviceConnectivity.isConnected()
-        ) {
-            return true;
-        }
-        Log.d(logTag, "REST API interaction blocked.");
-        return false;
-    }
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e, "handleRestPingPublicationExceptions");
+		}
+	}
+
+	private boolean areRestApiRequestsAllowed() {
+
+		if (	(app != null)
+			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")
+			&&	app.deviceConnectivity.isConnected()
+		) {
+			return true;
+		}
+		Log.d(logTag, "REST API interaction blocked.");
+		return false;
+	}
+
 
 
 }

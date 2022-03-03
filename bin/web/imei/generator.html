@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <head>
-    <script src="js/imei-generator-func.js?v5" type="text/javascript"></script>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
-    <title>RFCx IMEI Generator</title>
+	<script type="text/javascript" src="js/imei-generator-func.js?v5"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>RFCx IMEI Generator</title>
 </head>
 <body onLoad="set_sn_field()">
-<br/>
-<span style="font-family:Courier;text-align:center;font-size:24px;padding:8px 36px 8px 24px;margin-bottom:20px;cursor:pointer;border-width:2px;">
+	<br />
+	<span style="font-family:Courier;text-align:center;font-size:24px;padding:8px 36px 8px 24px;margin-bottom:20px;cursor:pointer;border-width:2px;">
 	RFCx Serial Number:
 </span>
-<br/>
-<input id="rfcx_serial_num"
-       size="19" style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 8px 8px 8px;margin-bottom:20px;" type="text" value=""/>
-<br/>
-<input onclick="set_usable_imei()"
-       style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 36px 8px 36px;margin-bottom:20px;cursor:pointer;border-width:2px;" type="button" value="Generate IMEI &gt;"/>
-<br/>
-<input id="imei_num"
-       readonly="readonly" size="19" style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 8px 8px 8px;margin-bottom:20px;" type="text" value=""/>
+	<br />
+	<input style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 8px 8px 8px;margin-bottom:20px;" type="text" value="" size="19" id="rfcx_serial_num" />
+	<br />
+	<input style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 36px 8px 36px;margin-bottom:20px;cursor:pointer;border-width:2px;" type="button" onclick="set_usable_imei()" value="Generate IMEI &gt;" />
+	<br />
+	<input style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 8px 8px 8px;margin-bottom:20px;" type="text" value="" size="19" id="imei_num" readonly="readonly" />
 </body>
 </html>

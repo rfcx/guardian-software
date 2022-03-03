@@ -5,8 +5,8 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -17,41 +17,30 @@ import java.util.Map;
 
 public class SentryAccelUtils {
 
-    public static final long samplesTakenPerCaptureCycle = 1;
+    public SentryAccelUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        initSentryAccelI2cOptions();
+    }
+
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentryAccelUtils");
-    private static final String i2cMainAddr = "0x18";
-    public boolean verboseLogging = false;
+
+    public static final long samplesTakenPerCaptureCycle = 1;
+
     RfcxGuardian app;
+    private static final String i2cMainAddr = "0x18";
+
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cTmpValues = new HashMap<>();
     private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
 
     private List<double[]> accelValues = new ArrayList<>();
 
-    public SentryAccelUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-        initSentryAccelI2cOptions();
-    }
-
-    private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
-        double modifiedValue = 0;
-
-        if (i2cLabel.equals("accel-x") || i2cLabel.equals("accel-y") || i2cLabel.equals("accel-z")) {
-            modifiedValue = 976.5625 * i2cRawValue / 16384;
-
-        } else if (i2cLabel.equals("accel-temp")) {
-            modifiedValue = i2cRawValue + 23;
-
-        } else {
-            Log.d(logTag, "No known value modifier for i2c label '" + i2cLabel + "'.");
-        }
-        return modifiedValue;
-    }
+    public boolean verboseLogging = false;
 
     private void initSentryAccelI2cOptions() {
 
-        this.i2cValueIndex = new String[]{"x", "y", "z", "temp"};
-        this.i2cAddresses.put("accel", new String[]{"0x04", "0x06", "0x02", null});
+        this.i2cValueIndex = new String[]{             "x",        "y",        "z",        "temp"     };
+        this.i2cAddresses.put("accel", new String[]{   "0x04",     "0x06",      "0x02",     null  });
 
         resetI2cTmpValues();
 
@@ -68,9 +57,7 @@ public class SentryAccelUtils {
             if (isI2cHandlerAccessible) {
                 String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true);
                 isI2cAccelChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
-                if (!isI2cAccelChipConnected) {
-                    Log.e(logTag, "Sentry Accelerometer Chip is NOT Accessible via I2C...");
-                }
+                if (!isI2cAccelChipConnected) { Log.e(logTag, "Sentry Accelerometer Chip is NOT Accessible via I2C..."); }
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cAccelChipConnected;
@@ -82,7 +69,7 @@ public class SentryAccelUtils {
 
     private void resetI2cTmpValue(String statAbbr) {
         /*	                                              x		      y 	      z		      temp      captured_at     */
-        this.i2cTmpValues.put(statAbbr, new double[]{0, 0, 0, 0, 0});
+        this.i2cTmpValues.put(statAbbr, new double[]{     0,          0,          0,          0,        0           });
     }
 
     private void cacheI2cTmpValues() {
@@ -91,16 +78,14 @@ public class SentryAccelUtils {
 
         double[] accVals = this.i2cTmpValues.get("accel");
         if (ArrayUtils.getAverageAsDouble(accVals) != 0) {
-            accelValues.add(new double[]{accVals[0], accVals[1], accVals[2], accVals[3], rightNow});
+            accelValues.add(new double[] { accVals[0], accVals[1], accVals[2], accVals[3], rightNow });
             if (verboseLogging) {
                 long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(accVals);
-                //        logStr.append("[ temp: ").append(sVals[3]).append(" C").append(" ] ");
+        //        logStr.append("[ temp: ").append(sVals[3]).append(" C").append(" ] ");
                 logStr.append("[ accelerometer: x ").append(sVals[0]).append(", y ").append(sVals[1]).append(", z ").append(sVals[2]).append(" ]");
             }
         }
-        if (verboseLogging) {
-            Log.d(logTag, logStr.toString());
-        }
+        if (verboseLogging) { Log.d(logTag, logStr.toString()); }
     }
 
     private List<String[]> buildI2cQueryList() {
@@ -145,6 +130,21 @@ public class SentryAccelUtils {
         }
     }
 
+    private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
+        double modifiedValue = 0;
+
+        if (i2cLabel.equals("accel-x") || i2cLabel.equals("accel-y") || i2cLabel.equals("accel-z")) {
+            modifiedValue = 976.5625*i2cRawValue/16384;
+
+        } else if (i2cLabel.equals("accel-temp")) {
+            modifiedValue = i2cRawValue+23;
+
+        } else {
+            Log.d(logTag, "No known value modifier for i2c label '" + i2cLabel + "'.");
+        }
+        return modifiedValue;
+    }
+
     public void saveSentryAccelValuesToDatabase(boolean printValuesToLog) {
 
         int sampleCount = this.accelValues.size();
@@ -153,14 +153,14 @@ public class SentryAccelUtils {
 
             long[] accVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.accelValues));
             this.accelValues = new ArrayList<>();
-            app.sentrySensorDb.dbAccelerometer.insert(accVals[4], accVals[0] + "", accVals[1] + "", accVals[2] + "", accVals[3] + "");
+            app.sentrySensorDb.dbAccelerometer.insert(accVals[4], accVals[0]+"", accVals[1]+"", accVals[2]+"", accVals[3]+"");
 
             if (printValuesToLog) {
                 Log.d(logTag,
-                        (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(accVals[4]))//.append(":")
-                                .append(" [ accelerometer: x ").append(accVals[0]).append(", y ").append(accVals[1]).append(", z ").append(accVals[2]).append(" ]")
-                                //.append(" [ temp: ").append(accVals[3]).append(" C").append(" ]")
-                                .toString());
+                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(accVals[4]))//.append(":")
+                    .append(" [ accelerometer: x ").append(accVals[0]).append(", y ").append(accVals[1]).append(", z ").append(accVals[2]).append(" ]")
+                    //.append(" [ temp: ").append(accVals[3]).append(" C").append(" ]")
+                    .toString());
             }
         }
     }

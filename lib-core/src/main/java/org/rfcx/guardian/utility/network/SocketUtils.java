@@ -2,168 +2,172 @@ package org.rfcx.guardian.utility.network;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SocketUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag("Utils", "SocketUtils");
-    public Thread serverThread = null;
-    public boolean isServerRunning = false;
-    private Socket socket = null;
-    private ServerSocket serverSocket = null;
-    private DataInputStream streamInput = null;
-    private DataOutputStream streamOutput = null;
-    private int socketServerPort;
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "SocketUtils");
 
-    public void setSocketPort(int socketServerPort) {
-        this.socketServerPort = socketServerPort;
-    }
+	private Socket socket = null;
+	private ServerSocket serverSocket = null;
+	public Thread serverThread = null;
+	private DataInputStream streamInput = null;
+	private DataOutputStream streamOutput = null;
+	private int socketServerPort;
 
-    private void publishText(String textToPublish) throws IOException {
-        this.streamOutput.writeUTF(textToPublish);
-        this.streamOutput.flush();
-    }
+	public boolean isServerRunning = false;
 
-    public void serverSetup() throws IOException {
-        this.serverSocket = new ServerSocket(this.socketServerPort);
-        this.serverSocket.setReuseAddress(true);
-    }
+	public void setSocketPort(int socketServerPort) {
+		this.socketServerPort = socketServerPort;
+	}
 
-    public InputStream socketSetup() throws IOException {
-        this.socket = this.serverSocket.accept();
-        this.socket.setTcpNoDelay(true);
-        return this.socket.getInputStream();
-    }
+	private void publishText(String textToPublish) throws IOException {
+		this.streamOutput.writeUTF(textToPublish);
+		this.streamOutput.flush();
+	}
 
-    public String streamSetup(InputStream socketInput) throws IOException {
-        this.streamInput = new DataInputStream(socketInput);
-        String jsonStr = this.streamInput.readUTF();
-        this.streamOutput = new DataOutputStream(this.socket.getOutputStream());
-        return jsonStr;
-    }
+	public void serverSetup() throws IOException {
+		this.serverSocket = new ServerSocket(this.socketServerPort);
+		this.serverSocket.setReuseAddress(true);
+	}
 
-    public InputStream streamFileSetup(InputStream socketInput) throws IOException {
-        this.streamOutput = new DataOutputStream(this.socket.getOutputStream());
-        return socketInput;
-    }
+	public InputStream socketSetup() throws IOException {
+		this.socket = this.serverSocket.accept();
+		this.socket.setTcpNoDelay(true);
+		return this.socket.getInputStream();
+	}
 
-    public void stopServer() {
+	public String streamSetup(InputStream socketInput) throws IOException {
+		this.streamInput = new DataInputStream(socketInput);
+		String jsonStr = this.streamInput.readUTF();
+		this.streamOutput = new DataOutputStream(this.socket.getOutputStream());
+		return jsonStr;
+	}
 
-        //	if (isServerRunning) {
-        try {
+	public InputStream streamFileSetup(InputStream socketInput) throws IOException {
+		this.streamOutput = new DataOutputStream(this.socket.getOutputStream());
+		return socketInput;
+	}
 
-            if (serverThread != null) {
-                serverThread.interrupt();
-            }
-            if (streamInput != null) {
-                streamInput.close();
-            }
-            if (streamOutput != null) {
-                streamOutput.flush();
-                streamOutput.close();
-            }
-            if (socket != null) {
-                socket.close();
-            }
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
+	public void stopServer() {
 
-        } catch (IOException e) {
-            if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
-                RfcxLog.logExc(logTag, e);
-            }
-        }
+		//	if (isServerRunning) {
+		try {
 
-        serverThread = null;
-        streamInput = null;
-        streamOutput = null;
-        socket = null;
-        serverSocket = null;
+			if (serverThread != null) { serverThread.interrupt(); }
+			if (streamInput != null) { streamInput.close(); }
+			if (streamOutput != null) { streamOutput.flush(); streamOutput.close(); }
+			if (socket != null) { socket.close(); }
+			if (serverSocket != null) { serverSocket.close(); }
 
-        isServerRunning = false;
+		} catch (IOException e) {
+			if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		
+		serverThread = null;
+		streamInput = null;
+		streamOutput = null;
+		socket = null;
+		serverSocket = null;
+
+		isServerRunning = false;
 //		}
-    }
+	}
 
 
-    public boolean isSocketServerEnablable(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
 
-        boolean prefsEnableSocketServer = rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER);
+	public boolean isSocketServerEnablable(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
 
-        String prefsWifiFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
-        boolean isWifiEnabled = prefsWifiFunction.equals("hotspot") || prefsWifiFunction.equals("client");
+		boolean prefsEnableSocketServer = rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER);
 
-        String prefsBluetoothFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION);
-        boolean isBluetoothEnabled = prefsBluetoothFunction.equals("pan");
+		String prefsWifiFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
+		boolean isWifiEnabled = prefsWifiFunction.equals("hotspot") || prefsWifiFunction.equals("client");
 
-        if (verboseLogging && prefsEnableSocketServer && !isWifiEnabled && !isBluetoothEnabled) {
-            Log.e(logTag, "Socket Server could not be enabled because '" + RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION + "' and '" + RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION + "' are set to off.");
-        }
+		String prefsBluetoothFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION);
+		boolean isBluetoothEnabled = prefsBluetoothFunction.equals("pan");
 
-        return prefsEnableSocketServer && (isWifiEnabled || isBluetoothEnabled);
-    }
+		if (verboseLogging && prefsEnableSocketServer && !isWifiEnabled && !isBluetoothEnabled) {
+			Log.e( logTag, "Socket Server could not be enabled because '"+RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION+"' and '"+RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION+"' are set to off.");
+		}
 
-
-    public boolean sendJson(String jsonStr, boolean areSocketInteractionsAllowed) {
-
-        boolean isSent = false;
-
-        if (areSocketInteractionsAllowed) {
-            try {
-
-                publishText(jsonStr);
-                isSent = true;
-
-            } catch (Exception e) {
-
-                handleSocketJsonPublicationExceptions(e);
-            }
-        }
-
-        return isSent;
-    }
-
-    public boolean sendAudioSocketJson(List<String> jsonListStr, boolean areSocketInteractionsAllowed) {
-
-        boolean isSent = false;
-
-        if (areSocketInteractionsAllowed) {
-            try {
-                for (String jsonStr : jsonListStr) {
-                    publishText(jsonStr);
-                }
-                isSent = true;
-
-            } catch (Exception e) {
-
-                handleSocketJsonPublicationExceptions(e);
-            }
-        }
-
-        return isSent;
-    }
+		return prefsEnableSocketServer && (isWifiEnabled || isBluetoothEnabled);
+	}
 
 
-    private void handleSocketJsonPublicationExceptions(Exception inputExc) {
 
-        try {
-            String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-            // This is where we would put contingencies and reactions for various exceptions. See ApiMqttUtils for reference.
+	public boolean sendJson(String jsonStr, boolean areSocketInteractionsAllowed) {
 
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e, "handleSocketPingPublicationExceptions");
-        }
-    }
+		boolean isSent = false;
+
+		if (areSocketInteractionsAllowed) {
+			try {
+
+				publishText(jsonStr);
+				isSent = true;
+
+			} catch (Exception e) {
+
+				handleSocketJsonPublicationExceptions(e);
+			}
+		}
+
+		return isSent;
+	}
+
+	public boolean sendAudioSocketJson(List<String> jsonListStr, boolean areSocketInteractionsAllowed) {
+
+		boolean isSent = false;
+
+		if (areSocketInteractionsAllowed) {
+			try {
+				for (String jsonStr: jsonListStr) {
+					publishText(jsonStr);
+				}
+				isSent = true;
+
+			} catch (Exception e) {
+
+				handleSocketJsonPublicationExceptions(e);
+			}
+		}
+
+		return isSent;
+	}
+
+
+
+	private void handleSocketJsonPublicationExceptions(Exception inputExc) {
+
+		try {
+			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
+
+			// This is where we would put contingencies and reactions for various exceptions. See ApiMqttUtils for reference.
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e, "handleSocketPingPublicationExceptions");
+		}
+	}
 
 
 }

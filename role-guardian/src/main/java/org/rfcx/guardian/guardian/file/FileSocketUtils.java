@@ -25,17 +25,20 @@ import java.util.Arrays;
 
 public class FileSocketUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "FileSocketUtils");
-    private final RfcxGuardian app;
-    public SocketUtils socketUtils;
-    private boolean isReading = false;
-    private JSONObject pingObj;
     public FileSocketUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
         this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.FILE);
         this.pingObj = new JSONObject();
     }
+
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "FileSocketUtils");
+
+    private final RfcxGuardian app;
+    public SocketUtils socketUtils;
+
+    private boolean isReading = false;
+    private JSONObject pingObj;
 
     public boolean sendDownloadResult(String result) {
         return this.socketUtils.sendJson(result, areSocketInteractionsAllowed());

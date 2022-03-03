@@ -34,644 +34,650 @@ import java.util.List;
 
 public class DeviceSystemService extends Service implements SensorEventListener, LocationListener {
 
-    public static final String SERVICE_NAME = "DeviceSystem";
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSystemService");
-    private final long[] captureCycleMeasuredDurations = new long[]{0, 0, 0};
-    private final double[] captureCyclePercentageMultipliers = new double[]{0, 0, 0};
-    private RfcxGuardian app;
-    private boolean runFlag = false;
-    private DeviceSystemSvc deviceSystemSvc;
-    private int referenceCycleDuration = 1;
-    private int referenceLoopDuration = 1;
-    private int innerLoopIncrement = 1;
-    private int innerLoopsPerCaptureCycle = 1;
-    private int innerLoopUponWhichToTriggerStatusCacheUpdate = 1;
-    private long innerLoopDelayRemainderInMilliseconds = 0;
-    // Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
-    // This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
-    private double captureCycleLastDurationPercentageMultiplier = 0.98;
-    private long captureCycleLastStartTime = 0;
-    private int outerLoopIncrement = 0;
-    private int outerLoopCaptureCount = 0;
-
-    private SignalStrengthListener signalStrengthListener;
-
-    private LocationManager locationManager;
-    private SensorManager sensorManager;
-
-    private Sensor lightSensor;
-    private Sensor accelSensor;
-
-    private String geoPositionProviderInfo;
-
-    private double lightSensorLastValue = Float.MAX_VALUE;
-
-    private List<String[]> telephonyValues = new ArrayList<>();
-    private List<long[]> lightSensorValues = new ArrayList<>();
-    private List<long[]> dataTransferValues = new ArrayList<>();
-    private List<int[]> batteryLevelValues = new ArrayList<>();
-    private List<long[]> storageValues = new ArrayList<>();
-    private List<long[]> memoryValues = new ArrayList<>();
-    private List<int[]> cpuUsageValues = new ArrayList<>();
-    private List<double[]> accelSensorValues = new ArrayList<>();
-
-    private boolean isListenerRegistered_telephony = false;
-    private boolean isListenerRegistered_light = false;
-    private boolean isListenerRegistered_accel = false;
-    private boolean isListenerRegistered_geoposition = false;
-
-    private void checkSetSensorManager() {
-        if (this.sensorManager == null) {
-            this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        }
-    }
-
-    private boolean checkSetLocationManager() {
-        boolean isGeoPositionAccessApproved = false;
-        if (DeviceUtils.isAppRoleApprovedForGeoPositionAccess(app.getApplicationContext())) {
-            if (this.locationManager == null) {
-                this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-                if (this.locationManager != null) {
-                    app.deviceUtils.allowOrDisableSensorListener("geoposition_gps", this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-                    app.deviceUtils.allowOrDisableSensorListener("geoposition_network", this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
-                    if (app.deviceUtils.isSensorListenerAllowed("geoposition_gps")) {
-                        this.geoPositionProviderInfo = LocationManager.GPS_PROVIDER;
-                        Log.d(logTag, "GeoPosition will be provided via GPS.");
-                        isGeoPositionAccessApproved = true;
-                    } else if (app.deviceUtils.isSensorListenerAllowed("geoposition_network")) {
-                        this.geoPositionProviderInfo = LocationManager.NETWORK_PROVIDER;
-                        Log.d(logTag, "GeoPosition will be provided via Mobile Network.");
-                        isGeoPositionAccessApproved = true;
-                    }
-                }
-            } else {
-                isGeoPositionAccessApproved = true;
-            }
-        } else {
-            Log.w(logTag, "This app does not have permissions to access location updates...");
-        }
-        return isGeoPositionAccessApproved;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        this.deviceSystemSvc = new DeviceSystemSvc();
-        app = (RfcxGuardian) getApplication();
-
-        registerListener("light");
-        registerListener("telephony");
-        registerListener("geoposition");
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-        Log.v(logTag, "Starting service: " + logTag);
-        this.runFlag = true;
-        app.rfcxSvc.setRunState(SERVICE_NAME, true);
-        try {
-            this.deviceSystemSvc.start();
-        } catch (IllegalThreadStateException e) {
-            RfcxLog.logExc(logTag, e);
-        }
-        return START_NOT_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        this.runFlag = false;
-        app.rfcxSvc.setRunState(SERVICE_NAME, false);
-        this.deviceSystemSvc.interrupt();
-        this.deviceSystemSvc = null;
-
-        unRegisterListener("light");
-        unRegisterListener("telephony");
-        unRegisterListener("geoposition");
-        unRegisterListener("accel");
-    }
-
-    private boolean confirmOrSetCaptureParameters() {
-
-        if ((app != null) && (innerLoopIncrement == 1)) {
-
-            captureCycleLastStartTime = System.currentTimeMillis();
-
-            // when audio capture is disabled (for any number of reasons), we continue to capture system stats...
-            // however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-            int prefsCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
-            int prefsLoopDuration = Math.max(DeviceUtils.minTelemetryCaptureCycleMs, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE)); /*app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE) * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) :*/
-
-            if ((referenceCycleDuration != prefsCycleDuration)
-                    || (referenceLoopDuration != prefsLoopDuration)
-            ) {
-
-                referenceCycleDuration = prefsCycleDuration;
-                referenceLoopDuration = prefsLoopDuration;
-                innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsCycleDuration, prefsLoopDuration);
-                outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsCycleDuration);
-                innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsCycleDuration, captureCycleLastDurationPercentageMultiplier, DeviceCPU.SAMPLE_DURATION_MILLISECONDS, prefsLoopDuration);
-                innerLoopUponWhichToTriggerStatusCacheUpdate = DeviceUtils.getInnerLoopUponWhichToTriggerStatusCacheUpdate(prefsCycleDuration, innerLoopsPerCaptureCycle);
+	public static final String SERVICE_NAME = "DeviceSystem";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSystemService");
+
+	private RfcxGuardian app;
+
+	private boolean runFlag = false;
+	private DeviceSystemSvc deviceSystemSvc;
+
+	private int referenceCycleDuration = 1;
+	private int referenceLoopDuration = 1;
+
+	private int innerLoopIncrement = 1;
+	private int innerLoopsPerCaptureCycle = 1;
+	private int innerLoopUponWhichToTriggerStatusCacheUpdate = 1;
+	private long innerLoopDelayRemainderInMilliseconds = 0;
+
+	// Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
+	// This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
+	private double captureCycleLastDurationPercentageMultiplier = 0.98;
+	private long captureCycleLastStartTime = 0;
+	private final long[] captureCycleMeasuredDurations = new long[] { 0, 0, 0 };
+	private final double[] captureCyclePercentageMultipliers = new double[] { 0, 0, 0 };
+
+	private int outerLoopIncrement = 0;
+	private int outerLoopCaptureCount = 0;
+
+	private SignalStrengthListener signalStrengthListener;
+
+	private LocationManager locationManager;
+	private SensorManager sensorManager;
+
+	private Sensor lightSensor;
+	private Sensor accelSensor;
+
+	private String geoPositionProviderInfo;
+
+	private double lightSensorLastValue = Float.MAX_VALUE;
+
+	private List<String[]> telephonyValues = new ArrayList<>();
+	private List<long[]> lightSensorValues = new ArrayList<>();
+	private List<long[]> dataTransferValues = new ArrayList<>();
+	private List<int[]> batteryLevelValues = new ArrayList<>();
+	private List<long[]> storageValues = new ArrayList<>();
+	private List<long[]> memoryValues = new ArrayList<>();
+	private List<int[]> cpuUsageValues = new ArrayList<>();
+	private List<double[]> accelSensorValues = new ArrayList<>();
+
+	private boolean isListenerRegistered_telephony = false;
+	private boolean isListenerRegistered_light = false;
+	private boolean isListenerRegistered_accel = false;
+	private boolean isListenerRegistered_geoposition = false;
+
+	private void checkSetSensorManager() {
+		if (this.sensorManager == null) {
+			this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		}
+	}
+
+	private boolean checkSetLocationManager() {
+		boolean isGeoPositionAccessApproved = false;
+		if (DeviceUtils.isAppRoleApprovedForGeoPositionAccess(app.getApplicationContext())) {
+			if (this.locationManager == null) {
+				this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+				if (this.locationManager != null) {
+					app.deviceUtils.allowOrDisableSensorListener("geoposition_gps", this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+					app.deviceUtils.allowOrDisableSensorListener("geoposition_network", this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+					if (app.deviceUtils.isSensorListenerAllowed("geoposition_gps")) {
+						this.geoPositionProviderInfo = LocationManager.GPS_PROVIDER;
+						Log.d(logTag, "GeoPosition will be provided via GPS.");
+						isGeoPositionAccessApproved = true;
+					} else if (app.deviceUtils.isSensorListenerAllowed("geoposition_network")) {
+						this.geoPositionProviderInfo = LocationManager.NETWORK_PROVIDER;
+						Log.d(logTag, "GeoPosition will be provided via Mobile Network.");
+						isGeoPositionAccessApproved = true;
+					}
+				}
+			} else {
+				isGeoPositionAccessApproved = true;
+			}
+		} else {
+			Log.w(logTag, "This app does not have permissions to access location updates...");
+		}
+		return isGeoPositionAccessApproved;
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		return null;
+	}
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		this.deviceSystemSvc = new DeviceSystemSvc();
+		app = (RfcxGuardian) getApplication();
+
+		registerListener("light");
+		registerListener("telephony");
+		registerListener("geoposition");
+	}
 
-                Log.d(logTag, "SystemStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
-                        "Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsCycleDuration) / 1000.0) + " seconds.");
-            }
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		super.onStartCommand(intent, flags, startId);
+		Log.v(logTag, "Starting service: " + logTag);
+		this.runFlag = true;
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
+		try {
+			this.deviceSystemSvc.start();
+		} catch (IllegalThreadStateException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return START_NOT_STICKY;
+	}
 
-        } else {
-            return false;
-        }
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.runFlag = false;
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
+		this.deviceSystemSvc.interrupt();
+		this.deviceSystemSvc = null;
 
-        return true;
-    }
+		unRegisterListener("light");
+		unRegisterListener("telephony");
+		unRegisterListener("geoposition");
+		unRegisterListener("accel");
+	}
 
-    private int triggerOrSkipInnerLoopBehavior(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
 
-        innerLoopIncrement++;
-        if (innerLoopIncrement > innerLoopsPerCaptureCycle) {
-            innerLoopIncrement = 1;
-        }
+	private class DeviceSystemSvc extends Thread {
 
-        if (app.deviceUtils.isSensorListenerAllowed("accel")) {
-            int halfLoopsBetweenAccelSensorToggle = Math.round(innerLoopsPerCaptureCycle / (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2));
-            for (int i = 0; i < (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2); i++) {
-                if (innerLoopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) {
-                    registerListener("accel");
-                    break;
-                } else if (innerLoopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
-                    unRegisterListener("accel");
-                    break;
-                }
-            }
-        }
+		public DeviceSystemSvc() {
+			super("DeviceSystemService-DeviceSensorSvc");
+		}
 
-        return innerLoopIncrement;
-    }
+		@Override
+		public void run() {
+			DeviceSystemService deviceSystemService = DeviceSystemService.this;
 
-    private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
+			app = (RfcxGuardian) getApplication();
 
-        outerLoopIncrement++;
-        if (outerLoopIncrement > outerLoopCaptureCount) {
-            outerLoopIncrement = 1;
-        }
+			while (deviceSystemService.runFlag) {
 
-        // Update Reduced Capture Mode.
-        // This updated value is also used by other services, but only updated here.
-        // So, it's important to leave this as is.
-        app.deviceUtils.setOrUnSetReducedCaptureMode();
-        setOrUnSetReducedCaptureModeListeners();
+				try {
 
+					confirmOrSetCaptureParameters();
 
-        // capture and cache cpu usage info
-        cpuUsageValues.add(app.deviceCPU.getAverageOfCachedValuesAndClearCache());
-        saveSnapshotValuesToDatabase("cpu");
+					if (innerLoopDelayRemainderInMilliseconds > 0) {
+						Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+					}
 
-        // capture and cache data transfer info
-        dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
-        saveSnapshotValuesToDatabase("datatransfer");
+					// Sample CPU Stats
+					app.deviceCPU.update();
 
-        // cache accelerometer sensor data
-        saveSnapshotValuesToDatabase("accel");
+					// Inner Loop Behavior
+					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
 
-        // capture and cache light sensor data
-        cacheSnapshotValues("light", new double[]{lightSensorLastValue});
-        saveSnapshotValuesToDatabase("light");
+					if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
+						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
+						// Outer Loop Behavior
+						outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
 
-        if (outerLoopIncrement == outerLoopCaptureCount) {
+					} else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
 
-            // capture and cache battery level info
-            batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
-            saveSnapshotValuesToDatabase("battery");
-
-            // capture and cache storage usage stats
-            storageValues.add(DeviceStorage.getCurrentStorageStats());
-            saveSnapshotValuesToDatabase("storage");
-
-            // capture and cache memory usage stats
-            memoryValues.add(DeviceMemory.getCurrentMemoryStats(app.getApplicationContext()));
-            saveSnapshotValuesToDatabase("memory");
-
-            // capture and cache telephony signal strength
-            cacheSnapshotValues("telephony", new double[]{});
-            saveSnapshotValuesToDatabase("telephony");
-
-        }
-
-        return outerLoopIncrement;
-    }
-
-    private void setOrUnSetReducedCaptureModeListeners() {
-
-        if (app.deviceUtils.isReducedCaptureModeActive) {
-
-            unRegisterListener("geoposition");
-
-        } else {
-
-            //	registerListener("geoposition");
-
-        }
-    }
-
-    private void cacheSnapshotValues(String sensorAbbrev, double[] vals) {
-
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-
-            if (vals.length >= 3) {
-                double[] accelArray = new double[]{(double) System.currentTimeMillis(), vals[0], vals[1], vals[2], 0};
-
-                this.accelSensorValues.add(accelArray);
-                if (this.app != null) {
-                    this.app.deviceUtils.addAccelSensorSnapshotEntry(accelArray);
-                }
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-
-            this.lightSensorLastValue = vals[0];
-            long lightSensorLastValueAsLong = Math.round(this.lightSensorLastValue);
-            if ((this.lightSensorLastValue != Float.MAX_VALUE)
-                    && ((this.lightSensorValues.size() == 0)
-                    || (lightSensorLastValueAsLong != this.lightSensorValues.get(this.lightSensorValues.size() - 1)[1])
-            )
-            ) {
-                this.lightSensorValues.add(new long[]{System.currentTimeMillis(), lightSensorLastValueAsLong});
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
-
-            if (app.deviceMobileNetwork.isInitializedTelephonyManager() && app.deviceMobileNetwork.isInitializedSignalStrength()) {
-
-                String[] newTelephonyValue = app.deviceMobileNetwork.getMobileNetworkSummary();
-                if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_VERBOSE_NETWORK)) {
-                    app.deviceUtils.checkReportMobileNetworkChange(this.telephonyValues, newTelephonyValue);
-                }
-                this.telephonyValues.add(newTelephonyValue);
-            } else {
-                Log.e(logTag, "could not cache telephony");
-            }
-
-        } else {
-            Log.e(logTag, "Snapshot could not be cached for '" + sensorAbbrev + "'.");
-        }
-
-
-    }
-
-    private void registerListener(String sensorAbbrev) {
-
-        try {
-
-            if (sensorAbbrev.equalsIgnoreCase("accel") && app.deviceUtils.isSensorListenerAllowed("accel")) {
-                if (!this.isListenerRegistered_accel) {
-                    checkSetSensorManager();
-                    if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-                        Log.v(logTag, "Registering listener for 'accelerometer'...");
-                        this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-                        this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                        this.isListenerRegistered_accel = true;
-                    } else {
-                        app.deviceUtils.disableSensorListener("accel");
-                        Log.d(logTag, "Disabling Listener Registration for Accelerometer because it doesn't seem to be present.");
-                    }
-                }
-
-            } else if (sensorAbbrev.equalsIgnoreCase("light")
-                    && app.deviceUtils.isSensorListenerAllowed("light")
-            ) {
-                if (!this.isListenerRegistered_light) {
-                    checkSetSensorManager();
-                    if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
-                        Log.v(logTag, "Registering listener for 'light'...");
-                        this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
-                        this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                        this.isListenerRegistered_light = true;
-                    } else {
-                        app.deviceUtils.disableSensorListener("light");
-                        Log.d(logTag, "Disabling Listener Registration for LightMeter because it doesn't seem to be present.");
-                    }
-                }
-
-            } else if (sensorAbbrev.equalsIgnoreCase("telephony") && app.deviceUtils.isSensorListenerAllowed("telephony")) {
-                if (!this.isListenerRegistered_telephony) {
-                    Log.v(logTag, "Registering listener for 'telephony'...");
-                    this.signalStrengthListener = new SignalStrengthListener();
-                    app.deviceMobileNetwork.setTelephonyManager((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE));
-                    app.deviceMobileNetwork.setTelephonyListener(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-                    this.isListenerRegistered_telephony = true;
-                }
-
-            } else if (sensorAbbrev.equalsIgnoreCase("geoposition") && app.deviceUtils.isSensorListenerAllowed("geoposition")) {
-                if (!this.isListenerRegistered_geoposition) {
-                    if (checkSetLocationManager() && !this.geoPositionProviderInfo.isEmpty()) {
-                        Log.v(logTag, "Registering listener for 'geoposition'...");
-                        this.locationManager.requestLocationUpdates(
-                                this.geoPositionProviderInfo,
-                                (app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE) * 60 * 1000),
-                                DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters,
-                                this);
-                        this.isListenerRegistered_geoposition = true;
-                    } else {
-                        Log.e(logTag, "Couldn't register geoposition listener...");
-                    }
-                }
-
-            } else {
-                Log.e(logTag, "No Listener registered for '" + sensorAbbrev + "' sensor...");
-            }
-
-        } catch (SecurityException e) {
-            RfcxLog.logExc(logTag, e);
-        }
-    }
-
-    private void unRegisterListener(String sensorAbbrev) {
-
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-            if (this.isListenerRegistered_accel && (this.accelSensor != null)) {
-                Log.v(logTag, "Unregistering sensor listener for 'accelerometer'...");
-                this.sensorManager.unregisterListener(this, this.accelSensor);
-                this.isListenerRegistered_accel = false;
-                if (this.app != null) {
-                    this.app.deviceUtils.processAccelSensorSnapshot();
-                }
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-            if (this.isListenerRegistered_light && (this.lightSensor != null)) {
-                Log.v(logTag, "Unregistering sensor listener for 'light'...");
-                this.sensorManager.unregisterListener(this, this.lightSensor);
-                this.isListenerRegistered_light = false;
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
-            if (this.isListenerRegistered_telephony && app.deviceMobileNetwork.isInitializedTelephonyManager()) {
-                Log.v(logTag, "Unregistering sensor listener for 'telephony'...");
-                app.deviceMobileNetwork.setTelephonyListener(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE);
-                this.isListenerRegistered_telephony = false;
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
-            if (this.isListenerRegistered_geoposition && (this.locationManager != null)) {
-                Log.v(logTag, "Unregistering sensor listener for 'geoposition'...");
-                this.locationManager.removeUpdates(this);
-                this.isListenerRegistered_geoposition = false;
-            }
-
-        } else {
-            Log.e(logTag, "Listener failed to unregister for '" + sensorAbbrev + "'.");
-        }
-    }
-
-    private void saveSnapshotValuesToDatabase(String statAbbrev) {
-
-        try {
-
-            if (statAbbrev.equalsIgnoreCase("cpu")) {
-
-                List<int[]> cpuUsageValuesCache = this.cpuUsageValues;
-                this.cpuUsageValues = new ArrayList<>();
-
-                for (int[] cpuVals : cpuUsageValuesCache) {
-                    // make sure the values are valid
-                    if ((cpuVals[0] <= 100) && (cpuVals[0] >= 0)) {
-                        app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1], cpuVals[2]);
-                    }
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("light")) {
-
-                List<long[]> lightSensorValuesCache = this.lightSensorValues;
-                this.lightSensorValues = new ArrayList<>();
-
-                for (long[] lightVals : lightSensorValuesCache) {
-                    app.deviceSensorDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("accel")) {
-
-                List<double[]> accelSensorValuesCache = this.accelSensorValues;
-                this.accelSensorValues = new ArrayList<>();
-
-                double[] accelSensorAverages = DeviceUtils.generateAverageAccelValues(accelSensorValuesCache);
-
-                if (accelSensorAverages[4] > 0) {
-                    app.deviceSensorDb.dbAccelerometer.insert(
-                            new Date((long) Math.round(accelSensorAverages[0])),
-                            TextUtils.join(",", new String[]{accelSensorAverages[1] + "", accelSensorAverages[2] + "", accelSensorAverages[3] + ""}),
-                            (int) Math.round(accelSensorAverages[4])
-                    );
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("telephony")) {
-
-                List<String[]> telephonyValuesCache = this.telephonyValues;
-                this.telephonyValues = new ArrayList<>();
-
-                String[] prevTelephonyVals = new String[]{"", "", "", ""};
-
-                for (String[] telephonyVals : telephonyValuesCache) {
-                    if (((telephonyVals[2] != null) && (telephonyVals[3] != null)) // ensure relevant values aren't just null
-                            && !telephonyVals[1].equalsIgnoreCase(prevTelephonyVals[1])
-                            && !telephonyVals[2].equalsIgnoreCase(prevTelephonyVals[2]) // ensure relevant values aren't just immediate repeats of last saved value
-                            && !telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
-                    ) {
-                        app.deviceSystemDb.dbTelephony.insert(new Date(Long.parseLong(telephonyVals[0])), Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3]);
-                    }
-                    prevTelephonyVals = telephonyVals;
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("datatransfer")) {
-
-                List<long[]> dataTransferValuesCache = this.dataTransferValues;
-                this.dataTransferValues = new ArrayList<>();
-
-                for (long[] dataTransferVals : dataTransferValuesCache) {
-                    // before saving, make sure this isn't the first time the stats are being generated (that throws off the net change figures)
-                    if (dataTransferVals[10] == 0) {
-                        app.deviceDataTransferDb.dbTransferred.insert(new Date(), new Date(dataTransferVals[0]), new Date(dataTransferVals[1]), dataTransferVals[2], dataTransferVals[3], dataTransferVals[4], dataTransferVals[5], dataTransferVals[6], dataTransferVals[7], dataTransferVals[8], dataTransferVals[9]);
-                    }
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("battery")) {
-
-                List<int[]> batteryLevelValuesCache = this.batteryLevelValues;
-                this.batteryLevelValues = new ArrayList<>();
-
-                for (int[] batteryLevelVals : batteryLevelValuesCache) {
-                    if ((batteryLevelVals[0] <= 100) && (batteryLevelVals[0] >= 0)) {
-                        app.deviceSystemDb.dbBattery.insert(new Date(),
-                                app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0,
-                                app.deviceUtils.allowMeasurement_battery_temperature ? batteryLevelVals[1] : 0,
-                                app.deviceUtils.allowMeasurement_battery_is_charging ? batteryLevelVals[2] : 0,
-                                app.deviceUtils.allowMeasurement_battery_is_fully_charged ? batteryLevelVals[3] : 0
-                        );
-                        Log.d(logTag, DateTimeUtils.getDateTime() + " [ internal battery: " + (app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0) + "% ]");
-                    }
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("storage")) {
-
-                List<long[]> storageValuesCache = this.storageValues;
-                this.storageValues = new ArrayList<long[]>();
-
-                for (long[] storageVals : storageValuesCache) {
-                    app.deviceSpaceDb.dbStorage.insert("internal", new Date(storageVals[0]), storageVals[1], storageVals[2]);
-                    app.deviceSpaceDb.dbStorage.insert("external", new Date(storageVals[0]), storageVals[3], storageVals[4]);
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("memory")) {
-
-                List<long[]> memoryValuesCache = this.memoryValues;
-                this.memoryValues = new ArrayList<long[]>();
-
-                for (long[] memoryVals : memoryValuesCache) {
-                    app.deviceSpaceDb.dbMemory.insert("system", new Date(memoryVals[0]), memoryVals[1], memoryVals[2], memoryVals[3]);
-                }
-
-            } else {
-                Log.e(logTag, "Value info for '" + statAbbrev + "' could not be saved to database.");
-            }
-
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // TODO Auto-generated method stub
-    }
+						// Trigger Status Cache Update in advance
+						app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
+					}
 
+				} catch (InterruptedException e) {
+					deviceSystemService.runFlag = false;
+					app.rfcxSvc.setRunState(SERVICE_NAME, false);
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+			Log.v(logTag, "Stopping service: " + logTag);
+		}
+	}
 
-    /*
-     *  These are methods for PhoneStateListener
-     */
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
+	private boolean confirmOrSetCaptureParameters() {
 
-        int eventType = event.sensor.getType();
-
-        if (eventType == Sensor.TYPE_LIGHT) {
-
-            cacheSnapshotValues("light", ArrayUtils.castFloatArrayToDoubleArray(event.values));
-
-        } else if (eventType == Sensor.TYPE_ACCELEROMETER) {
-
-            cacheSnapshotValues("accel", ArrayUtils.castFloatArrayToDoubleArray(event.values));
-            if (this.isListenerRegistered_accel) {
-                unRegisterListener("accel");
-            }
-
-        }
-    }
-
-
-
-
-    /*
-     *  These are methods for SensorEventListener
-     */
-
-    @Override
-    public void onLocationChanged(Location location) {
-        //	Log.e(logTag, "Running onLocationChanged...");
-        if (app != null) {
-            app.deviceUtils.processAndSaveGeoPosition(location);
-        }
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        //	Log.e(logTag, "Running onProviderDisabled...");
-        // TODO Auto-generated method stub
-
-    }
-
-
-    /*
-     *  These are methods for LocationListener
-     */
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        //	Log.e(logTag, "Running onProviderDisabled...");
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        //	Log.e(logTag, "Running onStatusChanged...");
-        // TODO Auto-generated method stub
-
-    }
-
-    private class DeviceSystemSvc extends Thread {
-
-        public DeviceSystemSvc() {
-            super("DeviceSystemService-DeviceSensorSvc");
-        }
-
-        @Override
-        public void run() {
-            DeviceSystemService deviceSystemService = DeviceSystemService.this;
-
-            app = (RfcxGuardian) getApplication();
-
-            while (deviceSystemService.runFlag) {
-
-                try {
-
-                    confirmOrSetCaptureParameters();
-
-                    if (innerLoopDelayRemainderInMilliseconds > 0) {
-                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-                    }
-
-                    // Sample CPU Stats
-                    app.deviceCPU.update();
-
-                    // Inner Loop Behavior
-                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
-
-                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
-                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                        // Outer Loop Behavior
-                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
-
-                    } else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
-
-                        // Trigger Status Cache Update in advance
-                        app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
-                    }
-
-                } catch (InterruptedException e) {
-                    deviceSystemService.runFlag = false;
-                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                    RfcxLog.logExc(logTag, e);
-                }
-            }
-            Log.v(logTag, "Stopping service: " + logTag);
-        }
-    }
-
-    public class SignalStrengthListener extends PhoneStateListener {
-        @Override
-        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-            super.onSignalStrengthsChanged(signalStrength);
-            app.deviceMobileNetwork.setTelephonySignalStrength(signalStrength);
-            cacheSnapshotValues("telephony", new double[]{});
-        }
-    }
+		if ((app != null) && (innerLoopIncrement == 1)) {
 
+			captureCycleLastStartTime = System.currentTimeMillis();
+
+			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
+			// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
+			int prefsCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
+			int prefsLoopDuration = Math.max(DeviceUtils.minTelemetryCaptureCycleMs, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE)); /*app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE) * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) :*/
+
+			if (	(referenceCycleDuration != prefsCycleDuration)
+				|| 	(referenceLoopDuration != prefsLoopDuration)
+			) {
+
+				referenceCycleDuration = prefsCycleDuration;
+				referenceLoopDuration = prefsLoopDuration;
+				innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsCycleDuration, prefsLoopDuration);
+				outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsCycleDuration);
+				innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsCycleDuration, captureCycleLastDurationPercentageMultiplier, DeviceCPU.SAMPLE_DURATION_MILLISECONDS, prefsLoopDuration);
+				innerLoopUponWhichToTriggerStatusCacheUpdate = DeviceUtils.getInnerLoopUponWhichToTriggerStatusCacheUpdate(prefsCycleDuration, innerLoopsPerCaptureCycle);
+
+				Log.d(logTag, "SystemStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
+						"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsCycleDuration) / 1000.0) + " seconds.");
+			}
+
+		} else {
+			return false;
+		}
+
+		return true;
+	}
+
+
+	private int triggerOrSkipInnerLoopBehavior(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
+
+		innerLoopIncrement++;
+		if (innerLoopIncrement > innerLoopsPerCaptureCycle) {
+			innerLoopIncrement = 1;
+		}
+
+		if (app.deviceUtils.isSensorListenerAllowed("accel")) {
+			int halfLoopsBetweenAccelSensorToggle = Math.round(innerLoopsPerCaptureCycle / (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2));
+			for (int i = 0; i < (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2); i++) {
+				if (innerLoopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) {
+					registerListener("accel");
+					break;
+				} else if (innerLoopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
+					unRegisterListener("accel");
+					break;
+				}
+			}
+		}
+
+		return innerLoopIncrement;
+	}
+
+	private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
+
+		outerLoopIncrement++;
+		if (outerLoopIncrement > outerLoopCaptureCount) {
+			outerLoopIncrement = 1;
+		}
+
+		// Update Reduced Capture Mode.
+		// This updated value is also used by other services, but only updated here.
+		// So, it's important to leave this as is.
+		app.deviceUtils.setOrUnSetReducedCaptureMode();
+		setOrUnSetReducedCaptureModeListeners();
+
+
+		// capture and cache cpu usage info
+		cpuUsageValues.add(app.deviceCPU.getAverageOfCachedValuesAndClearCache());
+		saveSnapshotValuesToDatabase("cpu");
+
+		// capture and cache data transfer info
+		dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
+		saveSnapshotValuesToDatabase("datatransfer");
+
+		// cache accelerometer sensor data
+		saveSnapshotValuesToDatabase("accel");
+
+		// capture and cache light sensor data
+		cacheSnapshotValues("light", new double[]{ lightSensorLastValue });
+		saveSnapshotValuesToDatabase("light");
+
+
+		if (outerLoopIncrement == outerLoopCaptureCount) {
+
+			// capture and cache battery level info
+			batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
+			saveSnapshotValuesToDatabase("battery");
+
+			// capture and cache storage usage stats
+			storageValues.add(DeviceStorage.getCurrentStorageStats());
+			saveSnapshotValuesToDatabase("storage");
+
+			// capture and cache memory usage stats
+			memoryValues.add(DeviceMemory.getCurrentMemoryStats(app.getApplicationContext()));
+			saveSnapshotValuesToDatabase("memory");
+
+			// capture and cache telephony signal strength
+			cacheSnapshotValues("telephony", new double[]{});
+			saveSnapshotValuesToDatabase("telephony");
+
+		}
+
+		return outerLoopIncrement;
+	}
+
+
+	private void setOrUnSetReducedCaptureModeListeners() {
+
+		if (app.deviceUtils.isReducedCaptureModeActive) {
+
+			unRegisterListener("geoposition");
+
+		} else {
+
+		//	registerListener("geoposition");
+
+		}
+	}
+
+
+	private void cacheSnapshotValues(String sensorAbbrev, double[] vals) {
+
+		if (sensorAbbrev.equalsIgnoreCase("accel")) {
+
+			if (vals.length >= 3) {
+				double[] accelArray = new double[]{(double) System.currentTimeMillis(), vals[0], vals[1], vals[2], 0};
+
+				this.accelSensorValues.add(accelArray);
+				if (this.app != null) {
+					this.app.deviceUtils.addAccelSensorSnapshotEntry(accelArray);
+				}
+			}
+
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
+
+			this.lightSensorLastValue = vals[0];
+			long lightSensorLastValueAsLong = Math.round(this.lightSensorLastValue);
+			if (	(this.lightSensorLastValue != Float.MAX_VALUE)
+				&& 	(	(this.lightSensorValues.size() == 0)
+					|| 	(lightSensorLastValueAsLong != this.lightSensorValues.get(this.lightSensorValues.size() - 1)[1])
+					)
+			) {
+				this.lightSensorValues.add(new long[]{System.currentTimeMillis(), lightSensorLastValueAsLong});
+			}
+
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+
+			if (app.deviceMobileNetwork.isInitializedTelephonyManager() && app.deviceMobileNetwork.isInitializedSignalStrength()) {
+
+				String[] newTelephonyValue = app.deviceMobileNetwork.getMobileNetworkSummary();
+				if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_VERBOSE_NETWORK)) { app.deviceUtils.checkReportMobileNetworkChange(this.telephonyValues, newTelephonyValue); }
+				this.telephonyValues.add(newTelephonyValue);
+			} else {
+				Log.e(logTag, "could not cache telephony");
+			}
+
+		} else {
+			Log.e(logTag, "Snapshot could not be cached for '" + sensorAbbrev + "'.");
+		}
+
+
+	}
+
+
+	private void registerListener(String sensorAbbrev) {
+
+		try {
+
+			if (sensorAbbrev.equalsIgnoreCase("accel") && app.deviceUtils.isSensorListenerAllowed("accel")) {
+				if (!this.isListenerRegistered_accel) {
+					checkSetSensorManager();
+					if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+						Log.v(logTag, "Registering listener for 'accelerometer'...");
+						this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+						this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+						this.isListenerRegistered_accel = true;
+					} else {
+						app.deviceUtils.disableSensorListener("accel");
+						Log.d(logTag, "Disabling Listener Registration for Accelerometer because it doesn't seem to be present.");
+					}
+				}
+
+			} else if (sensorAbbrev.equalsIgnoreCase("light")
+					&& app.deviceUtils.isSensorListenerAllowed("light")
+			) {
+				if (!this.isListenerRegistered_light) {
+					checkSetSensorManager();
+					if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
+						Log.v(logTag, "Registering listener for 'light'...");
+						this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
+						this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+						this.isListenerRegistered_light = true;
+					} else {
+						app.deviceUtils.disableSensorListener("light");
+						Log.d(logTag, "Disabling Listener Registration for LightMeter because it doesn't seem to be present.");
+					}
+				}
+
+			} else if (sensorAbbrev.equalsIgnoreCase("telephony") && app.deviceUtils.isSensorListenerAllowed("telephony")) {
+				if (!this.isListenerRegistered_telephony) {
+					Log.v(logTag, "Registering listener for 'telephony'...");
+					this.signalStrengthListener = new SignalStrengthListener();
+					app.deviceMobileNetwork.setTelephonyManager((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE));
+					app.deviceMobileNetwork.setTelephonyListener(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+					this.isListenerRegistered_telephony = true;
+				}
+
+			} else if (	sensorAbbrev.equalsIgnoreCase("geoposition") && app.deviceUtils.isSensorListenerAllowed("geoposition")) {
+				if (!this.isListenerRegistered_geoposition) {
+					if (checkSetLocationManager() && !this.geoPositionProviderInfo.isEmpty()) {
+						Log.v(logTag, "Registering listener for 'geoposition'...");
+						this.locationManager.requestLocationUpdates(
+								this.geoPositionProviderInfo,
+								( app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE) * 60 * 1000 ),
+								DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters,
+								this);
+						this.isListenerRegistered_geoposition = true;
+					} else {
+						Log.e(logTag, "Couldn't register geoposition listener...");
+					}
+				}
+
+			} else {
+				Log.e(logTag, "No Listener registered for '" + sensorAbbrev + "' sensor...");
+			}
+
+		} catch (SecurityException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
+	
+	private void unRegisterListener(String sensorAbbrev) {
+		
+		if (sensorAbbrev.equalsIgnoreCase("accel")) { 
+			if (this.isListenerRegistered_accel && (this.accelSensor != null)) {
+				Log.v(logTag, "Unregistering sensor listener for 'accelerometer'...");
+				this.sensorManager.unregisterListener(this, this.accelSensor);
+				this.isListenerRegistered_accel = false;
+				if (this.app != null) { this.app.deviceUtils.processAccelSensorSnapshot(); }
+			}
+			
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) { 
+			if (this.isListenerRegistered_light && (this.lightSensor != null)) {
+				Log.v(logTag, "Unregistering sensor listener for 'light'...");
+				this.sensorManager.unregisterListener(this, this.lightSensor); 
+				this.isListenerRegistered_light = false;
+			}
+			
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) { 
+			if (this.isListenerRegistered_telephony && app.deviceMobileNetwork.isInitializedTelephonyManager()) {
+				Log.v(logTag, "Unregistering sensor listener for 'telephony'...");
+				app.deviceMobileNetwork.setTelephonyListener(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE);
+				this.isListenerRegistered_telephony = false;
+			}
+			
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) { 
+			if (this.isListenerRegistered_geoposition && (this.locationManager != null)) {
+				Log.v(logTag, "Unregistering sensor listener for 'geoposition'...");
+				this.locationManager.removeUpdates(this);
+				this.isListenerRegistered_geoposition = false;
+			}
+				 
+		} else {
+			Log.e(logTag, "Listener failed to unregister for '"+sensorAbbrev+"'.");
+		}
+	}
+	
+	private void saveSnapshotValuesToDatabase(String statAbbrev) {
+		
+		try {
+			
+			if (statAbbrev.equalsIgnoreCase("cpu")) {
+				
+				List<int[]> cpuUsageValuesCache = this.cpuUsageValues;
+				this.cpuUsageValues = new ArrayList<>();
+				
+				for (int[] cpuVals : cpuUsageValuesCache) {
+					// make sure the values are valid
+					if ((cpuVals[0] <= 100) && (cpuVals[0] >= 0)) {
+						app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1], cpuVals[2]);
+					}
+				}
+				
+			} else if (statAbbrev.equalsIgnoreCase("light")) {
+				
+				List<long[]> lightSensorValuesCache = this.lightSensorValues;
+				this.lightSensorValues = new ArrayList<>();
+				
+				for (long[] lightVals : lightSensorValuesCache) {
+					app.deviceSensorDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
+				}
+				
+			} else if (statAbbrev.equalsIgnoreCase("accel")) {
+				
+				List<double[]> accelSensorValuesCache = this.accelSensorValues;
+				this.accelSensorValues = new ArrayList<>();
+				
+				double[] accelSensorAverages = DeviceUtils.generateAverageAccelValues(accelSensorValuesCache);
+				
+				if (accelSensorAverages[4] > 0) {
+					app.deviceSensorDb.dbAccelerometer.insert(
+							new Date((long) Math.round(accelSensorAverages[0])), 
+							TextUtils.join(",", new String[] { accelSensorAverages[1]+"", accelSensorAverages[2]+"", accelSensorAverages[3]+"" }),
+							(int) Math.round(accelSensorAverages[4])
+						);
+				}
+					
+			} else if (statAbbrev.equalsIgnoreCase("telephony")) {
+				
+				List<String[]> telephonyValuesCache = this.telephonyValues;
+				this.telephonyValues = new ArrayList<>();
+
+				String[] prevTelephonyVals = new String[] { "", "", "", "" };
+
+				for (String[] telephonyVals : telephonyValuesCache) {
+					if (	((telephonyVals[2] != null) && (telephonyVals[3] != null)) // ensure relevant values aren't just null
+						&&	!telephonyVals[1].equalsIgnoreCase(prevTelephonyVals[1])
+						&&	!telephonyVals[2].equalsIgnoreCase(prevTelephonyVals[2]) // ensure relevant values aren't just immediate repeats of last saved value
+						&& 	!telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
+					) {
+						app.deviceSystemDb.dbTelephony.insert(new Date(Long.parseLong(telephonyVals[0])), Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3]);
+					}
+					prevTelephonyVals = telephonyVals;
+				}
+
+			} else if (statAbbrev.equalsIgnoreCase("datatransfer")) {
+			
+				List<long[]> dataTransferValuesCache = this.dataTransferValues;
+				this.dataTransferValues = new ArrayList<>();
+				
+				for (long[] dataTransferVals : dataTransferValuesCache) {
+					// before saving, make sure this isn't the first time the stats are being generated (that throws off the net change figures)
+					if (dataTransferVals[10] == 0) {
+						app.deviceDataTransferDb.dbTransferred.insert(new Date(), new Date(dataTransferVals[0]), new Date(dataTransferVals[1]), dataTransferVals[2], dataTransferVals[3], dataTransferVals[4], dataTransferVals[5], dataTransferVals[6], dataTransferVals[7], dataTransferVals[8], dataTransferVals[9]);
+					}
+				}
+				
+			} else if (statAbbrev.equalsIgnoreCase("battery")) {
+				
+				List<int[]> batteryLevelValuesCache = this.batteryLevelValues;
+				this.batteryLevelValues = new ArrayList<>();
+				
+				for (int[] batteryLevelVals : batteryLevelValuesCache) {
+					if ((batteryLevelVals[0] <= 100) && (batteryLevelVals[0] >= 0)) {
+						app.deviceSystemDb.dbBattery.insert(new Date(),
+								app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0,
+								app.deviceUtils.allowMeasurement_battery_temperature ? batteryLevelVals[1] : 0,
+								app.deviceUtils.allowMeasurement_battery_is_charging ? batteryLevelVals[2] : 0,
+								app.deviceUtils.allowMeasurement_battery_is_fully_charged ? batteryLevelVals[3] : 0
+							);
+						Log.d(logTag, DateTimeUtils.getDateTime() + " [ internal battery: " + (app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0) + "% ]");
+					}
+				}
+				
+			} else if (statAbbrev.equalsIgnoreCase("storage")) {
+				
+				List<long[]> storageValuesCache = this.storageValues;
+				this.storageValues = new ArrayList<long[]>();
+				
+				for (long[] storageVals : storageValuesCache) {
+					app.deviceSpaceDb.dbStorage.insert("internal", new Date(storageVals[0]), storageVals[1], storageVals[2]);
+					app.deviceSpaceDb.dbStorage.insert("external", new Date(storageVals[0]), storageVals[3], storageVals[4]);
+				}
+
+			} else if (statAbbrev.equalsIgnoreCase("memory")) {
+
+				List<long[]> memoryValuesCache = this.memoryValues;
+				this.memoryValues = new ArrayList<long[]>();
+
+				for (long[] memoryVals : memoryValuesCache) {
+					app.deviceSpaceDb.dbMemory.insert("system", new Date(memoryVals[0]), memoryVals[1], memoryVals[2], memoryVals[3]);
+				}
+				
+			} else {
+				Log.e(logTag, "Value info for '"+statAbbrev+"' could not be saved to database.");
+			}
+			
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
+
+	
+/*
+ *  These are methods for PhoneStateListener
+ */
+
+	public class SignalStrengthListener extends PhoneStateListener {
+		@Override
+		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+			super.onSignalStrengthsChanged(signalStrength);
+			app.deviceMobileNetwork.setTelephonySignalStrength(signalStrength);
+			cacheSnapshotValues("telephony", new double[]{});
+		}
+	}
+
+
+
+	
+/*
+ *  These are methods for SensorEventListener
+ */
+	
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		
+		int eventType = event.sensor.getType();
+		
+		if (eventType == Sensor.TYPE_LIGHT) {
+			
+			cacheSnapshotValues("light", ArrayUtils.castFloatArrayToDoubleArray(event.values));
+
+		} else if (eventType == Sensor.TYPE_ACCELEROMETER) {
+			
+			cacheSnapshotValues("accel", ArrayUtils.castFloatArrayToDoubleArray(event.values));
+			if (this.isListenerRegistered_accel) { unRegisterListener("accel"); }
+			
+		}
+	}
+	
+	
+/*
+ *  These are methods for LocationListener
+ */
+	
+	@Override
+	public void onLocationChanged(Location location) {
+	//	Log.e(logTag, "Running onLocationChanged...");
+		if (app != null) {
+			app.deviceUtils.processAndSaveGeoPosition(location);
+		}
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+	//	Log.e(logTag, "Running onProviderDisabled...");
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+	//	Log.e(logTag, "Running onProviderDisabled...");
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+	//	Log.e(logTag, "Running onStatusChanged...");
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

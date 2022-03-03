@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -13,194 +13,195 @@ import java.util.List;
 
 public class SmsMessageDb {
 
-    static final String DATABASE = "sms";
-    static final String C_CREATED_AT = "created_at";
-    static final String C_TIMESTAMP = "timestamp";
-    static final String C_ADDRESS = "address";
-    static final String C_BODY = "body";
-    static final String C_MESSAGE_ID = "message_id";
-    static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_MESSAGE_ID, C_LAST_ACCESSED_AT};
-    public final DbSmsReceived dbSmsReceived;
-    public final DbSmsSent dbSmsSent;
-    public final DbSmsQueued dbSmsQueued;
-    private int VERSION = 1;
-    private boolean DROP_TABLE_ON_UPGRADE = false;
+	public SmsMessageDb(Context context, String appVersion) {
+		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+		this.dbSmsReceived = new DbSmsReceived(context);
+		this.dbSmsSent = new DbSmsSent(context);
+		this.dbSmsQueued = new DbSmsQueued(context);
+	}
 
-    public SmsMessageDb(Context context, String appVersion) {
-        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-        this.dbSmsReceived = new DbSmsReceived(context);
-        this.dbSmsSent = new DbSmsSent(context);
-        this.dbSmsQueued = new DbSmsQueued(context);
-    }
+	private int VERSION = 1;
+	static final String DATABASE = "sms";
+	static final String C_CREATED_AT = "created_at";
+	static final String C_TIMESTAMP = "timestamp";
+	static final String C_ADDRESS = "address";
+	static final String C_BODY = "body";
+	static final String C_MESSAGE_ID = "message_id";
+	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_MESSAGE_ID, C_LAST_ACCESSED_AT };
 
-    private String createColumnString(String tableName) {
-        StringBuilder sbOut = new StringBuilder();
-        sbOut.append("CREATE TABLE ").append(tableName)
-                .append("(").append(C_CREATED_AT).append(" INTEGER")
-                .append(", ").append(C_TIMESTAMP).append(" TEXT")
-                .append(", ").append(C_ADDRESS).append(" TEXT")
-                .append(", ").append(C_BODY).append(" TEXT")
-                .append(", ").append(C_MESSAGE_ID).append(" TEXT")
-                .append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
-                .append(")");
-        return sbOut.toString();
-    }
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
-    public class DbSmsReceived {
+	private String createColumnString(String tableName) {
+		StringBuilder sbOut = new StringBuilder();
+		sbOut.append("CREATE TABLE ").append(tableName)
+			.append("(").append(C_CREATED_AT).append(" INTEGER")
+			.append(", ").append(C_TIMESTAMP).append(" TEXT")
+			.append(", ").append(C_ADDRESS).append(" TEXT")
+			.append(", ").append(C_BODY).append(" TEXT")
+			.append(", ").append(C_MESSAGE_ID).append(" TEXT")
+			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
+			.append(")");
+		return sbOut.toString();
+	}
 
-        final DbUtils dbUtils;
-        public String FILEPATH;
+	public class DbSmsReceived {
 
-        private String TABLE = "received";
+		final DbUtils dbUtils;
+		public String FILEPATH;
 
-        public DbSmsReceived(Context context) {
-            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-            FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
-        }
+		private String TABLE = "received";
 
-        public int insert(String timestamp, String address, String body, String message_id) {
+		public DbSmsReceived(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+		}
 
-            ContentValues values = new ContentValues();
-            values.put(C_CREATED_AT, (new Date()).getTime());
-            values.put(C_TIMESTAMP, timestamp);
-            values.put(C_ADDRESS, address);
-            values.put(C_BODY, body);
-            values.put(C_MESSAGE_ID, message_id);
-            values.put(C_LAST_ACCESSED_AT, 0);
+		public int insert(String timestamp, String address, String body, String message_id) {
 
-            return this.dbUtils.insertRow(TABLE, values);
-        }
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_TIMESTAMP, timestamp);
+			values.put(C_ADDRESS, address);
+			values.put(C_BODY, body);
+			values.put(C_MESSAGE_ID, message_id);
+			values.put(C_LAST_ACCESSED_AT, 0);
 
-        public List<String[]> getAllRows() {
-            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-        }
+			return this.dbUtils.insertRow(TABLE, values);
+		}
 
-        public JSONArray getLatestRowAsJsonArray() {
-            return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
-        }
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public int deleteSingleRowByMessageId(String message_id) {
-            this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_MESSAGE_ID, message_id);
-            return 0;
-        }
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public long updateLastAccessedAtByMessageId(String message_id) {
-            long rightNow = (new Date()).getTime();
-            this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
-            return rightNow;
-        }
+		public int deleteSingleRowByMessageId(String message_id) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_MESSAGE_ID, message_id);
+			return 0;
+		}
 
-        public int getCount() {
-            return this.dbUtils.getCount(TABLE, null, null);
-        }
+		public long updateLastAccessedAtByMessageId(String message_id) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
+			return rightNow;
+		}
 
-    }
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
 
-    public class DbSmsSent {
+	}
+	public final DbSmsReceived dbSmsReceived;
 
-        final DbUtils dbUtils;
+	public class DbSmsSent {
 
-        private String TABLE = "sent";
+		final DbUtils dbUtils;
 
-        public DbSmsSent(Context context) {
-            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-        }
+		private String TABLE = "sent";
 
-        public int insert(long timestamp, String address, String body, String message_id) {
+		public DbSmsSent(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+		}
 
-            ContentValues values = new ContentValues();
-            values.put(C_CREATED_AT, (new Date()).getTime());
-            values.put(C_TIMESTAMP, timestamp + "");
-            values.put(C_ADDRESS, address);
-            values.put(C_BODY, body);
-            values.put(C_MESSAGE_ID, message_id);
-            values.put(C_LAST_ACCESSED_AT, 0);
+		public int insert(long timestamp, String address, String body, String message_id) {
 
-            return this.dbUtils.insertRow(TABLE, values);
-        }
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_TIMESTAMP, timestamp+"");
+			values.put(C_ADDRESS, address);
+			values.put(C_BODY, body);
+			values.put(C_MESSAGE_ID, message_id);
+			values.put(C_LAST_ACCESSED_AT, 0);
 
-        public List<String[]> getAllRows() {
-            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-        }
+			return this.dbUtils.insertRow(TABLE, values);
+		}
 
-        public JSONArray getSingleRowAsJsonArray() {
-            return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, 1);
-        }
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public JSONArray getLatestRowAsJsonArray() {
-            return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
-        }
+		public JSONArray getSingleRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, 1);
+		}
 
-        public int deleteSingleRowByMessageId(String message_id) {
-            this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_MESSAGE_ID, message_id);
-            return 0;
-        }
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public long updateLastAccessedAtByMessageId(String message_id) {
-            long rightNow = (new Date()).getTime();
-            this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
-            return rightNow;
-        }
+		public int deleteSingleRowByMessageId(String message_id) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_MESSAGE_ID, message_id);
+			return 0;
+		}
 
-        public int getCount() {
-            return this.dbUtils.getCount(TABLE, null, null);
-        }
+		public long updateLastAccessedAtByMessageId(String message_id) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
+			return rightNow;
+		}
 
-    }
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
 
-    public class DbSmsQueued {
+	}
+	public final DbSmsSent dbSmsSent;
 
-        final DbUtils dbUtils;
+	public class DbSmsQueued {
 
-        private String TABLE = "queued";
+		final DbUtils dbUtils;
 
-        public DbSmsQueued(Context context) {
-            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-        }
+		private String TABLE = "queued";
 
-        public int insert(long timestamp, String address, String body, String message_id) {
+		public DbSmsQueued(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+		}
 
-            ContentValues values = new ContentValues();
-            values.put(C_CREATED_AT, (new Date()).getTime());
-            values.put(C_TIMESTAMP, timestamp + "");
-            values.put(C_ADDRESS, address);
-            values.put(C_BODY, body);
-            values.put(C_MESSAGE_ID, message_id);
-            values.put(C_LAST_ACCESSED_AT, 0);
+		public int insert(long timestamp, String address, String body, String message_id) {
 
-            return this.dbUtils.insertRow(TABLE, values);
-        }
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_TIMESTAMP, timestamp+"");
+			values.put(C_ADDRESS, address);
+			values.put(C_BODY, body);
+			values.put(C_MESSAGE_ID, message_id);
+			values.put(C_LAST_ACCESSED_AT, 0);
 
-        public List<String[]> getAllRows() {
-            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-        }
+			return this.dbUtils.insertRow(TABLE, values);
+		}
 
-        public List<String[]> getRowsInOrderOfTimestamp() {
-            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP + " ASC");
-        }
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public JSONArray getLatestRowAsJsonArray() {
-            return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
-        }
+		public List<String[]> getRowsInOrderOfTimestamp() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP+" ASC");
+		}
 
-        public int deleteSingleRowByMessageId(String message_id) {
-            this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_MESSAGE_ID, message_id);
-            return 0;
-        }
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
 
-        public long updateLastAccessedAtByMessageId(String message_id) {
-            long rightNow = (new Date()).getTime();
-            this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
-            return rightNow;
-        }
+		public int deleteSingleRowByMessageId(String message_id) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_MESSAGE_ID, message_id);
+			return 0;
+		}
 
-        public int getCount() {
-            return this.dbUtils.getCount(TABLE, null, null);
-        }
+		public long updateLastAccessedAtByMessageId(String message_id) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
+			return rightNow;
+		}
 
-    }
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
 
+	}
+	public final DbSmsQueued dbSmsQueued;
+	
 }

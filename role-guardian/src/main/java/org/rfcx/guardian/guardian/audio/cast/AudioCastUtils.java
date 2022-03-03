@@ -17,73 +17,75 @@ import java.util.List;
 
 public class AudioCastUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastUtils");
-    public SocketUtils socketUtils;
-    private RfcxGuardian app;
-    private List<String> pingJson;
-    public AudioCastUtils(Context context) {
-        this.app = (RfcxGuardian) context.getApplicationContext();
-        this.socketUtils = new SocketUtils();
-        this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.AUDIO);
-    }
+	public AudioCastUtils(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+		this.socketUtils = new SocketUtils();
+		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.AUDIO);
+	}
 
-    public void updatePingJson(boolean printJsonToLogs) {
-        try {
-            pingJson = app.audioCastPingUtils.buildPingJson(printJsonToLogs);
-        } catch (JSONException e) {
-            RfcxLog.logExc(logTag, e, "updatePingJson");
-        }
-    }
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastUtils");
 
-    public boolean sendSocketPing() {
-        return this.socketUtils.sendAudioSocketJson(pingJson, isAudioCastEnablable(false, app.rfcxPrefs));
-    }
+	private RfcxGuardian app;
+	public SocketUtils socketUtils;
+	private List<String> pingJson;
 
-    public boolean isAudioCastEnablable(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
+	public void updatePingJson(boolean printJsonToLogs) {
+		try {
+			pingJson =  app.audioCastPingUtils.buildPingJson(printJsonToLogs);
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e, "updatePingJson");
+		}
+	}
 
-        boolean prefsEnableAudioCast = rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAST);
+	public boolean sendSocketPing() {
+		return this.socketUtils.sendAudioSocketJson(pingJson, isAudioCastEnablable(false, app.rfcxPrefs));
+	}
 
-        String prefsWifiFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
-        boolean isWifiEnabled = prefsWifiFunction.equals("hotspot") || prefsWifiFunction.equals("client");
+	public boolean isAudioCastEnablable(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
 
-        String prefsBluetoothFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION);
-        boolean isBluetoothEnabled = prefsBluetoothFunction.equals("pan");
+		boolean prefsEnableAudioCast = rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAST);
 
-        if (verboseLogging && prefsEnableAudioCast && !isWifiEnabled && !isBluetoothEnabled) {
-            Log.e(logTag, "Audio Cast Socket Server could not be enabled because '" + RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION + "' and '" + RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION + "' are set to off.");
-        }
+		String prefsWifiFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
+		boolean isWifiEnabled = prefsWifiFunction.equals("hotspot") || prefsWifiFunction.equals("client");
 
-        return prefsEnableAudioCast && (isWifiEnabled || isBluetoothEnabled);
-    }
+		String prefsBluetoothFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION);
+		boolean isBluetoothEnabled = prefsBluetoothFunction.equals("pan");
 
-    private void processReceivedJson(String jsonStr) {
-        // do nothing — we don't expect to receive anything
-    }
+		if (verboseLogging && prefsEnableAudioCast && !isWifiEnabled && !isBluetoothEnabled) {
+			Log.e( logTag, "Audio Cast Socket Server could not be enabled because '"+RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION+"' and '"+RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION+"' are set to off.");
+		}
 
-    public void startServer() {
+		return prefsEnableAudioCast && (isWifiEnabled || isBluetoothEnabled);
+	}
 
-        socketUtils.serverThread = new Thread(() -> {
-            Looper.prepare();
-            try {
-                socketUtils.serverSetup();
-                while (true) {
-                    InputStream socketInput = socketUtils.socketSetup();
-                    if (socketInput != null) {
-                        String jsonStr = socketUtils.streamSetup(socketInput);
-                        if (jsonStr != null) {
-                            processReceivedJson(jsonStr);
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
-                    RfcxLog.logExc(logTag, e);
-                }
-            }
-            Looper.loop();
-        });
-        socketUtils.serverThread.start();
-        socketUtils.isServerRunning = true;
-    }
+	private void processReceivedJson(String jsonStr) {
+		// do nothing — we don't expect to receive anything
+	}
+
+	public void startServer() {
+
+		socketUtils.serverThread = new Thread(() -> {
+			Looper.prepare();
+			try {
+				socketUtils.serverSetup();
+				while (true) {
+					InputStream socketInput = socketUtils.socketSetup();
+					if (socketInput != null) {
+						String jsonStr = socketUtils.streamSetup(socketInput);
+						if (jsonStr != null) {
+							processReceivedJson(jsonStr);
+						}
+					}
+				}
+			} catch (IOException e) {
+				if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+			Looper.loop();
+		});
+		socketUtils.serverThread.start();
+		socketUtils.isServerRunning = true;
+	}
 
 }

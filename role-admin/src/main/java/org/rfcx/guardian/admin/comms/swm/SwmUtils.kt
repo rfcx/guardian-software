@@ -8,12 +8,22 @@ import org.rfcx.guardian.admin.RfcxGuardian
 import org.rfcx.guardian.admin.comms.swm.api.SwmApi
 import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import org.rfcx.guardian.admin.comms.swm.api.SwmUartShell
-import org.rfcx.guardian.admin.comms.swm.control.SwmPower
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
-import org.rfcx.guardian.utility.misc.DateTimeUtils
+import org.rfcx.guardian.utility.misc.ArrayUtils
+import org.rfcx.guardian.utility.misc.FileUtils
+import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import java.util.*
+import org.rfcx.guardian.utility.misc.DateTimeUtils
+
+import android.text.TextUtils
+import org.rfcx.guardian.admin.comms.swm.control.SwmPower
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse
+import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg
+
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
+import kotlin.math.log
 
 class SwmUtils(private val context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
@@ -67,8 +77,7 @@ class SwmUtils(private val context: Context) {
         var satId: String? = null
         if (rtSatellite != null) {
             Log.d(logTag, "Saving Satellite Packet")
-            if (rtSatellite.packetTimestamp != "1970-01-01 00:00:00") time =
-                rtSatellite.packetTimestamp
+            if (rtSatellite.packetTimestamp != "1970-01-01 00:00:00") time = rtSatellite.packetTimestamp
             if (time != null) {
                 if (rtSatellite.rssi != 0) rssiSat = rtSatellite.rssi
                 if (rtSatellite.signalToNoiseRatio != 0) snr = rtSatellite.signalToNoiseRatio
@@ -135,14 +144,7 @@ class SwmUtils(private val context: Context) {
             if (msgPayload != null && !msgPayload.equals("", ignoreCase = true)) {
                 val app = context.applicationContext as RfcxGuardian
                 val msgId = DeviceSmsUtils.generateMessageId()
-                app.swmMessageDb.dbSwmQueued.insert(
-                    sendAtOrAfter,
-                    "",
-                    msgPayload,
-                    groupId,
-                    msgId,
-                    priority
-                )
+                app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, groupId, msgId, priority)
                 if (triggerDispatchService) {
                     app.rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, false)
                 }

@@ -16,12 +16,13 @@ import java.util.List;
 
 public class AudioCastPingUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastPingUtils");
-    private RfcxGuardian app;
-
     public AudioCastPingUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
     }
+
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastPingUtils");
+
+    private RfcxGuardian app;
 
     public List<String> buildPingJson(boolean printJsonToLogs) throws JSONException {
         ArrayList<String> jsonList = new ArrayList<>();

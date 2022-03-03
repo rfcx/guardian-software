@@ -13,19 +13,20 @@ import java.io.InputStream;
 
 public class DownloadSpeedTest extends HttpGet {
 
-    private final Context context;
-    private final String logTag;
     public DownloadSpeedTest(Context context, String appRole) {
         super(context, appRole);
         this.context = context;
         this.logTag = RfcxLog.generateLogTag(appRole, "DownloadSpeedTest");
     }
 
+    private final Context context;
+    private final String logTag;
+
     public double getDownloadSpeedTest(String fullUrl) throws IOException {
         long startTime = System.currentTimeMillis();
         StringBuilder url = (new StringBuilder()).append(fullUrl);
 
-        Log.v(logTag, "Initializing request to " + url.toString());
+        Log.v(logTag,"Initializing request to "+url.toString());
 
         String testPath = context.getFilesDir().getAbsolutePath() + "test_download.txt";
         File file = new File(testPath);
@@ -41,10 +42,10 @@ public class DownloadSpeedTest extends HttpGet {
             fileOutputStream.close();
             long downloadTime = System.currentTimeMillis() - startTime;
             double downloadSpeed = (downloadedContent * 1.0) / downloadTime;
-            Log.v(logTag, "Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(downloadTime) + ") from " + fullUrl);
+            Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(downloadTime) + ") from "+fullUrl);
             return downloadSpeed;
         }
-        Log.e(logTag, "Download Failed (" + DateTimeUtils.milliSecondDurationAsReadableString((System.currentTimeMillis() - startTime)) + ") from " + fullUrl);
+        Log.e(logTag,"Download Failed (" + DateTimeUtils.milliSecondDurationAsReadableString((System.currentTimeMillis() - startTime)) + ") from " + fullUrl);
         return -1;
     }
 

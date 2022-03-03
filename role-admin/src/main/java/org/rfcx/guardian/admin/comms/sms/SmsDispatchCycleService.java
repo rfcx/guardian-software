@@ -10,91 +10,91 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class SmsDispatchCycleService extends Service {
 
-    public static final String SERVICE_NAME = "SmsDispatchCycle";
+	public static final String SERVICE_NAME = "SmsDispatchCycle";
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchCycleService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchCycleService");
+	
+	private RfcxGuardian app;
+	
+	private boolean runFlag = false;
+	private SmsDispatchCycleSvc smsDispatchCycleSvc;
 
-    private RfcxGuardian app;
+	private long smsDispatchCycleDuration = 5000;
 
-    private boolean runFlag = false;
-    private SmsDispatchCycleSvc smsDispatchCycleSvc;
+	@Override
+	public IBinder onBind(Intent intent) {
+		return null;
+	}
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		this.smsDispatchCycleSvc = new SmsDispatchCycleSvc();
+		app = (RfcxGuardian) getApplication();
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		super.onStartCommand(intent, flags, startId);
+		Log.v(logTag, "Starting service: "+logTag);
+		this.runFlag = true;
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
+		try {
+			this.smsDispatchCycleSvc.start();
+		} catch (IllegalThreadStateException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return START_NOT_STICKY;
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.runFlag = false;
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
+		this.smsDispatchCycleSvc.interrupt();
+		this.smsDispatchCycleSvc = null;
+	}
+	
+	
+	private class SmsDispatchCycleSvc extends Thread {
+		
+		public SmsDispatchCycleSvc() { super("SmsDispatchCycleService-SmsDispatchCycleSvc"); }
+		
+		@Override
+		public void run() {
+			SmsDispatchCycleService smsDispatchCycleInstance = SmsDispatchCycleService.this;
+			
+			app = (RfcxGuardian) getApplication();
 
-    private long smsDispatchCycleDuration = 5000;
+			while (smsDispatchCycleInstance.runFlag) {
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+				try {
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        this.smsDispatchCycleSvc = new SmsDispatchCycleSvc();
-        app = (RfcxGuardian) getApplication();
-    }
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-        Log.v(logTag, "Starting service: " + logTag);
-        this.runFlag = true;
-        app.rfcxSvc.setRunState(SERVICE_NAME, true);
-        try {
-            this.smsDispatchCycleSvc.start();
-        } catch (IllegalThreadStateException e) {
-            RfcxLog.logExc(logTag, e);
-        }
-        return START_NOT_STICKY;
-    }
+					if (app.smsMessageDb.dbSmsQueued.getCount() > 0) {
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        this.runFlag = false;
-        app.rfcxSvc.setRunState(SERVICE_NAME, false);
-        this.smsDispatchCycleSvc.interrupt();
-        this.smsDispatchCycleSvc = null;
-    }
+						app.rfcxSvc.triggerService( SmsDispatchService.SERVICE_NAME, false);
 
+					}
 
-    private class SmsDispatchCycleSvc extends Thread {
+					Thread.sleep(smsDispatchCycleDuration);
 
-        public SmsDispatchCycleSvc() {
-            super("SmsDispatchCycleService-SmsDispatchCycleSvc");
-        }
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+					app.rfcxSvc.setRunState(SERVICE_NAME, false);
+					smsDispatchCycleInstance.runFlag = false;
+				}
+			}
 
-        @Override
-        public void run() {
-            SmsDispatchCycleService smsDispatchCycleInstance = SmsDispatchCycleService.this;
-
-            app = (RfcxGuardian) getApplication();
-
-            while (smsDispatchCycleInstance.runFlag) {
-
-                try {
-
-                    app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                    if (app.smsMessageDb.dbSmsQueued.getCount() > 0) {
-
-                        app.rfcxSvc.triggerService(SmsDispatchService.SERVICE_NAME, false);
-
-                    }
-
-                    Thread.sleep(smsDispatchCycleDuration);
-
-                } catch (Exception e) {
-                    RfcxLog.logExc(logTag, e);
-                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                    smsDispatchCycleInstance.runFlag = false;
-                }
-            }
-
-            app.rfcxSvc.setRunState(SERVICE_NAME, false);
-            smsDispatchCycleInstance.runFlag = false;
-            Log.v(logTag, "Stopping service: " + logTag);
-        }
-    }
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
+			smsDispatchCycleInstance.runFlag = false;
+			Log.v(logTag, "Stopping service: "+logTag);
+		}
+	}
 
 
+
+	
 }

@@ -23,8 +23,11 @@ import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
+import org.rfcx.guardian.guardian.utils.AudioSettingUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
+import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 
 class MainActivity : Activity(),
@@ -80,7 +83,7 @@ class MainActivity : Activity(),
 
         downloadDevClassifierButton.setOnClickListener {
             app.assetDownloadUtils.createDummyRow();
-            app.rfcxSvc.triggerService(AssetDownloadJobService.SERVICE_NAME, false);
+            app.rfcxSvc.triggerService( AssetDownloadJobService.SERVICE_NAME, false );
         }
 
         registerButton.setOnClickListener {
@@ -139,7 +142,7 @@ class MainActivity : Activity(),
     }
 
     private fun sendPing() {
-        app.rfcxSvc.triggerService(SendApiPingService.SERVICE_NAME, false);
+        app.rfcxSvc.triggerService( SendApiPingService.SERVICE_NAME, false);
     }
 
     private fun clearRegistration() {

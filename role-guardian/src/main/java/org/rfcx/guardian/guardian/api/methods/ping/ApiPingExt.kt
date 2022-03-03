@@ -7,7 +7,7 @@ object ApiPingExt {
     fun shortenPingJson(ping: JSONObject): JSONObject {
         val shortenJson = JSONObject()
         ping.keys().forEach { it ->
-            when (it) {
+            when(it) {
                 "data_transfer" -> shortenJson.put("dt", ping.get("data_transfer"))
                 "measured_at" -> shortenJson.put("ma", ping.get("measured_at"))
                 "cpu" -> shortenJson.put("cpu", ping.get("cpu"))
@@ -25,7 +25,7 @@ object ApiPingExt {
                     val shortenPrefs = JSONObject()
 
                     prefs.keys().forEach { key ->
-                        when (key) {
+                        when(key) {
                             "sha1" -> {
                                 val sha1 = prefs.getString("sha1")
                                 shortenPrefs.put("s", sha1)
@@ -63,9 +63,7 @@ object ApiPingExt {
                             if (index == 0) {
                                 removedDupBattery.add(list)
                             } else {
-                                if (batteryAsList[index][1] != batteryAsList[index - 1][1]) removedDupBattery.add(
-                                    list
-                                )
+                                if (batteryAsList[index][1] != batteryAsList[index-1][1]) removedDupBattery.add(list)
                             }
                         }
                     }
@@ -91,9 +89,7 @@ object ApiPingExt {
                             if (index == 0) {
                                 removedDupNetwork.add(list)
                             } else {
-                                if (networkAsList[index][1] != networkAsList[index - 1][1]) removedDupNetwork.add(
-                                    list
-                                )
+                                if (networkAsList[index][1] != networkAsList[index-1][1]) removedDupNetwork.add(list)
                             }
                         }
                     }
@@ -133,27 +129,18 @@ object ApiPingExt {
                     val shortenDevice = JSONObject()
 
                     device.keys().forEach { dKey ->
-                        when (dKey) {
+                        when(dKey) {
                             "android" -> {
                                 val android = device.getJSONObject("android")
                                 val androidObj = JSONObject()
                                 android.keys().forEach { aKey ->
-                                    when (aKey) {
-                                        "product" -> androidObj.put(
-                                            "p",
-                                            android.getString("product")
-                                        )
+                                    when(aKey) {
+                                        "product" -> androidObj.put("p", android.getString("product"))
                                         "brand" -> androidObj.put("br", android.getString("brand"))
                                         "model" -> androidObj.put("m", android.getString("model"))
                                         "build" -> androidObj.put("bu", android.getString("build"))
-                                        "android" -> androidObj.put(
-                                            "a",
-                                            android.getString("android")
-                                        )
-                                        "manufacturer" -> androidObj.put(
-                                            "mf",
-                                            android.getString("manufacturer")
-                                        )
+                                        "android" -> androidObj.put("a", android.getString("android"))
+                                        "manufacturer" -> androidObj.put("mf", android.getString("manufacturer"))
                                     }
                                 }
                                 shortenDevice.put("a", androidObj)
@@ -162,7 +149,7 @@ object ApiPingExt {
                                 val phone = device.getJSONObject("phone")
                                 val phoneObj = JSONObject()
                                 phone.keys().forEach { pKey ->
-                                    when (pKey) {
+                                    when(pKey) {
                                         "sim" -> phoneObj.put("s", phone.getString("sim"))
                                         "number" -> phoneObj.put("n", phone.getString("number"))
                                         "imei" -> phoneObj.put("imei", phone.getString("imei"))
@@ -178,8 +165,7 @@ object ApiPingExt {
                 }
                 "detections" -> {
                     val detections = ping.getString("detections")
-                    val detectionsAsList = detections.split("|")
-                        .map { detection -> detection.split("*").toMutableList() }.toMutableList()
+                    val detectionsAsList = detections.split("|").map { detection -> detection.split("*").toMutableList() }.toMutableList()
                     detectionsAsList.forEachIndexed { indexOfDetection, dt ->
                         val shortenConfidence = arrayListOf<String>()
                         val confidence = dt[4].split(",")
