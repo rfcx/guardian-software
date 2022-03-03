@@ -174,6 +174,17 @@ public class DateTimeUtils {
 		return isTimeStampWithinTimeRange(timeStamp, startHour, startMinute, startSecond, endHour, endMinute, endSecond);
 	}
 
+	public static boolean isCurrentTimeBefore2022() {
+		Calendar now = Calendar.getInstance();
+		Calendar expected = Calendar.getInstance();
+
+		expected.set(2022, 1, 1);
+		if (now.before(expected)) {
+			return true;
+		}
+		return false;
+	}
+
 	public static void resetDateTimeReadWritePermissions() {
 		Log.v(logTag, "Resetting Permissions on DateTime Alarm Handlers...");
 		ShellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;");
