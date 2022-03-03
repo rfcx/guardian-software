@@ -109,10 +109,12 @@ public class SwmDispatchCycleService extends Service {
 
         private void trigger() throws InterruptedException {
             // Check if Swarm should be OFF due to prefs
-            if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
-                Log.d(logTag, "Swarm is OFF at this time");
-                app.swmUtils.getPower().setOn(false);
-                return;
+            if (!DateTimeUtils.isCurrentTimeBefore2022()) {
+                if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+                    Log.d(logTag, "Swarm is OFF at this time");
+                    app.swmUtils.getPower().setOn(false);
+                    return;
+                }
             }
 
             // Make sure it is on and dispatching

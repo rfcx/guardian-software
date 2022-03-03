@@ -3,6 +3,7 @@ package org.rfcx.guardian.admin.comms.swm.control
 import android.content.Context
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.utility.misc.DateTimeUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 class SwmPower(context: Context) {
@@ -24,7 +25,7 @@ class SwmPower(context: Context) {
 
     init {
         // if power now is off and during working period then power swarm
-        if (app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+        if (app.swmUtils.isSatelliteAllowedAtThisTimeOfDay() || DateTimeUtils.isCurrentTimeBefore2022()) {
             on = true
         }
     }
