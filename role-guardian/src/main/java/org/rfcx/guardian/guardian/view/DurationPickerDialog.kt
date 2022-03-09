@@ -39,7 +39,8 @@ class DurationPickerDialog(context: Context) : AlertDialog(context) {
             durationPickerDialog.setPickerValues()
             return Builder(context)
                 .setPositiveButton("Set") { _, _ ->
-                    val totalSeconds = durationPickerDialog.secondPicker.value + (durationPickerDialog.minutePicker.value * 60)
+                    val totalSeconds =
+                        durationPickerDialog.secondPicker.value + (durationPickerDialog.minutePicker.value * 60)
                     onDurationSet.onSet(totalSeconds)
                 }
                 .setNegativeButton("Cancel", null)

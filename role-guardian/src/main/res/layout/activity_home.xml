@@ -98,7 +98,6 @@
                             app:layout_constraintTop_toTopOf="parent">
 
 
-
                         <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
@@ -111,7 +110,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="@dimen/margin_padding_normal"
-                                android:text="send ping"/>
+                                android:text="send ping" />
 
                         <View
                                 android:layout_width="match_parent"
@@ -125,7 +124,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="@dimen/margin_padding_normal"
-                                android:text="clear registration"/>
+                                android:text="clear registration" />
 
                         <View
                                 android:layout_width="match_parent"
@@ -138,7 +137,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="@dimen/margin_padding_normal"
-                                android:text="download test classifier"/>
+                                android:text="download test classifier" />
 
                         <View
                                 android:layout_width="match_parent"

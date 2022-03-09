@@ -1,5 +1,11 @@
 package org.rfcx.guardian.utility.device.control;
 
+import android.text.TextUtils;
+import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,98 +13,91 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import android.text.TextUtils;
-import android.util.Log;
-
-import org.rfcx.guardian.utility.misc.ShellCommands;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-
 public class DeviceKeyEntry {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceKeyEntry");
+    private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceKeyEntry");
 
-	private static final Map<String, Integer> keyCodeMap = Collections.unmodifiableMap(
-		new HashMap<String, Integer>() {{
+    private static final Map<String, Integer> keyCodeMap = Collections.unmodifiableMap(
+            new HashMap<String, Integer>() {{
 
-			put("0", 7);
-			put("1", 8);
-			put("2", 9);
-			put("3", 10);
-			put("4", 11);
-			put("5", 12);
-			put("6", 13);
-			put("7", 14);
-			put("8", 15);
-			put("9", 16);
+                put("0", 7);
+                put("1", 8);
+                put("2", 9);
+                put("3", 10);
+                put("4", 11);
+                put("5", 12);
+                put("6", 13);
+                put("7", 14);
+                put("8", 15);
+                put("9", 16);
 
-			put("*", 17); // star/asterisk
-			put("#", 18); // pound
-			put("|", 23); // enter
+                put("*", 17); // star/asterisk
+                put("#", 18); // pound
+                put("|", 23); // enter
 
-			put("∧", 19); // up
-			put("∨", 20); // down
-			put("<", 21); // left
-			put(">", 22); // right
+                put("∧", 19); // up
+                put("∨", 20); // down
+                put("<", 21); // left
+                put(">", 22); // right
 
-			put("a", 29);
-			put("b", 30);
-			put("c", 31);
-			put("d", 32);
-			put("e", 33);
-			put("f", 34);
-			put("g", 35);
-			put("h", 36);
-			put("i", 37);
-			put("j", 38);
-			put("k", 39);
-			put("l", 40);
-			put("m", 41);
-			put("n", 42);
-			put("o", 43);
-			put("p", 44);
-			put("q", 45);
-			put("r", 46);
-			put("s", 47);
-			put("t", 48);
-			put("u", 49);
-			put("v", 50);
-			put("w", 51);
-			put("x", 52);
-			put("y", 53);
-			put("z", 54);
+                put("a", 29);
+                put("b", 30);
+                put("c", 31);
+                put("d", 32);
+                put("e", 33);
+                put("f", 34);
+                put("g", 35);
+                put("h", 36);
+                put("i", 37);
+                put("j", 38);
+                put("k", 39);
+                put("l", 40);
+                put("m", 41);
+                put("n", 42);
+                put("o", 43);
+                put("p", 44);
+                put("q", 45);
+                put("r", 46);
+                put("s", 47);
+                put("t", 48);
+                put("u", 49);
+                put("v", 50);
+                put("w", 51);
+                put("x", 52);
+                put("y", 53);
+                put("z", 54);
 
-			//	put("", 23); // center
-			//	put("", 26); // power
-			//	put("", 27); // camera
-			//	put("", 28); // clear
-			//	put("", 4); // back
-			//	put("", 3); // home
-			//	put("", 1); // menu
-			//	put("", 55); // comma
-			//	put("", 56); // period
-			// see more options below
+                //	put("", 23); // center
+                //	put("", 26); // power
+                //	put("", 27); // camera
+                //	put("", 28); // clear
+                //	put("", 4); // back
+                //	put("", 3); // home
+                //	put("", 1); // menu
+                //	put("", 55); // comma
+                //	put("", 56); // period
+                // see more options below
 
-		}}
-	);
-	
-	private static String getKeyCodeSequenceShellCommand(String keyCodeSequence) {
+            }}
+    );
 
-		List<String> keyCmds = new ArrayList<>();
-		for (char cha : keyCodeSequence.toLowerCase(Locale.US).toCharArray()) {
-			if (keyCodeMap.containsKey(String.valueOf(cha))) {
-				keyCmds.add("input keyevent " + keyCodeMap.get(String.valueOf(cha)));
-			} else {
-				Log.e(logTag, "No expected key code for character '"+cha+"'");
-			}
-		}
-		return TextUtils.join(" && ", keyCmds);
-	}
-	
-	public static void executeKeyCodeSequence(String keyCodeSequence) {
-		ShellCommands.executeCommandAndIgnoreOutput( getKeyCodeSequenceShellCommand(keyCodeSequence) );
-	}
-	
+    private static String getKeyCodeSequenceShellCommand(String keyCodeSequence) {
+
+        List<String> keyCmds = new ArrayList<>();
+        for (char cha : keyCodeSequence.toLowerCase(Locale.US).toCharArray()) {
+            if (keyCodeMap.containsKey(String.valueOf(cha))) {
+                keyCmds.add("input keyevent " + keyCodeMap.get(String.valueOf(cha)));
+            } else {
+                Log.e(logTag, "No expected key code for character '" + cha + "'");
+            }
+        }
+        return TextUtils.join(" && ", keyCmds);
+    }
+
+    public static void executeKeyCodeSequence(String keyCodeSequence) {
+        ShellCommands.executeCommandAndIgnoreOutput(getKeyCodeSequenceShellCommand(keyCodeSequence));
+    }
+
 
 //Enter
 //adb shell input keyevent 23
@@ -191,6 +190,6 @@ public class DeviceKeyEntry {
 //85 -->  "TAG_LAST_KEYCODE"
 //	
 //	
-	
-	
+
+
 }

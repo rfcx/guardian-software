@@ -16,7 +16,8 @@ class SwmApiTDTest {
         val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val messageId = api.transmitData("") // no need to add any message here since we mocked Shell class
+        val messageId =
+            api.transmitData("") // no need to add any message here since we mocked Shell class
 
         // Assert
         assertNotNull(messageId)
@@ -30,7 +31,8 @@ class SwmApiTDTest {
         val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val messageId = api.transmitData("") // no need to add any message here since we mocked Shell class
+        val messageId =
+            api.transmitData("") // no need to add any message here since we mocked Shell class
 
         // Assert
         assertNotNull(messageId)
@@ -44,7 +46,8 @@ class SwmApiTDTest {
         val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val messageId = api.transmitData("") // no need to add any message here since we mocked Shell class
+        val messageId =
+            api.transmitData("") // no need to add any message here since we mocked Shell class
 
         // Assert
         assertNull(messageId)

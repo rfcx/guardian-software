@@ -4,14 +4,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
-import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -25,13 +21,10 @@ public class SwmDispatchCycleService extends Service {
     public static final String SERVICE_NAME = "SwmDispatchCycle";
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchCycleService");
-
+    private final long swmDispatchCycleDuration = 120000;
     private RfcxGuardian app;
-
     private boolean runFlag = false;
     private SwmDispatchCycleSvc swmDispatchCycleSvc;
-
-    private final long swmDispatchCycleDuration = 120000;
 
     @Override
     public IBinder onBind(Intent intent) {

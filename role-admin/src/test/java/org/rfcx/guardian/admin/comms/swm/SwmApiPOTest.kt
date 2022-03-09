@@ -4,7 +4,6 @@ import org.junit.Test
 import org.rfcx.guardian.admin.comms.swm.api.SwmApi
 import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class SwmApiPOTest {
 
