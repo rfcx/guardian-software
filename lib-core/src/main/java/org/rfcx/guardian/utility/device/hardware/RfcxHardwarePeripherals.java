@@ -1,32 +1,25 @@
 package org.rfcx.guardian.utility.device.hardware;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
 
-import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class RfcxHardwarePeripherals {
 
-	public RfcxHardwarePeripherals(Context context, String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxHardwarePeripherals");
-		this.context = context;
-		this.appRole = appRole;
+    private final String logTag;
+    private final Context context;
+    private final String appRole;
+    private final String pcb_sentinel_version = "0.0.0";
+    private final String pcb_sentry_version = "0.0.0";
+    private final String pcb_satellite_version = "0.0.0";
+    private final String modem_satellite_iridium_imei = "0";
+    private final String modem_satellite_swarm_serial = "0";
+    public RfcxHardwarePeripherals(Context context, String appRole) {
+        this.logTag = RfcxLog.generateLogTag(appRole, "RfcxHardwarePeripherals");
+        this.context = context;
+        this.appRole = appRole;
 //		checkSetPreDefinedGuid();
-	}
-
-	private String logTag;
-
-	private Context context;
-	private String appRole;
-
-
-	private String pcb_sentinel_version = "0.0.0";
-	private String pcb_sentry_version = "0.0.0";
-	private String pcb_satellite_version = "0.0.0";
-	private String modem_satellite_iridium_imei = "0";
-	private String modem_satellite_swarm_serial = "0";
+    }
 
 
 //	private void checkSetPreDefinedGuid() {

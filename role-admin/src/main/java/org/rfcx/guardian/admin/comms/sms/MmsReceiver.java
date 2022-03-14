@@ -9,13 +9,13 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class MmsReceiver extends BroadcastReceiver {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MmsReceiver");
-	
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MmsReceiver");
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
     }
-    
+
 }

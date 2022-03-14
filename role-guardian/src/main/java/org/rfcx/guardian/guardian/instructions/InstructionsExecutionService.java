@@ -11,117 +11,121 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class InstructionsExecutionService extends Service {
 
-	public static final String SERVICE_NAME = "InstructionsExecution";
+    public static final String SERVICE_NAME = "InstructionsExecution";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsExecutionService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private InstructionsExecutionSvc instructionsExecutionSvc;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsExecutionService");
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.instructionsExecutionSvc = new InstructionsExecutionSvc();
-		app = (RfcxGuardian) getApplication();
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
+    private RfcxGuardian app;
+
+    private boolean runFlag = false;
+    private InstructionsExecutionSvc instructionsExecutionSvc;
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.instructionsExecutionSvc = new InstructionsExecutionSvc();
+        app = (RfcxGuardian) getApplication();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.instructionsExecutionSvc.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.instructionsExecutionSvc.interrupt();
-		this.instructionsExecutionSvc = null;
-	}
-	
-	
-	private class InstructionsExecutionSvc extends Thread {
-		
-		public InstructionsExecutionSvc() { super("InstructionsExecutionService-InstructionsExecutionSvc"); }
-		
-		@Override
-		public void run() {
-			InstructionsExecutionService instructionsExecutionInstance = InstructionsExecutionService.this;
-			
-			app = (RfcxGuardian) getApplication();
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.instructionsExecutionSvc.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-			try {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.instructionsExecutionSvc.interrupt();
+        this.instructionsExecutionSvc = null;
+    }
 
-				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-				for (String[] queuedRow : app.instructionsDb.dbQueued.getRowsInOrderOfExecution()) {
+    private class InstructionsExecutionSvc extends Thread {
 
-					// only proceed with execution process if there is a valid queued instruction in the local database
-					if (queuedRow[0] != null) {
+        public InstructionsExecutionSvc() {
+            super("InstructionsExecutionService-InstructionsExecutionSvc");
+        }
 
-						long executeAtOrAfter = Long.parseLong(queuedRow[4]);
-						long rightNow = System.currentTimeMillis();
+        @Override
+        public void run() {
+            InstructionsExecutionService instructionsExecutionInstance = InstructionsExecutionService.this;
 
-						if (executeAtOrAfter <= rightNow) {
+            app = (RfcxGuardian) getApplication();
 
-							String instrId = queuedRow[1];
-							long receivedAt = Long.parseLong(queuedRow[0]);
-							String type = queuedRow[2];
-							String command = queuedRow[3];
-							JSONObject metaJson = new JSONObject(queuedRow[5]);
-							String origin = queuedRow[10];
+            try {
 
-							if (app.instructionsDb.dbExecuted.getCountById(instrId) == 0) {
-								app.instructionsDb.dbQueued.incrementSingleRowAttemptsById(instrId);
-								int execAttempts = (Integer.parseInt(queuedRow[6])) + 1;
+                app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-								// Execute the instruction
-								String responseJsonStr = app.instructionsUtils.executeInstruction(type, command, metaJson);
+                for (String[] queuedRow : app.instructionsDb.dbQueued.getRowsInOrderOfExecution()) {
 
-								app.instructionsDb.dbExecuted.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, origin);
-								app.instructionsDb.dbQueued.deleteSingleRowById(instrId);
-								Log.w(logTag, "Instruction "+instrId+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
-							} else {
-								Log.w(logTag, "Instruction "+instrId+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
-								app.instructionsDb.dbQueued.deleteSingleRowById(instrId);
-							}
+                    // only proceed with execution process if there is a valid queued instruction in the local database
+                    if (queuedRow[0] != null) {
 
-							// send execution receipt
-							String[] pingFields = new String[] { "instructions" };
-							if (type.equalsIgnoreCase("set") && command.equalsIgnoreCase("prefs")) { pingFields = new String[] { "instructions", "prefs" }; }
-							app.apiPingUtils.sendPing(false, pingFields, true);
+                        long executeAtOrAfter = Long.parseLong(queuedRow[4]);
+                        long rightNow = System.currentTimeMillis();
 
-						}
-					}
-				}
+                        if (executeAtOrAfter <= rightNow) {
 
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
+                            String instrId = queuedRow[1];
+                            long receivedAt = Long.parseLong(queuedRow[0]);
+                            String type = queuedRow[2];
+                            String command = queuedRow[3];
+                            JSONObject metaJson = new JSONObject(queuedRow[5]);
+                            String origin = queuedRow[10];
 
-			} finally {
-				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				app.rfcxSvc.stopService(SERVICE_NAME, false);
-				instructionsExecutionInstance.runFlag = false;
-			}
+                            if (app.instructionsDb.dbExecuted.getCountById(instrId) == 0) {
+                                app.instructionsDb.dbQueued.incrementSingleRowAttemptsById(instrId);
+                                int execAttempts = (Integer.parseInt(queuedRow[6])) + 1;
 
-		}
-	}
+                                // Execute the instruction
+                                String responseJsonStr = app.instructionsUtils.executeInstruction(type, command, metaJson);
 
-	
+                                app.instructionsDb.dbExecuted.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, origin);
+                                app.instructionsDb.dbQueued.deleteSingleRowById(instrId);
+                                Log.w(logTag, "Instruction " + instrId + " executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson);
+                            } else {
+                                Log.w(logTag, "Instruction " + instrId + " has already been executed. It will be skipped, and removed from the queue, if applicable.");
+                                app.instructionsDb.dbQueued.deleteSingleRowById(instrId);
+                            }
+
+                            // send execution receipt
+                            String[] pingFields = new String[]{"instructions"};
+                            if (type.equalsIgnoreCase("set") && command.equalsIgnoreCase("prefs")) {
+                                pingFields = new String[]{"instructions", "prefs"};
+                            }
+                            app.apiPingUtils.sendPing(false, pingFields, true);
+
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+
+            } finally {
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                app.rfcxSvc.stopService(SERVICE_NAME, false);
+                instructionsExecutionInstance.runFlag = false;
+            }
+
+        }
+    }
+
+
 }

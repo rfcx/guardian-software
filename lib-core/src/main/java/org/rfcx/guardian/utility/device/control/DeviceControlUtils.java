@@ -9,54 +9,52 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceControlUtils {
-	 
-	public DeviceControlUtils(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceControlUtils");
-		this.appRole = appRole;
-	}
 
-	private String logTag;
-	private String appRole = "Guardian";
-	
-	public boolean runOrTriggerDeviceCommand(String cmdFunc, String cmdVal, ContentResolver contentResolver) {
+    private final String logTag;
+    private String appRole = "Guardian";
+    public DeviceControlUtils(String appRole) {
+        this.logTag = RfcxLog.generateLogTag(appRole, "DeviceControlUtils");
+        this.appRole = appRole;
+    }
 
-		// replace this with something that more dynamically determines whether the roles has root access
-		boolean mustUseContentProvider = appRole.equalsIgnoreCase("Guardian");
-			
-		if (mustUseContentProvider) {
-			try {
+    public boolean runOrTriggerDeviceCommand(String cmdFunc, String cmdVal, ContentResolver contentResolver) {
 
-				String[] updaterFunctions = new String[] { "software_update", "software_install" };
-				String targetRole = ArrayUtils.doesStringArrayContainString(updaterFunctions, cmdFunc) ? "updater" : "admin";
+        // replace this with something that more dynamically determines whether the roles has root access
+        boolean mustUseContentProvider = appRole.equalsIgnoreCase("Guardian");
 
-				String function = (cmdVal == null) ? "control" : cmdFunc;
-				String command = (cmdVal == null) ? cmdFunc : cmdVal;
+        if (mustUseContentProvider) {
+            try {
 
-				Log.v(logTag, "Triggering '"+function+"' -> '"+command+"' via "+targetRole+" role content provider.");
+                String[] updaterFunctions = new String[]{"software_update", "software_install"};
+                String targetRole = ArrayUtils.doesStringArrayContainString(updaterFunctions, cmdFunc) ? "updater" : "admin";
 
-				Cursor deviceControlResponse = contentResolver.query(
-							RfcxComm.getUri(targetRole, function, command),
-							RfcxComm.getProjection(targetRole, function),
-							null, null, null);
+                String function = (cmdVal == null) ? "control" : cmdFunc;
+                String command = (cmdVal == null) ? cmdFunc : cmdVal;
 
-				if (deviceControlResponse != null) {
-					Log.v(logTag, deviceControlResponse.toString());
-					deviceControlResponse.close();
-				}
-				return true;
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				return false;
-			}
-		} else {
-			
-			if (cmdFunc.equalsIgnoreCase("reboot")) {
-				// should we trigger the service(s) directly here?
-			}
-		}
-		return false;
-	}
-	
-	
-	
+                Log.v(logTag, "Triggering '" + function + "' -> '" + command + "' via " + targetRole + " role content provider.");
+
+                Cursor deviceControlResponse = contentResolver.query(
+                        RfcxComm.getUri(targetRole, function, command),
+                        RfcxComm.getProjection(targetRole, function),
+                        null, null, null);
+
+                if (deviceControlResponse != null) {
+                    Log.v(logTag, deviceControlResponse.toString());
+                    deviceControlResponse.close();
+                }
+                return true;
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+                return false;
+            }
+        } else {
+
+            if (cmdFunc.equalsIgnoreCase("reboot")) {
+                // should we trigger the service(s) directly here?
+            }
+        }
+        return false;
+    }
+
+
 }

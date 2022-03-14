@@ -32,181 +32,174 @@ import java.util.Map;
 public class AudioClassifyUtils {
 
 
-	public AudioClassifyUtils(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
-		RfcxAudioFileUtils.initializeAudioDirectories(context);
-		RfcxClassifierFileUtils.initializeClassifierDirectories(context);
-	}
+    public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
+    public static final int DETECTION_SEND_FAILURE_SKIP_THRESHOLD = 10;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyUtils");
+    private final RfcxGuardian app;
+    private final Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
+    private final Map<String, String[]> classifierClassifications = new HashMap<String, String[]>();
+    private final Map<String, Integer> classifierSampleRates = new HashMap<String, Integer>();
+    private final Map<String, Float> classifierWindowSizes = new HashMap<String, Float>();
+    private final Map<String, Float> classifierStepSizes = new HashMap<String, Float>();
+    public AudioClassifyUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        RfcxAudioFileUtils.initializeAudioDirectories(context);
+        RfcxClassifierFileUtils.initializeClassifierDirectories(context);
+    }
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyUtils");
+    public static void cleanupClassifyDirectory(Context context, List<String[]> queuedForClassification, long maxAgeInMilliseconds) {
 
-	private final RfcxGuardian app;
+        ArrayList<String> audioQueuedForClassification = new ArrayList<String>();
+        for (String[] queuedRow : queuedForClassification) {
+            audioQueuedForClassification.add(queuedRow[6]);
+        }
 
-	public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
-	public static final int DETECTION_SEND_FAILURE_SKIP_THRESHOLD = 10;
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioClassifyDir(context)}, audioQueuedForClassification, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
-	private final Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
+    public static void cleanupClassifierDirectory(Context context, String[] excludeFilePaths, long maxAgeInMilliseconds) {
 
-	private final Map<String, String[]> classifierClassifications = new HashMap<String, String[]>();
-	private final Map<String, Integer> classifierSampleRates = new HashMap<String, Integer>();
-	private final Map<String, Float> classifierWindowSizes = new HashMap<String, Float>();
-	private final Map<String, Float> classifierStepSizes = new HashMap<String, Float>();
+        ArrayList<String> excludeFilePathList = new ArrayList<String>();
+        for (String filePath : excludeFilePaths) {
+            excludeFilePathList.add(filePath);
+        }
 
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxClassifierFileUtils.classifierActiveDir(context)}, excludeFilePathList, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
-	public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, int sampleRate, float windowSize, float stepSize, String classificationsStr) {
+    public static void cleanupSnippetDirectory(Context context, List<String[]> audioSnippetsQueued, long maxAgeInMilliseconds) {
 
-		String clsfrId = classifierId.toLowerCase(Locale.US);
+        ArrayList<String> audioSnippets = new ArrayList<String>();
+        for (String[] queuedRow : audioSnippetsQueued) {
+            audioSnippets.add(queuedRow[6]);
+        }
 
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioSnippetDir(context)}, audioSnippets, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
-		if (!this.classifiers.containsKey(clsfrId)) {
+    public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, int sampleRate, float windowSize, float stepSize, String classificationsStr) {
 
-			AudioClassifier audioClassifier = new AudioClassifier(tfLiteFilePath, sampleRate, windowSize, stepSize, ArrayUtils.toList(classificationsStr.split(",")));
-			audioClassifier.loadClassifier();
-
-			this.classifierClassifications.put( clsfrId, classificationsStr.split(",") );
-			this.classifierSampleRates.put( clsfrId, sampleRate);
-			this.classifierWindowSizes.put( clsfrId, windowSize);
-			this.classifierStepSizes.put( clsfrId, stepSize);
-			this.classifiers.put( clsfrId, audioClassifier );
-
-		}
-
-		return this.classifiers.containsKey(clsfrId);
-	}
-
-	public AudioClassifier getClassifier(String classifierId) {
-		String clsfrId = classifierId.toLowerCase(Locale.US);
-		if (this.classifiers.containsKey(clsfrId)) {
-			return this.classifiers.get(clsfrId);
-		}
-		return null;
-	}
-
-	private String[] getClassifierClassifications(String classifierId) {
-		String clsfrId = classifierId.toLowerCase(Locale.US);
-		if (this.classifierClassifications.containsKey(clsfrId)) {
-			return this.classifierClassifications.get(clsfrId);
-		}
-		return null;
-	}
-
-	private int getClassifierSampleRate(String classifierId) {
-		String clsfrId = classifierId.toLowerCase(Locale.US);
-		if (this.classifierSampleRates.containsKey(clsfrId)) {
-			return this.classifierSampleRates.get(clsfrId);
-		}
-		return 0;
-	}
-
-	private float getClassifierWindowSize(String classifierId) {
-		String clsfrId = classifierId.toLowerCase(Locale.US);
-		if (this.classifierWindowSizes.containsKey(clsfrId)) {
-			return this.classifierWindowSizes.get(clsfrId);
-		}
-		return 0;
-	}
-
-	private float getClassifierStepSize(String classifierId) {
-		String clsfrId = classifierId.toLowerCase(Locale.US);
-		if (this.classifierStepSizes.containsKey(clsfrId)) {
-			return this.classifierStepSizes.get(clsfrId);
-		}
-		return 0;
-	}
+        String clsfrId = classifierId.toLowerCase(Locale.US);
 
 
-	public JSONObject classifyOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
+        if (!this.classifiers.containsKey(clsfrId)) {
 
-		String[] classifierClassifications = app.audioClassifyUtils.getClassifierClassifications(classifierId);
-		int classifierSampleRate = app.audioClassifyUtils.getClassifierSampleRate(classifierId);
-		float classifierWindowSize = app.audioClassifyUtils.getClassifierWindowSize(classifierId);
-		float classifierStepSize = app.audioClassifyUtils.getClassifierStepSize(classifierId);
+            AudioClassifier audioClassifier = new AudioClassifier(tfLiteFilePath, sampleRate, windowSize, stepSize, ArrayUtils.toList(classificationsStr.split(",")));
+            audioClassifier.loadClassifier();
 
-		JSONObject jsonObj = new JSONObject();
+            this.classifierClassifications.put(clsfrId, classificationsStr.split(","));
+            this.classifierSampleRates.put(clsfrId, sampleRate);
+            this.classifierWindowSizes.put(clsfrId, windowSize);
+            this.classifierStepSizes.put(clsfrId, stepSize);
+            this.classifiers.put(clsfrId, audioClassifier);
 
-		jsonObj.put("classifier_id", classifierId);
-		jsonObj.put("audio_id", audioId);
+        }
 
-		jsonObj.put("sample_rate", classifierSampleRate+"");
-		jsonObj.put("window_size", String.format(Locale.US, "%.4f", classifierWindowSize));
-		jsonObj.put("step_size", String.format(Locale.US, "%.4f", classifierStepSize));
+        return this.classifiers.containsKey(clsfrId);
+    }
 
-		jsonObj.put("starts_at", audioStartsAt+"");
+    public AudioClassifier getClassifier(String classifierId) {
+        String clsfrId = classifierId.toLowerCase(Locale.US);
+        if (this.classifiers.containsKey(clsfrId)) {
+            return this.classifiers.get(clsfrId);
+        }
+        return null;
+    }
 
-		JSONObject jsonDetections = new JSONObject();
-		for (int j = 0; j < classifierClassifications.length; j++) {
-			JSONArray classArr = new JSONArray();
-			for (int i = 0; i < classifierOutput.size(); i++) {
-				classArr.put( String.format(Locale.US, "%.6f", classifierOutput.get(i)[j]) );
-			}
-			jsonDetections.put(classifierClassifications[j], classArr);
-		}
+    private String[] getClassifierClassifications(String classifierId) {
+        String clsfrId = classifierId.toLowerCase(Locale.US);
+        if (this.classifierClassifications.containsKey(clsfrId)) {
+            return this.classifierClassifications.get(clsfrId);
+        }
+        return null;
+    }
 
-		jsonObj.put("detections", jsonDetections);
-		return jsonObj;
-	}
+    private int getClassifierSampleRate(String classifierId) {
+        String clsfrId = classifierId.toLowerCase(Locale.US);
+        if (this.classifierSampleRates.containsKey(clsfrId)) {
+            return this.classifierSampleRates.get(clsfrId);
+        }
+        return 0;
+    }
 
+    private float getClassifierWindowSize(String classifierId) {
+        String clsfrId = classifierId.toLowerCase(Locale.US);
+        if (this.classifierWindowSizes.containsKey(clsfrId)) {
+            return this.classifierWindowSizes.get(clsfrId);
+        }
+        return 0;
+    }
 
-	public void sendClassifyOutputToGuardianRole(String jsonObjStr) {
+    private float getClassifierStepSize(String classifierId) {
+        String clsfrId = classifierId.toLowerCase(Locale.US);
+        if (this.classifierStepSizes.containsKey(clsfrId)) {
+            return this.classifierStepSizes.get(clsfrId);
+        }
+        return 0;
+    }
 
-		Cursor sendDetectionsResponse =
-			app.getResolver().query(
-				RfcxComm.getUri("guardian", "detections_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObjStr))),
-				RfcxComm.getProjection("guardian", "detections_create"),
-				null, null, null);
-		if (sendDetectionsResponse != null) { sendDetectionsResponse.close(); }
-	}
+    public JSONObject classifyOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
 
+        String[] classifierClassifications = app.audioClassifyUtils.getClassifierClassifications(classifierId);
+        int classifierSampleRate = app.audioClassifyUtils.getClassifierSampleRate(classifierId);
+        float classifierWindowSize = app.audioClassifyUtils.getClassifierWindowSize(classifierId);
+        float classifierStepSize = app.audioClassifyUtils.getClassifierStepSize(classifierId);
 
-	public static void cleanupClassifyDirectory(Context context, List<String[]> queuedForClassification, long maxAgeInMilliseconds) {
+        JSONObject jsonObj = new JSONObject();
 
-		ArrayList<String> audioQueuedForClassification = new ArrayList<String>();
-		for (String[] queuedRow : queuedForClassification) {
-			audioQueuedForClassification.add(queuedRow[6]);
-		}
+        jsonObj.put("classifier_id", classifierId);
+        jsonObj.put("audio_id", audioId);
 
-		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioClassifyDir(context) }, audioQueuedForClassification, Math.round(maxAgeInMilliseconds/60000), false, false );
-	}
+        jsonObj.put("sample_rate", classifierSampleRate + "");
+        jsonObj.put("window_size", String.format(Locale.US, "%.4f", classifierWindowSize));
+        jsonObj.put("step_size", String.format(Locale.US, "%.4f", classifierStepSize));
 
-	public static void cleanupClassifierDirectory(Context context, String[] excludeFilePaths, long maxAgeInMilliseconds) {
+        jsonObj.put("starts_at", audioStartsAt + "");
 
-		ArrayList<String> excludeFilePathList = new ArrayList<String>();
-		for (String filePath : excludeFilePaths) {
-			excludeFilePathList.add(filePath);
-		}
+        JSONObject jsonDetections = new JSONObject();
+        for (int j = 0; j < classifierClassifications.length; j++) {
+            JSONArray classArr = new JSONArray();
+            for (int i = 0; i < classifierOutput.size(); i++) {
+                classArr.put(String.format(Locale.US, "%.6f", classifierOutput.get(i)[j]));
+            }
+            jsonDetections.put(classifierClassifications[j], classArr);
+        }
 
-		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxClassifierFileUtils.classifierActiveDir(context) }, excludeFilePathList, Math.round(maxAgeInMilliseconds/60000), false, false );
-	}
+        jsonObj.put("detections", jsonDetections);
+        return jsonObj;
+    }
 
-	public static void cleanupSnippetDirectory(Context context, List<String[]> audioSnippetsQueued, long maxAgeInMilliseconds) {
+    public void sendClassifyOutputToGuardianRole(String jsonObjStr) {
 
-		ArrayList<String> audioSnippets = new ArrayList<String>();
-		for (String[] queuedRow : audioSnippetsQueued) {
-			audioSnippets.add(queuedRow[6]);
-		}
+        Cursor sendDetectionsResponse =
+                app.getResolver().query(
+                        RfcxComm.getUri("guardian", "detections_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObjStr))),
+                        RfcxComm.getProjection("guardian", "detections_create"),
+                        null, null, null);
+        if (sendDetectionsResponse != null) {
+            sendDetectionsResponse.close();
+        }
+    }
 
-		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioSnippetDir(context) }, audioSnippets, Math.round(maxAgeInMilliseconds/60000), false, false );
-	}
+    public void moveClassifierFromRawToDirectory(Context context) {
+        InputStream is = context.getResources().openRawResource(R.raw.c1617208867756);
+        String path = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong("1617208867756"));
+        Log.d(logTag, path);
+        if (new File(path).exists()) {
+            return;
+        }
 
-	public void moveClassifierFromRawToDirectory(Context context) {
-		InputStream is = context.getResources().openRawResource(R.raw.c1617208867756);
-		String path = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong("1617208867756"));
-		Log.d(logTag, path);
-		if (new File(path).exists()) {
-			return;
-		}
-
-		try {
-			OutputStream outStream = new FileOutputStream(path);
-			byte[] buffer = new byte[8 * 1024];
-			int bytesRead;
-			while ((bytesRead = is.read(buffer)) != -1) {
-				outStream.write(buffer, 0, bytesRead);
-			}
-			Log.d(logTag, "Done moving classifier");
-		} catch (IOException exception) {
-			RfcxLog.logExc(exception.getMessage(), exception);
-		}
-	}
+        try {
+            OutputStream outStream = new FileOutputStream(path);
+            byte[] buffer = new byte[8 * 1024];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                outStream.write(buffer, 0, bytesRead);
+            }
+            Log.d(logTag, "Done moving classifier");
+        } catch (IOException exception) {
+            RfcxLog.logExc(exception.getMessage(), exception);
+        }
+    }
 
 }

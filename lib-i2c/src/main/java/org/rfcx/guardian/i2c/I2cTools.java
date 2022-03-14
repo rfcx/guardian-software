@@ -2,6 +2,10 @@ package org.rfcx.guardian.i2c;
 
 public class I2cTools {
 
+    static {
+        System.loadLibrary("i2c");
+    }
+
     public int i2cInit(int number) {
         return i2cOpenAdapter(number);
     }
@@ -24,7 +28,7 @@ public class I2cTools {
             }
             throw new Exception("Set Slave Failed");
         }
-        return (returnDecimal) ? value+"" : String.format("0x%x", value);
+        return (returnDecimal) ? value + "" : String.format("0x%x", value);
     }
 
     public String i2cGet(int i2cAdapter, String mainAddress, String dataAddress, boolean returnDecimal, boolean isWordData) throws Exception {
@@ -50,7 +54,7 @@ public class I2cTools {
     private int hexStringToInt(String hex) {
         return Integer.decode(hex);
     }
-    
+
     private native int i2cOpenAdapter(int adapterNumber);
 
     private native boolean i2cSetSlave(int i2cAdapter, int address);
@@ -64,8 +68,4 @@ public class I2cTools {
     private native int i2cReadWord(int i2cAdapter, byte address);
 
     private native void i2cClose(int i2cAdapter);
-
-    static {
-        System.loadLibrary("i2c");
-    }
 }

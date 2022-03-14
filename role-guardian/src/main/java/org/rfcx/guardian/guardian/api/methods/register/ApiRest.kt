@@ -7,7 +7,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 class ApiRest {
     companion object {
         fun baseUrl(context: Context): String {
-            val prefs = (context.getApplicationContext() as RfcxGuardian).rfcxPrefs
+            val prefs = (context.applicationContext as RfcxGuardian).rfcxPrefs
             val protocol = prefs.getPrefAsString(RfcxPrefs.Pref.API_REST_PROTOCOL)
             val host = prefs.getPrefAsString(RfcxPrefs.Pref.API_REST_HOST)
             if (protocol != null && host != null) {
