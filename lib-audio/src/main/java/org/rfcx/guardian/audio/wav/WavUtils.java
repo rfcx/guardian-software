@@ -24,6 +24,7 @@ public class WavUtils {
             // Load Wav File
             TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, false);
             UniversalAudioInputStream audioInputStream = new UniversalAudioInputStream(new FileInputStream(inputFilePath), audioFormat);
+            audioInputStream.skip(44);
             AudioDispatcher dispatcher = new AudioDispatcher(audioInputStream, READ_BUFFER, 0);
 
             // Write to Wav File
