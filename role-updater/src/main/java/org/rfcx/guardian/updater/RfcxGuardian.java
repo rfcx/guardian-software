@@ -1,45 +1,39 @@
 package org.rfcx.guardian.updater;
 
+import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+
 import org.rfcx.guardian.updater.api.ApiUpdateRequestUtils;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
-import org.rfcx.guardian.updater.service.ApiUpdateRequestTrigger;
 import org.rfcx.guardian.updater.service.ApiUpdateRequestService;
+import org.rfcx.guardian.updater.service.ApiUpdateRequestTrigger;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
 import org.rfcx.guardian.updater.service.RebootTriggerService;
 import org.rfcx.guardian.updater.status.UpdaterStatus;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
+import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.install.InstallUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
-import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.util.Log;
-
 public class RfcxGuardian extends Application {
 
-    public String version;
-
     public static final String APP_ROLE = "Updater";
-
     private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
-
+    private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
+    public String version;
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;
     public UpdaterStatus rfcxStatus = null;
-
-    private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
-
     public ApiUpdateRequestUtils apiUpdateRequestUtils = null;
     public InstallUtils installUtils = null;
 
@@ -81,9 +75,11 @@ public class RfcxGuardian extends Application {
         this.unregisterReceiver(connectivityReceiver);
     }
 
-    public void appResume() { }
+    public void appResume() {
+    }
 
-    public void appPause() { }
+    public void appPause() {
+    }
 
     public ContentResolver getResolver() {
         return this.getApplicationContext().getContentResolver();
@@ -93,16 +89,16 @@ public class RfcxGuardian extends Application {
 
         if (!this.rfcxSvc.hasRun("OnLaunchServiceSequence")) {
 
-            String[] runOnceOnlyOnLaunch = new String[] {
+            String[] runOnceOnlyOnLaunch = new String[]{
                     ApiUpdateRequestTrigger.SERVICE_NAME
-                            +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
-                            +"|"+ ( ( 2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * ( 60 * 1000 ) ) // repeats hourly
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
+                            + "|" + ((2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * (60 * 1000)) // repeats hourly
             };
 
-            String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
+            String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxSvc.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxSvc.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
 
     }
@@ -112,11 +108,11 @@ public class RfcxGuardian extends Application {
     }
 
     private void setServiceHandlers() {
-        this.rfcxSvc.addService( ApiUpdateRequestTrigger.SERVICE_NAME, ApiUpdateRequestTrigger.class);
-        this.rfcxSvc.addService( ApiUpdateRequestService.SERVICE_NAME, ApiUpdateRequestService.class);
-        this.rfcxSvc.addService( DownloadFileService.SERVICE_NAME, DownloadFileService.class);
-        this.rfcxSvc.addService( InstallAppService.SERVICE_NAME, InstallAppService.class);
-        this.rfcxSvc.addService( RebootTriggerService.SERVICE_NAME, RebootTriggerService.class);
+        this.rfcxSvc.addService(ApiUpdateRequestTrigger.SERVICE_NAME, ApiUpdateRequestTrigger.class);
+        this.rfcxSvc.addService(ApiUpdateRequestService.SERVICE_NAME, ApiUpdateRequestService.class);
+        this.rfcxSvc.addService(DownloadFileService.SERVICE_NAME, DownloadFileService.class);
+        this.rfcxSvc.addService(InstallAppService.SERVICE_NAME, InstallAppService.class);
+        this.rfcxSvc.addService(RebootTriggerService.SERVICE_NAME, RebootTriggerService.class);
     }
 
     public void onPrefReSync(String prefKey) {

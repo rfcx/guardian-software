@@ -25,20 +25,17 @@ import java.util.Arrays;
 
 public class FileSocketUtils {
 
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "FileSocketUtils");
+    private final RfcxGuardian app;
+    public SocketUtils socketUtils;
+    private boolean isReading = false;
+    private JSONObject pingObj;
     public FileSocketUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
         this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.FILE);
         this.pingObj = new JSONObject();
     }
-
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "FileSocketUtils");
-
-    private final RfcxGuardian app;
-    public SocketUtils socketUtils;
-
-    private boolean isReading = false;
-    private JSONObject pingObj;
 
     public boolean sendDownloadResult(String result) {
         return this.socketUtils.sendJson(result, areSocketInteractionsAllowed());
@@ -130,10 +127,10 @@ public class FileSocketUtils {
                             }
 
                             if (derimeter != -1) {
-                                Log.d(logTag, "Writing: " + fileName.toString());
+                                Log.d(logTag, "Writing: " + fileName);
                                 InputStream fullInput = new ByteArrayInputStream(Arrays.copyOfRange(fullRead, count + 1, fullRead.length));
                                 boolean result = writeStreamToDisk(fullInput, fileName.toString());
-                                Log.d(logTag, "Writing: " + fileName.toString() + " " + result);
+                                Log.d(logTag, "Writing: " + fileName + " " + result);
                                 isReading = false;
                                 if (result) {
                                     String role = fileName.toString().split("-")[0];

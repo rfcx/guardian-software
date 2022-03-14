@@ -2,9 +2,7 @@ package org.rfcx.guardian.guardian.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
-import org.rfcx.guardian.guardian.RfcxGuardian
 import java.io.File
-import java.io.FileOutputStream
 
 object GuardianUtils {
 

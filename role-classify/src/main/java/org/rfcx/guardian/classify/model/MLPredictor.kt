@@ -1,7 +1,5 @@
 package org.rfcx.guardian.classify.model
 
-import android.content.Context
-import android.os.Environment
 import android.util.Log
 import org.rfcx.guardian.classify.RfcxGuardian
 import org.rfcx.guardian.classify.model.interfaces.Predictor
@@ -9,7 +7,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.tensorflow.lite.Interpreter
 import java.io.File
 
-class MLPredictor(private val tfLiteFilePath: String, private val outputSize: Int): Predictor {
+class MLPredictor(private val tfLiteFilePath: String, private val outputSize: Int) : Predictor {
 
     private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MLPredictor")
 
@@ -22,7 +20,7 @@ class MLPredictor(private val tfLiteFilePath: String, private val outputSize: In
         if (interpreter != null) return
 
         try {
-            interpreter = Interpreter( File( tfLiteFilePath ) )
+            interpreter = Interpreter(File(tfLiteFilePath))
         } catch (e: Exception) {
             Log.e(logTag, e.message)
         }
