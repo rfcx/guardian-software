@@ -7,6 +7,8 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
+import java.util.Calendar;
+
 public class ScheduledRebootService extends IntentService {
 
     public static final String SERVICE_NAME = "ScheduledReboot";
@@ -23,8 +25,9 @@ public class ScheduledRebootService extends IntentService {
         sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));
 
         RfcxGuardian app = (RfcxGuardian) getApplication();
-
-        app.rfcxSvc.triggerService(RebootTriggerService.SERVICE_NAME, true);
+        if (app.initializedDateTime.get(Calendar.YEAR) >= 2022) {
+            app.rfcxSvc.triggerService(RebootTriggerService.SERVICE_NAME, true);
+        }
 
     }
 

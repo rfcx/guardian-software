@@ -89,6 +89,8 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
+import java.util.Calendar;
+
 public class RfcxGuardian extends Application {
 
     public static final String APP_ROLE = "Admin";
@@ -96,7 +98,6 @@ public class RfcxGuardian extends Application {
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
     private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
-    private final ComponentName devAdminReceiver = null;
     public String version;
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
@@ -148,6 +149,9 @@ public class RfcxGuardian extends Application {
                     CompanionSocketService.SERVICE_NAME,
             };
 
+    // temp assign
+    public Calendar initializedDateTime;
+
     @Override
     public void onCreate() {
 
@@ -192,12 +196,7 @@ public class RfcxGuardian extends Application {
 
         DeviceSystemProperties.setVal("net.hostname", "rfcx-" + this.rfcxGuardianIdentity.getGuid());
 
-//		this.devAdminReceiver = new ComponentName(this, this.devAdminReceiver.cla);
-//		DevicePolicyManager mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-//		if (mDPM.isAdminActive(this.devAdminReceiver)) {
-//			mDPM.lockNow();
-//		}
-
+        initializedDateTime = Calendar.getInstance();
     }
 
     public void onTerminate() {
