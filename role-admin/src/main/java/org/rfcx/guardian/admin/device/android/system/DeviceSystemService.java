@@ -630,11 +630,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
             while (deviceSystemService.runFlag) {
 
-                if (TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
+                if (!TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
                     continue;
                 }
-
-                Log.d(logTag, "Saving device system diagnostic...");
 
                 try {
 
