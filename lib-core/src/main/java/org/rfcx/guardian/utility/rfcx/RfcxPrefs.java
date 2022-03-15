@@ -68,6 +68,7 @@ public class RfcxPrefs {
                 put(Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
                 put(Pref.API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS, "00:01-10:00,14:00-23:59");
                 put(Pref.API_SATELLITE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+                put(Pref.ADMIN_DIAGNOSTIC_OFF_HOURS, "23:55-23:56,23:57-23:59");
 
                 put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
                 put(Pref.AUDIO_SAMPLING_RATIO, "1:2");
@@ -567,6 +568,7 @@ public class RfcxPrefs {
         public static final String API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS = "api_checkin_publish_schedule_off_hours";
         public static final String API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS = "api_checkin_requeue_schedule_off_hours";
         public static final String API_SATELLITE_OFF_HOURS = "api_satellite_off_hours";
+        public static final String ADMIN_DIAGNOSTIC_OFF_HOURS = "admin_diagnostic_off_hours";
 
         public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
         public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";

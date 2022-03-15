@@ -25,6 +25,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -629,36 +630,38 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
             while (deviceSystemService.runFlag) {
 
-                try {
+                if (TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE))) {
+                    try {
 
-                    confirmOrSetCaptureParameters();
+                        confirmOrSetCaptureParameters();
 
-                    if (innerLoopDelayRemainderInMilliseconds > 0) {
-                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+                        if (innerLoopDelayRemainderInMilliseconds > 0) {
+                            Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+                        }
+
+                        // Sample CPU Stats
+                        app.deviceCPU.update();
+
+                        // Inner Loop Behavior
+                        innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
+
+                        if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
+                            app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+                            // Outer Loop Behavior
+                            outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
+
+                        } else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
+
+                            // Trigger Status Cache Update in advance
+                            app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
+                        }
+
+                    } catch (InterruptedException e) {
+                        deviceSystemService.runFlag = false;
+                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                        RfcxLog.logExc(logTag, e);
                     }
-
-                    // Sample CPU Stats
-                    app.deviceCPU.update();
-
-                    // Inner Loop Behavior
-                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
-
-                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
-                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                        // Outer Loop Behavior
-                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
-
-                    } else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
-
-                        // Trigger Status Cache Update in advance
-                        app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
-                    }
-
-                } catch (InterruptedException e) {
-                    deviceSystemService.runFlag = false;
-                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                    RfcxLog.logExc(logTag, e);
                 }
             }
             Log.v(logTag, "Stopping service: " + logTag);

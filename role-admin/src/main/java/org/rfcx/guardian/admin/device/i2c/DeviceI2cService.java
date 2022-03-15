@@ -8,6 +8,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -180,30 +181,32 @@ public class DeviceI2cService extends Service {
 
             while (deviceI2cService.runFlag) {
 
-                try {
+                if (TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE))) {
+                    try {
 
-                    confirmOrSetCaptureParameters();
+                        confirmOrSetCaptureParameters();
 
-                    if (innerLoopDelayRemainderInMilliseconds > 0) {
-                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+                        if (innerLoopDelayRemainderInMilliseconds > 0) {
+                            Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+                        }
+
+                        // Inner Loop Behavior
+                        innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
+
+                        if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
+
+                            app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+                            // Outer Loop Behavior
+                            outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
+
+                        }
+
+                    } catch (InterruptedException e) {
+                        deviceI2cService.runFlag = false;
+                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                        RfcxLog.logExc(logTag, e);
                     }
-
-                    // Inner Loop Behavior
-                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
-
-                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
-
-                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                        // Outer Loop Behavior
-                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
-
-                    }
-
-                } catch (InterruptedException e) {
-                    deviceI2cService.runFlag = false;
-                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                    RfcxLog.logExc(logTag, e);
                 }
 
             }
