@@ -185,12 +185,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receiver.TimeChangedReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.TIME_SET" />
-            </intent-filter>
-        </receiver>
-
         <!-- Content Providers -->
         <provider
                 android:name=".contentprovider.AdminContentProvider"
