@@ -630,38 +630,42 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
             while (deviceSystemService.runFlag) {
 
-                if (TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE))) {
-                    try {
+                if (TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
+                    continue;
+                }
 
-                        confirmOrSetCaptureParameters();
+                Log.d(logTag, "Saving device system diagnostic...");
 
-                        if (innerLoopDelayRemainderInMilliseconds > 0) {
-                            Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-                        }
+                try {
 
-                        // Sample CPU Stats
-                        app.deviceCPU.update();
+                    confirmOrSetCaptureParameters();
 
-                        // Inner Loop Behavior
-                        innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
-
-                        if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
-                            app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
-                            // Outer Loop Behavior
-                            outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
-
-                        } else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
-
-                            // Trigger Status Cache Update in advance
-                            app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
-                        }
-
-                    } catch (InterruptedException e) {
-                        deviceSystemService.runFlag = false;
-                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                        RfcxLog.logExc(logTag, e);
+                    if (innerLoopDelayRemainderInMilliseconds > 0) {
+                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
                     }
+
+                    // Sample CPU Stats
+                    app.deviceCPU.update();
+
+                    // Inner Loop Behavior
+                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
+
+                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
+                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+                        // Outer Loop Behavior
+                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
+
+                    } else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
+
+                        // Trigger Status Cache Update in advance
+                        app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
+                    }
+
+                } catch (InterruptedException e) {
+                    deviceSystemService.runFlag = false;
+                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                    RfcxLog.logExc(logTag, e);
                 }
             }
             Log.v(logTag, "Stopping service: " + logTag);
