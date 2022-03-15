@@ -199,7 +199,7 @@ public class RfcxGuardian extends Application {
 //			mDPM.lockNow();
 //		}
 
-        runRemoveUnUsedStuff();
+        clearLogFolders();
     }
 
     public void onTerminate() {
@@ -455,7 +455,7 @@ public class RfcxGuardian extends Application {
 
     }
 
-    private void runRemoveUnUsedStuff() {
+    private void clearLogFolders() {
         ShellCommands.executeCommandAsRoot(
                 new String[]{
                         "rm -f /data/log_temp/boot/*",
