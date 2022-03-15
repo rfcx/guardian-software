@@ -57,6 +57,7 @@ public class RfcxPrefs {
 
                 put(Pref.API_SATELLITE_PROTOCOL, "off");
 
+                put(Pref.ENABLE_REBOOT_FORCED_DAILY, "false");
                 put(Pref.REBOOT_FORCED_DAILY_AT, "23:55:00");
 
                 put(Pref.AUDIO_CYCLE_DURATION, "90");
@@ -147,7 +148,6 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
                 put(Pref.ENABLE_FILE_SOCKET, "false");
 
-                put(Pref.ENABLE_SCHEDULE_REBOOT, "false");
             }}
     );
     private final String logTag;
@@ -557,6 +557,8 @@ public class RfcxPrefs {
 
         public static final String API_PROTOCOL_ESCALATION_ORDER = "api_protocol_escalation_order";
 
+
+        public static final String ENABLE_REBOOT_FORCED_DAILY = "enable_reboot_forced_daily";
         public static final String REBOOT_FORCED_DAILY_AT = "reboot_forced_daily_at";
 
         public static final String AUDIO_CYCLE_DURATION = "audio_cycle_duration";
@@ -649,8 +651,6 @@ public class RfcxPrefs {
         public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
 
         public static final String ENABLE_FILE_SOCKET = "enable_file_socket";
-
-        public static final String ENABLE_SCHEDULE_REBOOT = "enable_schedule_reboot";
     }
 
 

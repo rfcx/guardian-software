@@ -26,7 +26,7 @@ public class ScheduledRebootService extends IntentService {
 
         RfcxGuardian app = (RfcxGuardian) getApplication();
 
-        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SCHEDULE_REBOOT)) {
+        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_REBOOT_FORCED_DAILY)) {
             app.rfcxSvc.triggerService(RebootTriggerService.SERVICE_NAME, true);
         } else {
             Log.v(logTag, "Reboot service not triggered due to disable schedule reboot preference");

@@ -256,6 +256,15 @@
             android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
             android:title="audio_classify_schedule_off_hours" />
 
+    <ListPreference
+            android:defaultValue="@string/prefs_value_default_enable_reboot_forced_daily"
+            android:dialogTitle="enable_reboot_forced_daily"
+            android:entries="@array/prefs_values_true_or_false"
+            android:entryValues="@array/prefs_values_true_or_false"
+            android:key="enable_reboot_forced_daily"
+            android:summary="string - true/false"
+            android:title="enable_reboot_forced_daily" />
+
     <EditTextPreference
             android:defaultValue="@string/prefs_value_default_reboot_forced_daily_at"
             android:enabled="true"
@@ -696,15 +705,6 @@
             android:key="enable_file_socket"
             android:summary="string - true/false"
             android:title="enable_file_socket" />
-
-    <ListPreference
-            android:defaultValue="@string/prefs_value_default_enable_schedule_reboot"
-            android:dialogTitle="enable_schedule_reboot"
-            android:entries="@array/prefs_values_true_or_false"
-            android:entryValues="@array/prefs_values_true_or_false"
-            android:key="enable_schedule_reboot"
-            android:summary="string - true/false"
-            android:title="enable_schedule_reboot" />
 
 
 </PreferenceScreen>

@@ -30,6 +30,7 @@
 
     <string name="prefs_value_api_protocol_escalation_order">mqtt,rest</string>
 
+    <string name="prefs_value_default_enable_reboot_forced_daily">false</string>
     <string name="prefs_value_default_reboot_forced_daily_at">23:55:00</string>
 
     <string name="prefs_value_default_enable_cutoffs_schedule_off_hours">true</string>
@@ -124,7 +125,6 @@
 
     <string name="prefs_value_default_enable_file_socket">true</string>
 
-    <string name="prefs_value_default_enable_schedule_reboot">false</string>
 
     <string-array name="prefs_values_api_satellite_protocol">
         <item>off</item>
