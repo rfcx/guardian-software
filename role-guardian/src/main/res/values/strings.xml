@@ -124,6 +124,8 @@
 
     <string name="prefs_value_default_enable_file_socket">true</string>
 
+    <string name="prefs_value_default_enable_schedule_reboot">false</string>
+
     <string-array name="prefs_values_api_satellite_protocol">
         <item>off</item>
         <item>swm</item>

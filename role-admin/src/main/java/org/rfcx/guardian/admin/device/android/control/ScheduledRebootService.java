@@ -2,9 +2,11 @@ package org.rfcx.guardian.admin.device.android.control;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class ScheduledRebootService extends IntentService {
@@ -24,7 +26,11 @@ public class ScheduledRebootService extends IntentService {
 
         RfcxGuardian app = (RfcxGuardian) getApplication();
 
-        app.rfcxSvc.triggerService(RebootTriggerService.SERVICE_NAME, true);
+        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SCHEDULE_REBOOT)) {
+            app.rfcxSvc.triggerService(RebootTriggerService.SERVICE_NAME, true);
+        } else {
+            Log.v(logTag, "Reboot service not triggered due to disable schedule reboot preference");
+        }
 
     }
 

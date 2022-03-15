@@ -145,8 +145,9 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS, "[ssid]:[password]");
                 put(Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS, "[ssid]:rfcxrfcx");
                 put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
-
                 put(Pref.ENABLE_FILE_SOCKET, "false");
+
+                put(Pref.ENABLE_SCHEDULE_REBOOT, "false");
             }}
     );
     private final String logTag;
@@ -648,6 +649,8 @@ public class RfcxPrefs {
         public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
 
         public static final String ENABLE_FILE_SOCKET = "enable_file_socket";
+
+        public static final String ENABLE_SCHEDULE_REBOOT = "enable_schedule_reboot";
     }
 
 
