@@ -81,6 +81,7 @@ import org.rfcx.guardian.utility.device.telephony.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.telephony.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.telephony.DeviceNetworkStats;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.network.SSHServerUtils;
 import org.rfcx.guardian.utility.network.SpeedTest;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
@@ -198,6 +199,7 @@ public class RfcxGuardian extends Application {
 //			mDPM.lockNow();
 //		}
 
+        runRemoveUnUsedStuff();
     }
 
     public void onTerminate() {
@@ -451,6 +453,14 @@ public class RfcxGuardian extends Application {
 
         }
 
+    }
+
+    private void runRemoveUnUsedStuff() {
+        ShellCommands.executeCommandAsRoot(
+                new String[]{
+                        "rm -f /data/log_temp/boot/*",
+                        "rm -f /data/data/org.rfcx.guardian.guardian/files/audio/encode/*"
+                });
     }
 
 }
