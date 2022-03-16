@@ -23,7 +23,7 @@ public class AudioDetectionJsonUtils {
 
     }
 
-    public JSONObject retrieveAndBundleDetectionJson(JSONObject insertDetectionsInto, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
+    public JSONObject retrieveAndBundleDetectionJson(JSONObject insertDetectionsInto, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt, boolean forSatellite) throws JSONException {
 
         if (insertDetectionsInto == null) {
             insertDetectionsInto = new JSONObject();
@@ -31,9 +31,13 @@ public class AudioDetectionJsonUtils {
 
         JSONArray dtcnIds = new JSONArray();
         ArrayList<String> dtcnList = new ArrayList<>();
-
-        List<String[]> dtcnRows = (overrideFilterByLastAccessedAt) ? app.audioDetectionDb.dbFiltered.getLatestRowsWithLimit(maxDtcnRowsToBundle) :
-                app.audioDetectionDb.dbFiltered.getLatestRowsNotAccessedSinceWithLimit((System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxDtcnRowsToBundle);
+        List<String[]> dtcnRows;
+        if (forSatellite) {
+            dtcnRows = app.audioDetectionDb.dbFiltered.getLatestRowsNotAccessedWithLimit(maxDtcnRowsToBundle);
+        } else {
+            dtcnRows = (overrideFilterByLastAccessedAt) ? app.audioDetectionDb.dbFiltered.getLatestRowsWithLimit(maxDtcnRowsToBundle) :
+                    app.audioDetectionDb.dbFiltered.getLatestRowsNotAccessedSinceWithLimit((System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxDtcnRowsToBundle);
+        }
 
         for (String[] dtcnRow : dtcnRows) {
 
