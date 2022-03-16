@@ -46,7 +46,11 @@ public class AudioDetectionJsonUtils {
             dtcnList.add(TextUtils.join("*", new String[]{dtcnRow[1], dtcnRow[3] + "-v" + dtcnRow[4], dtcnRow[7], "" + Math.round(Double.parseDouble(dtcnRow[8]) * 1000), dtcnRow[10]}));
 
             // mark this row as accessed in the database
-            app.audioDetectionDb.dbFiltered.updateLastAccessedAtByCreatedAt(dtcnRow[0]);
+            if (forSatellite) {
+                app.audioDetectionDb.dbFiltered.deleteSingleRow(dtcnRow[1], dtcnRow[6]);
+            } else {
+                app.audioDetectionDb.dbFiltered.updateLastAccessedAtByCreatedAt(dtcnRow[0]);
+            }
 
             // if the bundle already contains max number of snapshots, stop here
             if (dtcnIds.length() >= maxDtcnRowsToBundle) {
