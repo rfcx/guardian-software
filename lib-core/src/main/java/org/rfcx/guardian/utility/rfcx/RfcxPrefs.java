@@ -57,6 +57,7 @@ public class RfcxPrefs {
 
                 put(Pref.API_SATELLITE_PROTOCOL, "off");
 
+                put(Pref.ENABLE_REBOOT_FORCED_DAILY, "false");
                 put(Pref.REBOOT_FORCED_DAILY_AT, "23:55:00");
 
                 put(Pref.AUDIO_CYCLE_DURATION, "90");
@@ -145,8 +146,8 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS, "[ssid]:[password]");
                 put(Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS, "[ssid]:rfcxrfcx");
                 put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
-
                 put(Pref.ENABLE_FILE_SOCKET, "false");
+
             }}
     );
     private final String logTag;
@@ -556,6 +557,8 @@ public class RfcxPrefs {
 
         public static final String API_PROTOCOL_ESCALATION_ORDER = "api_protocol_escalation_order";
 
+
+        public static final String ENABLE_REBOOT_FORCED_DAILY = "enable_reboot_forced_daily";
         public static final String REBOOT_FORCED_DAILY_AT = "reboot_forced_daily_at";
 
         public static final String AUDIO_CYCLE_DURATION = "audio_cycle_duration";
