@@ -18,7 +18,7 @@ def start():
     i2c = i2c[0:6]
     # print("i2c",i2c,type(i2c))
 
-    # ECHO Input Voltage 
+    # ECHO Input Voltage -
     input_v_cmd = 'i2cget -y 1 0x68 0x3b w'
     input_v = device.shell(input_v_cmd)
     input_v = input_v[0:6]
