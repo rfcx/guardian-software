@@ -630,7 +630,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
             while (deviceSystemService.runFlag) {
 
-                if (!TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
+                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
                     continue;
                 }
 

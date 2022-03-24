@@ -15,14 +15,16 @@ object TimeUtils {
         return timeList
     }
 
-    fun isCaptureAllowedAtThisTimeOfDay(timeRange: String): Boolean {
+    fun isDateOutsideTimeRange(date: Date, timeRange: String): Boolean {
         val timeList = timeRangeToList(timeRange)
         timeList.forEach { time ->
             val offHours = time.split("-")
-            if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {
+            if (DateTimeUtils.isTimeStampWithinTimeRange(date, offHours[0], offHours[1])) {
                 return false
             }
         }
         return true
     }
+
+    fun isNowOutsideTimeRange(timeRange: String): Boolean = isDateOutsideTimeRange(Date(), timeRange)
 }

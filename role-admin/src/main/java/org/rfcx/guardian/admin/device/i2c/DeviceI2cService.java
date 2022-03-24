@@ -181,7 +181,7 @@ public class DeviceI2cService extends Service {
 
             while (deviceI2cService.runFlag) {
 
-                if (!TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
+                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
                     continue;
                 }
 

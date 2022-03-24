@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class AudioCaptureUtils {
 
@@ -224,7 +223,7 @@ public class AudioCaptureUtils {
     }
 
     private boolean isCaptureAllowedAtThisTimeOfDay() {
-        return TimeUtils.INSTANCE.isCaptureAllowedAtThisTimeOfDay(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS));
+        return TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS));
     }
 
     private boolean limitBasedOnTimeOfDay() {
