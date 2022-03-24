@@ -6,6 +6,7 @@ import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class TimeUtilsTest {
 
@@ -13,10 +14,13 @@ class TimeUtilsTest {
     fun currentTimeWithinOffHours() {
         // Arrange
         val timeRange = "01:00-01:59"
-        val date = GregorianCalendar(2022, Calendar.FEBRUARY, 11, 1, 25, 34).time
+        val date = GregorianCalendar()
+        date.set(Calendar.HOUR_OF_DAY, 1)
+        date.set(Calendar.MINUTE, 25)
+        date.set(Calendar.SECOND, 0)
 
         // Act
-        val result = TimeUtils.isDateOutsideTimeRange(date, timeRange)
+        val result = TimeUtils.isDateOutsideTimeRange(date.time, timeRange)
 
         // Assert
         assertFalse(result)
@@ -25,14 +29,17 @@ class TimeUtilsTest {
     @Test
     fun currentTimeNotWithinOffHours() {
         // Arrange
-        val timeRange = "00:00-00:01"
-        val expectOutput = true
+        val timeRange = "01:00-01:59"
+        val date = GregorianCalendar()
+        date.set(Calendar.HOUR_OF_DAY, 2)
+        date.set(Calendar.MINUTE, 25)
+        date.set(Calendar.SECOND, 0)
 
         // Act
-        val result = TimeUtils.isNowOutsideTimeRange(timeRange)
+        val result = TimeUtils.isDateOutsideTimeRange(date.time, timeRange)
 
         // Assert
-        assertEquals(expectOutput, result)
+        assertTrue(result)
     }
 
     @Test
