@@ -2,22 +2,24 @@ package misc
 
 import org.junit.Test
 import org.rfcx.guardian.utility.misc.TimeUtils
+import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class TimeUtilsTest {
 
     @Test
     fun currentTimeWithinOffHours() {
         // Arrange
-        val timeRange = "00:00-23:59"
-        val expectOutput = false
+        val timeRange = "01:00-01:59"
+        val date = GregorianCalendar(2022, Calendar.FEBRUARY, 11, 1, 25, 34).time
 
         // Act
-        val result = TimeUtils.isCaptureAllowedAtThisTimeOfDay(timeRange)
+        val result = TimeUtils.isDateOutsideTimeRange(date, timeRange)
 
         // Assert
-        assertEquals(expectOutput, result)
+        assertFalse(result)
     }
 
     @Test
@@ -27,7 +29,7 @@ class TimeUtilsTest {
         val expectOutput = true
 
         // Act
-        val result = TimeUtils.isCaptureAllowedAtThisTimeOfDay(timeRange)
+        val result = TimeUtils.isNowOutsideTimeRange(timeRange)
 
         // Assert
         assertEquals(expectOutput, result)
