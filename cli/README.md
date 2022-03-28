@@ -15,6 +15,8 @@ Connect to a Guardian over wifi and then run one of these commands:
 - `i2c system-info` Get the  system information (Voltage)
 - `i2c bat-info` Get the battery information (Voltage, Current, battery percentage)
 
+- `ui` Show ui .exe file 
+
 There are 2 ways of running commands (with or without Docker).
 
 ## Running commands using Docker (recommended)
