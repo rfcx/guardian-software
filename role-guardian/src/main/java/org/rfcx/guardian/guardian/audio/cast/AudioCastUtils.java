@@ -79,6 +79,8 @@ public class AudioCastUtils {
                 if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
                     RfcxLog.logExc(logTag, e);
                 }
+            } catch (NullPointerException e) {
+                RfcxLog.logExc(logTag, e);
             }
             Looper.loop();
         });

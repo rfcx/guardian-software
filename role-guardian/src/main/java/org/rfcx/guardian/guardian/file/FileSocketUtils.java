@@ -169,7 +169,7 @@ public class FileSocketUtils {
                 if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
                     RfcxLog.logExc(logTag, e);
                 }
-            } catch (JSONException e) {
+            } catch (JSONException | NullPointerException e) {
                 RfcxLog.logExc(logTag, e);
             }
             Looper.loop();
