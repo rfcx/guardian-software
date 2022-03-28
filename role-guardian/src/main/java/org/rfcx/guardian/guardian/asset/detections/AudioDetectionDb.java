@@ -149,6 +149,10 @@ public class AudioDetectionDb {
             return this.dbUtils.getRowsWithNumericColumnHigherOrLowerThan(TABLE, ALL_COLUMNS, C_LAST_ACCESSED_AT, notAccessedSince, true, C_CREATED_AT, maxRows);
         }
 
+        public List<String[]> getLatestRowsNotAccessedWithLimit(int maxRows) {
+            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, C_LAST_ACCESSED_AT + " = ?", new String[]{"0"}, C_CREATED_AT, 0, maxRows);
+        }
+
         public List<String[]> getLatestRowsWithLimit(int maxRows) {
             return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
         }
