@@ -165,12 +165,8 @@ public class FileSocketUtils {
                         }
                     }
                 }
-            } catch (IOException e) {
-                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+            } catch (IOException | JSONException | NullPointerException e) {
                     RfcxLog.logExc(logTag, e);
-                }
-            } catch (JSONException e) {
-                RfcxLog.logExc(logTag, e);
             }
             Looper.loop();
         });

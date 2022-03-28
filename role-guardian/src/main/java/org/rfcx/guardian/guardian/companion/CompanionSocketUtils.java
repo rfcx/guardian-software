@@ -141,10 +141,8 @@ public class CompanionSocketUtils {
                         }
                     }
                 }
-            } catch (IOException e) {
-                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
-                    RfcxLog.logExc(logTag, e);
-                }
+            } catch (IOException | NullPointerException e ) {
+                RfcxLog.logExc(logTag, e);
             }
             Looper.loop();
         });
