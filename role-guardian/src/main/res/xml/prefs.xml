@@ -266,6 +266,13 @@
             android:title="enable_reboot_forced_daily" />
 
     <EditTextPreference
+            android:defaultValue="@string/prefs_value_default_admin_diagnostic_off_hours"
+            android:enabled="true"
+            android:key="admin_diagnostic_off_hours"
+            android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+            android:title="admin_diagnostic_off_hours" />
+
+    <EditTextPreference
             android:defaultValue="@string/prefs_value_default_reboot_forced_daily_at"
             android:enabled="true"
             android:key="reboot_forced_daily_at"

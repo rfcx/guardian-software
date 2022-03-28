@@ -9,6 +9,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -103,7 +104,7 @@ public class SwmDispatchCycleService extends Service {
         private void trigger() throws InterruptedException {
             // Check if Swarm should be OFF due to prefs
             if (!DateTimeUtils.isCurrentTimeBefore2022()) {
-                if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS))) {
                     Log.d(logTag, "Swarm is OFF at this time");
                     app.swmUtils.getPower().setOn(false);
                     return;

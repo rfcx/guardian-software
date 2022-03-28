@@ -28,19 +28,6 @@ class SwmUtils(private val context: Context) {
         api = SwmApi(SwmConnection(SwmUartShell()))
     }
 
-    // ,08:30,09:30-09-45
-    fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
-        for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS)
-            .split(",").filter { it != "" }) {
-            val offHours = offHoursRange.split("-").filter { it != "" }
-            if (offHours.isEmpty()) continue
-            if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {
-                return false
-            }
-        }
-        return true
-    }
-
     fun getMomentaryConcatDiagnosticValuesAsJsonArray(): JSONArray {
         saveBackgroundSignal()
         val swmDiagnosticJSONarr = JSONArray()
