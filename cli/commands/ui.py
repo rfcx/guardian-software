@@ -1,5 +1,4 @@
 from tkinter import *
-import ctypes
 from commands.common.i2c_command import *
 from commands.common.swarm_command import *
 from .adb import Device
@@ -9,13 +8,14 @@ window.title('Guardian Diagnosis')
 window.geometry("780x560")
 
 def start():
+
     device = Device()
     # Get i2c available (expect 0x0001)
     i2c = i2cStatus(device)
 
     # Get Input Voltage -
     input_v = input_voltage(device)
-    input_v = float("{:.2f}".format(input_v))
+    input_v = "{:.2f}".format(input_v)
 
     # Get Input Current 
     input_c = input_current(device)
@@ -37,40 +37,21 @@ def start():
     bat_p = battery_percentage(device)
     bat_p = float("{:.2f}".format(bat_p))
 
-    # Get Swarm status (128:0011010-1 = on, 128:0000010-1 = off)
+    # Get Swarm status 
     sw_status = swarm_status(device)
-    sw_status = sw_status[4:13]
 
     # Get Swarm id
     sw_id = swarm_id(device)
-    sw_id = sw_id.split("\n")
-    if sw_id[0] == 'Terminated':
-        sw_id_list = list(sw_id[0])
-        sw_id = sw_id_list[0]
-    else:
-        split_id = list(sw_id[0].split(" "))
-        sw_id = str(split_id[1])
 
     # Get Swarm GPS
     sw_gps = swarm_gps(device)
-    sw_gps = list(sw_gps.split("\n"))
-    sw_gps = sw_gps[0]
 
     # Get Swarm firm ware
     sw_fw = swarm_firmware(device)
-    sw_fw = list(sw_fw.split("\n"))
-    if sw_fw[0] == 'Terminated':
-        sw_fw_list = list(sw_fw[0])
-        sw_fw = sw_fw_list[0]
-    else:
-        split_fw = list(sw_fw[0].split(" "))
-        sw_fw = str(split_fw[1])
-
+   
     # Get Swarm datetime
     sw_dt = swarm_datetime(device)
-    sw_dt = list(sw_dt.split("\n"))
-    sw_dt = sw_dt[0]
-
+ 
     # Call function to show value on ui
     complete(window)
     show_i2c_status(window,i2c)
@@ -82,24 +63,22 @@ def complete(window): # show DONE!!! when finish command
     complete.place(x=230, y=50)
 
 def show_i2c_status(window, val): # Show i2c_status
-    val = str(val)
+
     i2c = Label(window, text="i2c Status   :", font=("Courier", 14))
     i2c.place(x=20, y=100)
 
     color = 'blue'
-    if val == "0x0001":
-        val = str(val)+" (I2C OK)"
+    if val == True:
+        val = "I2C is OK"
         color = 'green'
-    elif val == "0x0000":
+    elif val == False:
         color = 'red'
-        val = str(val)+" (Sentinel Power Chip is NOT Accessible via I2C)"
+        val = "Sentinel Power Chip is NOT Accessible via I2C"
     elif val == None:
         color = 'blue'
         val = 'No connect'
-    else :
-        color = 'red'
-        val = "Read Fail"
-
+    i2c_val = Label(window, text="                                        ", font=("Courier", 14), fg=color)
+    i2c_val.place(x=180, y=100)
     i2c_val = Label(window, text=str(val), font=("Courier", 14), fg=color)
     i2c_val.place(x=180, y=100)
 
@@ -110,6 +89,8 @@ def sentnel_info(window, in_v,in_c,sys_v,bat_v,bat_c,bat_p): # show value of inp
 
     input_v = Label(window, text="voltage =", font=("Courier", 14))
     input_v.place(x=180, y=140)
+    input_v_val = Label(window, text="          ", font=("Courier", 14), fg="blue")
+    input_v_val.place(x=285, y=140)
     input_v_val = Label(window, text=str(in_v), font=("Courier", 14), fg="blue")
     input_v_val.place(x=285, y=140)
     input_v_unit = Label(window, text=str("mV"), font=("Courier", 14), )
@@ -117,6 +98,8 @@ def sentnel_info(window, in_v,in_c,sys_v,bat_v,bat_c,bat_p): # show value of inp
 
     input_c = Label(window, text="/ current =", font=("Courier", 14))
     input_c.place(x=450, y=140)
+    input_c_val = Label(window, text="          ", font=("Courier", 14), fg="blue")
+    input_c_val.place(x=580, y=140)
     input_c_val = Label(window, text=str(in_c), font=("Courier", 14), fg="blue")
     input_c_val.place(x=580, y=140)
     input_c_unit = Label(window, text=str("mA"), font=("Courier", 14), )
@@ -128,6 +111,8 @@ def sentnel_info(window, in_v,in_c,sys_v,bat_v,bat_c,bat_p): # show value of inp
 
     system_v = Label(window, text="voltage =", font=("Courier", 14))
     system_v.place(x=180, y=180)
+    system_v_val = Label(window, text="          ", font=("Courier", 14), fg="blue")
+    system_v_val.place(x=285, y=180)
     system_v_val = Label(window, text=str(sys_v), font=("Courier", 14), fg="blue")
     system_v_val.place(x=285, y=180)
     system_v_unit = Label(window, text=str("mV"), font=("Courier", 14), )
@@ -139,6 +124,8 @@ def sentnel_info(window, in_v,in_c,sys_v,bat_v,bat_c,bat_p): # show value of inp
 
     battery_v = Label(window, text="voltage =", font=("Courier", 14))
     battery_v.place(x=180, y=220)
+    battery_v_val = Label(window, text="          ", font=("Courier", 14), fg="blue")
+    battery_v_val.place(x=285, y=220)
     battery_v_val = Label(window, text=str(bat_v), font=("Courier", 14), fg="blue")
     battery_v_val.place(x=285, y=220)
     battery_v_unit = Label(window, text=str("mV"), font=("Courier", 14), )
@@ -146,13 +133,17 @@ def sentnel_info(window, in_v,in_c,sys_v,bat_v,bat_c,bat_p): # show value of inp
 
     battery_c = Label(window, text="/ current =", font=("Courier", 14))
     battery_c.place(x=450, y=220)
-    battery_c_val = Label(window, text=str(bat_c)+" ", font=("Courier", 14), fg="blue")
+    battery_c_val = Label(window, text="          ", font=("Courier", 14), fg="blue")
+    battery_c_val.place(x=580, y=220)
+    battery_c_val = Label(window, text=str(bat_c), font=("Courier", 14), fg="blue")
     battery_c_val.place(x=580, y=220)
     battery_c_unit = Label(window, text=str("mA"), font=("Courier", 14), )
     battery_c_unit.place(x=675, y=220)
 
     battery_percen = Label(window, text="percentage =", font=("Courier", 14))
     battery_percen.place(x=180, y=260)
+    battery_percen_val = Label(window, text="      ", font=("Courier", 14), fg="blue")
+    battery_percen_val.place(x=320, y=260)
     battery_percen_val = Label(window, text=str(bat_p), font=("Courier", 14), fg="blue")
     battery_percen_val.place(x=320, y=260)
     battery_percen_unit = Label(window, text=str("%"), font=("Courier", 14), )
@@ -163,63 +154,63 @@ def swarm_info(window, sw_status,sw_id,sw_gps,sw_fw,sw_dt): # show value of swar
     swarm_info = Label(window, text="swarm status :", font=("Courier", 14))
     swarm_info.place(x=20, y=300)
     color = 'blue'
-    if sw_status == "0011010-1":
-        sw_status = str(sw_status)+" (ON)"
+    if sw_status == True:
+        sw_status = "Swarm is ON"
         color = 'green'
-    elif sw_status == "0000010-1":
+    elif sw_status == False:
         color = 'red'
-        sw_status = str(sw_status)+" (OFF)"
+        sw_status = "Swarm is OFF"
+
+    battery_percen_val = Label(window, text="             ", font=("Courier", 14), fg=color)
+    battery_percen_val.place(x=180, y=300)
     battery_percen_val = Label(window, text=str(sw_status), font=("Courier", 14), fg=color)
     battery_percen_val.place(x=180, y=300)
 
     # swarm id
     swarm_id = Label(window, text="swarm ID     :", font=("Courier", 14))
     swarm_id.place(x=20, y=340)
-    color = 'blue'
-    if sw_id == " ":
-        sw_id = "Swarm is OFF"
-        color = 'red'
-    elif sw_id == None:
-        sw_id = None
-        color = 'blue'
-    else:
+    if sw_id != None:
         color = 'green'
-        sw_id = str(sw_id)
+    elif sw_id == None:
+        color = 'blue'
+    swarm_id = Label(window, text="                                         ", font=("Courier", 14), fg=color)
+    swarm_id.place(x=180, y=340)
     swarm_id = Label(window, text=str(sw_id), font=("Courier", 14), fg=color)
     swarm_id.place(x=180, y=340)
 
     # swarm GPS
     swarm_gps = Label(window, text="swarm GPS    :", font=("Courier", 14))
     swarm_gps.place(x=20, y=380)
-    color = 'blue'
-    if (sw_gps != None):
+    if sw_gps != None:
         color = 'green'
+    elif sw_gps == None:
+        color = 'blue'
+    swarm_gps = Label(window, text="                                        ", font=("Courier", 14), fg=color)
+    swarm_gps.place(x=180, y=380)
     swarm_gps = Label(window, text=str(sw_gps), font=("Courier", 14), fg=color)
     swarm_gps.place(x=180, y=380)
-
 
     # swarm firmware
     swarm_fw = Label(window, text="swarm firmware:", font=("Courier", 14))
     swarm_fw.place(x=20, y=420)
-    color = 'blue'
-    if sw_fw == " ":
-        sw_fw = "Swarm is OFF"
-        color = 'red'
-    elif sw_fw == None:
-        sw_fw = None
-        color = 'blue'
-    else:
+    if sw_fw != None:
         color = 'green'
-        sw_fw = str(sw_fw)
+    elif sw_fw == None:
+        color = 'blue'
+    swarm_fw = Label(window, text="                                        ", font=("Courier", 14), fg=color)
+    swarm_fw.place(x=200, y=420)
     swarm_fw = Label(window, text=str(sw_fw), font=("Courier", 14), fg=color)
     swarm_fw.place(x=200, y=420)
 
     # swarm datetime
     swarm_dt = Label(window, text="swarm datetime:", font=("Courier", 14))
     swarm_dt.place(x=20, y=460)
-    color = 'blue'
-    if (sw_dt != None):
-        color = 'green'   
+    if sw_dt != None:
+        color = 'green' 
+    elif sw_dt == None:
+        color = 'blue'  
+    swarm_dt = Label(window, text="                                       ", font=("Courier", 14), fg=color)
+    swarm_dt.place(x=200, y=460)
     swarm_dt = Label(window, text=str(sw_dt), font=("Courier", 14), fg=color)
     swarm_dt.place(x=200, y=460)
 

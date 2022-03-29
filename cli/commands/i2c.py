@@ -9,12 +9,10 @@ app = typer.Typer()
 def status(): #  Get i2c status 
     device = Device()
     i2c_status = i2cStatus(device)
-    if i2c_status == '0x0001':
-        typer.echo("i2c status: " + typer.style(i2c_status+" (ON)", fg=typer.colors.GREEN, bold=True))
-    elif i2c_status == '0x0000' :
-        typer.echo("i2c status: " + typer.style(i2c_status+" (OFF)", fg=typer.colors.RED, bold=True))
-    else:
-        typer.echo("i2c status: " + typer.style("read fail", fg=typer.colors.RED, bold=True))
+    if i2c_status == True:
+        typer.echo("i2c status: " + typer.style("i2c is ON", fg=typer.colors.GREEN, bold=True))
+    else :
+        typer.echo("i2c status: " + typer.style("i2c is OFF", fg=typer.colors.RED, bold=True))
 
 @app.command()
 def input_info(): # Get input information (Voltage, Currect)
