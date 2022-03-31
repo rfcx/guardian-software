@@ -137,9 +137,9 @@ public class SwmDispatchCycleService extends Service {
 
                     if (sendAtOrAfter <= rightNow) {
 
-                        String msgId = swmForDispatch[4];
+                        String msgId = swmForDispatch[5];
                         String msgBody = swmForDispatch[3];
-                        int priority = Integer.parseInt(swmForDispatch[5]);
+                        int priority = Integer.parseInt(swmForDispatch[7]);
 
                         // send message
                         String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"", priority);
@@ -150,8 +150,8 @@ public class SwmDispatchCycleService extends Service {
                                     msgBody,
                                     swmForDispatch[4],
                                     msgId,
-                                    priority,
-                                    swmMessageId
+                                    swmMessageId,
+                                    priority
                             );
                             app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
 

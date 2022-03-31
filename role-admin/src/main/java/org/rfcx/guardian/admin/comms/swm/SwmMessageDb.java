@@ -64,7 +64,7 @@ public class SwmMessageDb {
             this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
         }
 
-        public int insert(long timestamp, String address, String body, String groupId, String message_id, int priority, String swmMessageId) {
+        public int insert(long timestamp, String address, String body, String groupId, String message_id, String swmMessageId, int priority) {
 
             ContentValues values = new ContentValues();
             values.put(C_CREATED_AT, (new Date()).getTime());
