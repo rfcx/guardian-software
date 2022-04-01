@@ -41,7 +41,7 @@ def battery_voltage(device):
     bat_v = int(bat_v, 16)*0.192264
     return float(bat_v)
 
-def battery_cuurent(device):
+def battery_curent(device):
     result = execute(device, '0x3d') 
     bat_c = result[0:6]
     bat_c = int(bat_c, 16)

@@ -38,7 +38,7 @@ def bat_info(): # Get battery information (Voltage, Current, battery percentage)
     bat_v = float("{:.2f}".format(bat_v))
     typer.echo("Battery voltage: " + typer.style(bat_v, fg=typer.colors.GREEN, bold=True))
 
-    bat_c = battery_cuurent(device)
+    bat_c = battery_curent(device)
     bat_c = float("{:.2f}".format(bat_c))
     typer.echo("Battery Current: " + typer.style(bat_c, fg=typer.colors.GREEN, bold=True))
 

@@ -15,7 +15,7 @@ Connect to a Guardian over wifi and then run one of these commands:
 - `i2c system-info` Get the  system information (Voltage)
 - `i2c bat-info` Get the battery information (Voltage, Current, battery percentage)
 
-- `ui` Show ui .exe file 
+- `ui` Show ui diplay i2c and swarm information.
 - `pyinstaller --onefile --noconsole make_ui.py` create program make_ui.exe for monitor i2c and swarm information. path to program : dist/make_ui.exe
 
 There are 2 ways of running commands (with or without Docker).
