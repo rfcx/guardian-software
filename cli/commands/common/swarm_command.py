@@ -17,7 +17,6 @@ def execute(device, message):
         if v.startswith(prefix):
             value = v
     return value
-    # return [line for line in validated_lines if line.startswith(prefix)][0]
 
 def swarm_status(device):
     shell_command = f'cat /sys/devices/virtual/misc/mtgpio/pin | grep \'128:\''
@@ -56,8 +55,7 @@ def swarm_datetime(device):
     swarm_dt = execute(device, 'DT') 
     if swarm_dt != None:
         return str(swarm_dt.split(" ")[1])
-    else:
-        return None
+    return None
 
 def validate_checksum(sentence: str):
     if(sentence.startswith('$')):
@@ -69,7 +67,7 @@ def validate_checksum(sentence: str):
         else:
             raise ValueError("The NMEA data does not match it's checksum")
     else:
-        return "None" # startswith method cannot check None value
+        return "None" # If your code to detect None before calling startswith.
 
 def make_command(message: str):
     return '$' + message + '*' + get_checksum(message)
