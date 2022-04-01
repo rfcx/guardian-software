@@ -5,24 +5,24 @@ import os
 
 path = 'sound/'
 
-def readfile():
-    file = os.listdir(path)
-    return file
+def readFiles():
+    files = os.listdir(path)
+    return files
 
 def play_sound():
-    name = readfile()
-    if len(name) > 0:
-        ran = random.choice(name)
-        print("Playing..."+ran)
-        playsound(path+ran)
+    files = readFiles()
+    if len(files) > 0:
+        file  = random.choice(files)
+        print("Playing..." + file)
+        playsound(path+file)
     else:
         print("No file sound")
 
 while True:
-    result = time.localtime()
-    t_hr = result.tm_hour
-    t_min = result.tm_min
-    print(str(t_hr)+":"+str(t_min))
+    local_time = time.localtime()
+    t_hr = local_time.tm_hour
+    t_min = local_time.tm_min
+    print(str(t_hr) + ":" + str(t_min))
 
     if t_hr >= 9 and t_hr < 22:
         if t_min == 0 or t_min == 30:
