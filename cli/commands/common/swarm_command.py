@@ -24,15 +24,13 @@ def swarm_status(device):
     sw_status = sw_status.split("\n")[0].split(":")[1].split("\r")[0]
     if sw_status == "0011010-1":
         return True
-    else:
-        return False
+    return False
 
 def swarm_id(device):
     swarm_id = execute(device, 'CS')
     if swarm_id != None:
         return str(swarm_id.split(" ")[1])
-    else:
-        return None
+    return None
 
 def swarm_gps(device):
     # swarm_gps = 'GS 109,214,9,0,G3' #Returns a HDOP of 1.09, VDOP of 2.14, 
@@ -41,15 +39,13 @@ def swarm_gps(device):
     if swarm_gps != None:
         swarm_gps = swarm_gps.split(" ")[1].split(",")
         return swarm_gps
-    else:
-        return None
+    return None
  
 def swarm_firmware(device):
     swarm_fw = execute(device, 'FV') 
     if swarm_fw != None:
         return str(swarm_fw.split(" ")[1])
-    else:
-        return None
+    return None
 
 def swarm_datetime(device):
     swarm_dt = execute(device, 'DT') 
