@@ -12,11 +12,10 @@ def execute(device, message):
     validated_lines = [validate_checksum(line) for line in lines] 
     # Return first line matching prefix of message
     prefix = message[:2]
-    value = None
     for v in validated_lines:
         if v.startswith(prefix):
-            value = v
-    return value
+            return v
+    return None
 
 def swarm_status(device):
     shell_command = f'cat /sys/devices/virtual/misc/mtgpio/pin | grep \'128:\''
