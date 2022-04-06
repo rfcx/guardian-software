@@ -30,7 +30,7 @@ def start():
     bat_v = float("{:.2f}".format(bat_v))
 
     # Get Battery Current 
-    bat_c = battery_cuurent(device)
+    bat_c = battery_curent(device)
     bat_c = float("{:.2f}".format(bat_c))
 
     # Get Battery percent
