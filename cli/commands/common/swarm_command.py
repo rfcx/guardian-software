@@ -59,10 +59,8 @@ def validate_checksum(sentence: str):
         calculated_checksum = reduce(operator.xor, (ord(s) for s in nmeadata), 0)
         if int(checksum, base=16) == calculated_checksum:
             return nmeadata
-        else:
-            raise ValueError("The NMEA data does not match it's checksum")
-    else:
-        return "None" # If your code to detect None before calling startswith.
+        raise ValueError("The NMEA data does not match it's checksum")
+    return "None" # If your code to detect None before calling startswith.
 
 def make_command(message: str):
     return '$' + message + '*' + get_checksum(message)
