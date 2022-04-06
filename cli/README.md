@@ -5,7 +5,16 @@
 ## Getting started
 
 Connect to a Guardian over wifi and then run one of these commands:
+- `swarm status` Get the Swarm status (0011010-1 is ON / 0000010-1 is OFF)
 - `swarm id` Get the Swarm device identifier
+- `swarm gps` Get the Swarm GPS Fix Quality (Example return $GS 109,214,9,0,G3*46) 
+- `swarm fw` Get the Swarm firmware version of swarm (Example return 2021-07-16-00:10:21,v1.1.0*74)
+- `swarm dt` Get the Swarm Datetime of swarm (Example return 20190408195123,V*41)
+- `i2c status` Get the i2c status (0x0001 is ON / 0x0000 is OFF)
+- `i2c input-info` Get the input information (Voltage, Currect)
+- `i2c system-info` Get the  system information (Voltage)
+- `i2c bat-info` Get the battery information (Voltage, Current, battery percentage)
+- `ui` Open the UI
 
 There are 2 ways of running commands (with or without Docker).
 
@@ -41,3 +50,13 @@ Run:
 ```
 python main.py swarm id
 ```
+
+## Building a Windows executable of the diagnostics UI
+
+To build an exe ready for distribution
+
+```
+pyinstaller --onefile --noconsole -n diagnostics make_ui.py
+``` 
+
+The result will be saved at `dist/diagnostics.exe`
