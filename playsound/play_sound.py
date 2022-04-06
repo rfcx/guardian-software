@@ -19,17 +19,15 @@ def play_sound():
         print("No file sound")
 
 while True:
+    time.sleep(10)
     local_time = time.localtime()
     t_hr = local_time.tm_hour
     t_min = local_time.tm_min
-    print(str(t_hr) + ":" + str(t_min))
-
-    if t_hr >= 9 and t_hr < 22:
-        if t_min == 0 or t_min == 30:
-            print(t_hr)
-            play_sound()
-    elif  t_hr == 22:
-        if t_min == 0:
-            print(t_hr)
-            play_sound()         
-    time.sleep(10)
+    
+    if t_hr > 22 and t_hr < 9:
+        continue 
+    if t_min != 0 or t_min != 30:
+        continue 
+    if t_hr == 22 and t_min > 0: 
+        continue 
+    play_sound()
