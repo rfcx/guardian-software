@@ -7,8 +7,10 @@ app = typer.Typer()
 app.add_typer(swarm, name="swarm")
 app.add_typer(i2c, name="i2c")
 
-@app.command()
-def ui():
+@app.callback(invoke_without_command=True)
+def default(ctx: typer.Context) -> None:
+    if ctx.invoked_subcommand is not None:
+        return
     ui_load()
 
 if __name__ == "__main__":

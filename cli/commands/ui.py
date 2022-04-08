@@ -30,7 +30,7 @@ def start():
     bat_v = float("{:.2f}".format(bat_v))
 
     # Get Battery Current 
-    bat_c = battery_cuurent(device)
+    bat_c = battery_curent(device)
     bat_c = float("{:.2f}".format(bat_c))
 
     # Get Battery percent
@@ -53,14 +53,18 @@ def start():
     sw_dt = swarm_datetime(device)
  
     # Call function to show value on ui
-    complete(window)
+    complete(window,1)
     show_i2c_status(window,i2c)
     sentnel_info(window,input_v,input_c,sys_v,bat_v,bat_c,bat_p)
     swarm_info(window,sw_status,sw_id,sw_gps,sw_fw,sw_dt)
 
-def complete(window): # show DONE!!! when finish command
-    complete = Label(window, text="DONE!!!", font=("Courier", 16),fg="green")
-    complete.place(x=230, y=50)
+def complete(window,status): # show DONE!!! when finish command
+    if status == 1: 
+        complete = Label(window, text="DONE!!!", font=("Courier", 16),fg="green")
+        complete.place(x=400, y=50)
+    else:
+        complete = Label(window, text="         ", font=("Courier", 16),fg="green")
+        complete.place(x=400, y=50)
 
 def show_i2c_status(window, val): # Show i2c_status
 
@@ -213,12 +217,22 @@ def swarm_info(window, sw_status,sw_id,sw_gps,sw_fw,sw_dt): # show value of swar
     swarm_dt.place(x=200, y=460)
     swarm_dt = Label(window, text=str(sw_dt), font=("Courier", 14), fg=color)
     swarm_dt.place(x=200, y=460)
+def reset():
+
+    show_i2c_status(window, None)
+    sentnel_info(window, None,None,None,None,None,None)
+    swarm_info(window, None,None,None,None,None)
+    complete(window,0)
 
 def load():
     # do btn start
     btn_start = Button(window, text="START", fg='white',
                     bg="green", width=25, height=2, command=start)
     btn_start.place(x=20, y=30)
+
+    btn_start = Button(window, text="RESET", fg='white',
+                    bg="red", width=25, height=2, command=reset)
+    btn_start.place(x=210, y=30)
 
     #call function initially
     show_i2c_status(window, None)
