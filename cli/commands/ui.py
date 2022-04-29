@@ -4,7 +4,7 @@ from commands.common.swarm_command import *
 from .adb import Device
 
 window = Tk()
-window.title('Guardian Diagnostic')
+window.title('Guardian Diagnostics')
 window.columnconfigure([0, 1, 2, 3, 4, 5], minsize=50, weight=1)
 
 def start():
