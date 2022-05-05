@@ -61,9 +61,9 @@ public class DeviceExternalSensorDb {
             ContentValues values = new ContentValues();
             values.put(C_MEASURED_AT, measured_at.getTime());
             values.put(C_PRESSURE, pressure);
-            values.put(C_HUMIDITY, pressure);
-            values.put(C_TEMPERATURE, pressure);
-            values.put(C_GAS, pressure);
+            values.put(C_HUMIDITY, humidity);
+            values.put(C_TEMPERATURE, temperature);
+            values.put(C_GAS, gas);
 
             return this.dbUtils.insertRow(TABLE, values);
         }
