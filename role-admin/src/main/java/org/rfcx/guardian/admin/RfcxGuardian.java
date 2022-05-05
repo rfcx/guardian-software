@@ -61,6 +61,7 @@ import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.SentryBME688Utils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
@@ -136,6 +137,7 @@ public class RfcxGuardian extends Application {
     public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
     public SentinelPowerUtils sentinelPowerUtils = null;
     public SentryAccelUtils sentryAccelUtils = null;
+    public SentryBME688Utils sentryBME688Utils = null;
     public SbdUtils sbdUtils = null;
     public SwmUtils swmUtils = null;
     public SpeedTest speedTest = null;
@@ -171,6 +173,7 @@ public class RfcxGuardian extends Application {
         this.deviceUtils = new DeviceUtils(this);
         this.sentinelPowerUtils = new SentinelPowerUtils(this);
         this.sentryAccelUtils = new SentryAccelUtils(this);
+        this.sentryBME688Utils = new SentryBME688Utils(this);
         this.assetUtils = new AssetUtils(this);
         this.companionSocketUtils = new CompanionSocketUtils(this);
         this.companionPingJsonUtils = new CompanionPingJsonUtils(this);

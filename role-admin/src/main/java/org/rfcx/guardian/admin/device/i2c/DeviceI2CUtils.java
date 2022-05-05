@@ -66,10 +66,9 @@ public class DeviceI2CUtils {
                 app.sentryAccelUtils.updateSentryAccelValues();
             }
 
-//            if (app.sentinelCompassUtils.isCaptureAllowed()) {
-//                app.sentinelCompassUtils.resetCompassValues();
-//                app.sentinelCompassUtils.updateSentinelCompassValues();
-//            }
+            if (app.sentryBME688Utils.isChipAccessibleByI2c()) {
+
+            }
         }
 
         try {
