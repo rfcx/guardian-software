@@ -67,7 +67,6 @@ public class DeviceI2CUtils {
             }
 
             if (app.sentryBME688Utils.isChipAccessibleByI2c()) {
-                app.sentryBME688Utils.resetBMEValues();
             }
         }
 

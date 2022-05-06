@@ -284,7 +284,9 @@ public class AdminContentProvider extends ContentProvider {
                             momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
                         }
                     } else if (pathSeg.equalsIgnoreCase("sensor")) {
-                        //TODO: pref check for getting bme or infco
+                        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_BME688)) {
+                            momentaryValueArr = app.sentryBME688Utils.getMomentaryConcatBME688ValuesAsJsonArray();
+                        }
                     }
 
                 } catch (Exception e) {

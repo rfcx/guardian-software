@@ -1,6 +1,8 @@
 package org.rfcx.guardian.admin.device.i2c.sentry
 
 import android.content.Context
+import org.json.JSONArray
+import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
 import org.rfcx.guardian.i2c.DeviceI2cUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
@@ -68,5 +70,19 @@ class SentryBME688Utils(context: Context) {
             values.temperature.toString(),
             values.gas.toString()
         )
+    }
+
+    fun getMomentaryConcatBME688ValuesAsJsonArray(): JSONArray {
+        saveBME688ValuesToDatabase(getBME688Values())
+
+        val bmeJsonArr = JSONArray()
+        val bmeValues = app.sentrySensorDb.dbBME688.concatRows
+        if (bmeValues != null) {
+            val jsonObj = JSONObject()
+            //TODO : filter values by prefs
+            jsonObj.put("bme688", bmeValues)
+            bmeJsonArr.put(jsonObj)
+        }
+        return bmeJsonArr
     }
 }
