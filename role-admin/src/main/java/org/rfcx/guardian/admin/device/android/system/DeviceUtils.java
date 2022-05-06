@@ -123,6 +123,7 @@ public class DeviceUtils {
             metaJson.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
             metaJson.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
             metaJson.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
+            metaJson.put("bme", app.sentrySensorDb.dbBME688.getConcatRows());
             metaJson.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
             metaJson.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
             metaJson.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());

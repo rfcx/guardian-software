@@ -283,6 +283,8 @@ public class AdminContentProvider extends ContentProvider {
                         if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                             momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
                         }
+                    } else if (pathSeg.equalsIgnoreCase("sensor")) {
+                        //TODO: pref check for getting bme or infco
                     }
 
                 } catch (Exception e) {

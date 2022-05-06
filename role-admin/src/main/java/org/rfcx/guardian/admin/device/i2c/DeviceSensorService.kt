@@ -9,7 +9,7 @@ import org.rfcx.guardian.utility.misc.TimeUtils.isNowOutsideTimeRange
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
-class DeviceSensorService: Service() {
+class DeviceSensorService : Service() {
 
     companion object {
         const val SERVICE_NAME = "DeviceSensor"
@@ -61,10 +61,7 @@ class DeviceSensorService: Service() {
             app = application as RfcxGuardian
 
             while (deviceSensorService.runFlag) {
-                if (!isNowOutsideTimeRange(
-                        app!!.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS)
-                    )
-                ) {
+                if (!isNowOutsideTimeRange(app!!.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
                     continue
                 }
 
