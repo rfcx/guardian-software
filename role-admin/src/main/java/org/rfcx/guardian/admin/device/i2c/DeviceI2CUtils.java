@@ -67,7 +67,7 @@ public class DeviceI2CUtils {
             }
 
             if (app.sentryBME688Utils.isChipAccessibleByI2c()) {
-
+                app.sentryBME688Utils.resetBMEValues();
             }
         }
 
@@ -79,10 +79,7 @@ public class DeviceI2CUtils {
                 sensorJson.put("accelerometer", "accelerometer*" + accelVals[4] + "*" + accelVals[0] + "*" + accelVals[1] + "*" + accelVals[2] + "*" + accelVals[3]);
             }
 
-//            if (app.sentinelCompassUtils.getCompassValues().size() > 0) {
-//                long[] compassVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelCompassUtils.getCompassValues()));
-//                sensorJson.put("compass", "compass*"+compassVals[4]+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
-//            }
+
 
             sensorJsonArray.put(sensorJson);
 

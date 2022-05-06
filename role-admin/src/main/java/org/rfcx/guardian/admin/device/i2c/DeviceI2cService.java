@@ -8,6 +8,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.SentryBME688Utils;
 import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -32,6 +33,7 @@ public class DeviceI2cService extends Service {
 
     private double innerLoopsPerCaptureCycle_Power = 0;
     private double innerLoopsPerCaptureCycle_Accelerometer = 0;
+    private double innerLoopsPerCaptureCycle_BME688 = 0;
 
     // Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
     // This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
@@ -45,6 +47,7 @@ public class DeviceI2cService extends Service {
 
     private boolean isSentinelPowerCaptureAllowed = true;
     private boolean isSentinelAccelCaptureAllowed = true;
+    private boolean isSentinelBME688CaptureAllowed = true;
     private final boolean isSentinelCompassCaptureAllowed = true;
 
     @Override
@@ -100,6 +103,10 @@ public class DeviceI2cService extends Service {
             app.sentryAccelUtils.updateSentryAccelValues();
         }
 
+        if ((innerLoopIncrement % this.innerLoopsPerCaptureCycle_BME688 == 0) && this.isSentinelBME688CaptureAllowed) {
+            app.sentryBME688Utils.updateSentryAccelValues();
+        }
+
         return innerLoopIncrement;
     }
 
@@ -121,6 +128,10 @@ public class DeviceI2cService extends Service {
             if (this.isSentinelAccelCaptureAllowed) {
                 app.sentryAccelUtils.saveSentryAccelValuesToDatabase(true);
             }
+
+            if (this.isSentinelBME688CaptureAllowed) {
+                app.sentryBME688Utils.saveBME688ValuesToDatabase(true);
+            }
         }
 
         return outerLoopIncrement;
@@ -135,6 +146,8 @@ public class DeviceI2cService extends Service {
             this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.checkSetChipConfigByI2c();
 
             this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentryAccelUtils.isChipAccessibleByI2c();
+
+            this.isSentinelBME688CaptureAllowed = app.sentryBME688Utils.isChipAccessibleByI2c();
 
             // when audio capture is disabled (for any number of reasons), we continue to capture system stats...
             // however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
@@ -155,6 +168,7 @@ public class DeviceI2cService extends Service {
 
                 this.innerLoopsPerCaptureCycle_Power = 1;
                 this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentryAccelUtils.samplesTakenPerCaptureCycle);
+                this.innerLoopsPerCaptureCycle_BME688 = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentryBME688Utils.samplesTakenPerCaptureCycle);
 
                 Log.d(logTag, "SentinelStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
                         "Snapshots (all metrics) taken every " + Math.round((double) DeviceUtils.getCaptureCycleDuration(prefsCycleDuration) / 1000) + " seconds.");
