@@ -66,7 +66,7 @@ public class SentryAccelUtils {
         if (isNotExplicitlyDisabled) {
             isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible();
             if (isI2cHandlerAccessible) {
-                String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true);
+                String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true, true);
                 isI2cAccelChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
                 if (!isI2cAccelChipConnected) {
                     Log.e(logTag, "Sentry Accelerometer Chip is NOT Accessible via I2C...");
@@ -123,7 +123,7 @@ public class SentryAccelUtils {
 
             resetI2cTmpValues();
 
-            for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(buildI2cQueryList(), i2cMainAddr, true)) {
+            for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(buildI2cQueryList(), i2cMainAddr, true, true)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
                 String valueType = i2cLabeledOutput[0].substring(1 + i2cLabeledOutput[0].indexOf("-"));
                 double[] valueSet = this.i2cTmpValues.get(groupName);

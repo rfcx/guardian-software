@@ -122,7 +122,14 @@ public class DeviceI2cUtils {
         return (new File("/dev/i2c-" + this.i2cInterface)).canRead();
     }
 
-    public boolean i2cSet(List<String[]> i2cLabelsAddressesValues, String mainAddr/*, boolean parseAsHex*/) {
+    public boolean i2cSet(String subAddr, String mainAddr, int data, boolean isWord) {
+        List<String[]> i2cLabelsAndSubAddresses = new ArrayList<String[]>();
+        i2cLabelsAndSubAddresses.add(new String[]{"no-label", subAddr, "0x" + Integer.toHexString(data)});
+        boolean isSet = i2cSet(i2cLabelsAndSubAddresses, mainAddr, isWord);
+        return isSet;
+    }
+
+    public boolean i2cSet(List<String[]> i2cLabelsAddressesValues, String mainAddr, boolean isWord/*, boolean parseAsHex*/) {
 
         boolean isSet = (i2cLabelsAddressesValues.size() == 0);
 
@@ -132,7 +139,7 @@ public class DeviceI2cUtils {
 
                 throwExceptionIfNotInitialized();
 
-                isSet = this.i2cTools.i2cSet(i2cAdapterReceipt, mainAddr, i2cRow[1], i2cRow[2], true);
+                isSet = this.i2cTools.i2cSet(i2cAdapterReceipt, mainAddr, i2cRow[1], i2cRow[2], isWord);
 
             } catch (Exception e) {
                 RfcxLog.logExc(logTag, e);
@@ -142,8 +149,31 @@ public class DeviceI2cUtils {
         return isSet;
     }
 
-    public long i2cGetAsLong(String subAddr, String mainAddr, boolean parseAsHex) {
-        String rtrnValAsString = i2cGetAsString(subAddr, mainAddr, parseAsHex);
+    public byte i2cGetAsByte(String subAddr, String mainAddr, boolean parseAsHex, boolean isWord) {
+        String rtrnValAsString = i2cGetAsString(subAddr, mainAddr, parseAsHex, isWord);
+        byte rtrnVal = 0;
+        if (rtrnValAsString != null) {
+            try {
+                rtrnVal = Byte.parseByte(rtrnValAsString);
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+            }
+        }
+        return rtrnVal;
+    }
+
+    public byte[] i2cGetBlockAsByteArr(String startAddr, String mainAddr, byte[] buffer, boolean parseAsHex, boolean isWord) {
+
+        int startAddrInt = Integer.decode(startAddr);
+        for (int i = 0; i < buffer.length; i++) {
+            String subAddr = "0x" + Integer.toHexString(startAddrInt + i);
+            buffer[i] = i2cGetAsByte(subAddr, mainAddr, parseAsHex, isWord);
+        }
+        return buffer;
+    }
+
+    public long i2cGetAsLong(String subAddr, String mainAddr, boolean parseAsHex, boolean isWord) {
+        String rtrnValAsString = i2cGetAsString(subAddr, mainAddr, parseAsHex, isWord);
         long rtrnVal = 0;
         if (rtrnValAsString != null) {
             try {
@@ -155,10 +185,10 @@ public class DeviceI2cUtils {
         return rtrnVal;
     }
 
-    public String i2cGetAsString(String subAddr, String mainAddr, boolean parseAsHex) {
+    public String i2cGetAsString(String subAddr, String mainAddr, boolean parseAsHex, boolean isWord) {
         List<String[]> i2cLabelsAndSubAddresses = new ArrayList<String[]>();
         i2cLabelsAndSubAddresses.add(new String[]{"no-label", subAddr});
-        List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, mainAddr, parseAsHex, new String[]{});
+        List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, mainAddr, parseAsHex, isWord, new String[]{});
         String rtrnVal = null;
         if (i2cReturn.size() > 0) {
             try {
@@ -170,11 +200,11 @@ public class DeviceI2cUtils {
         return rtrnVal;
     }
 
-    public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String mainAddr, boolean parseAsHex) {
-        return i2cGet(i2cLabelsAndSubAddresses, mainAddr, parseAsHex, new String[]{});
+    public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String mainAddr, boolean parseAsHex, boolean isWord) {
+        return i2cGet(i2cLabelsAndSubAddresses, mainAddr, parseAsHex, isWord, new String[]{});
     }
 
-    public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String mainAddr, boolean parseAsHex, String[] rtrnValsWithoutTwosComplement) {
+    public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String mainAddr, boolean parseAsHex, boolean isWord, String[] rtrnValsWithoutTwosComplement) {
 
         List<String[]> i2cLabelsAndOutputValues = new ArrayList<String[]>();
         List<String> i2cValues = new ArrayList<String>();
@@ -184,7 +214,7 @@ public class DeviceI2cUtils {
             throwExceptionIfNotInitialized();
 
             for (String[] i2cRow : i2cLabelsAndSubAddresses) {
-                String i2cValue = i2cTools.i2cGet(i2cAdapterReceipt, mainAddr, i2cRow[1], false, true);
+                String i2cValue = i2cTools.i2cGet(i2cAdapterReceipt, mainAddr, i2cRow[1], false, isWord);
                 i2cValues.add(i2cValue);
             }
 
@@ -195,7 +225,7 @@ public class DeviceI2cUtils {
 
                 if (parseAsHex && (i2cValue.indexOf("0x") == 0)) {
 
-                    if (!ArrayUtils.doesStringArrayContainString(rtrnValsWithoutTwosComplement, i2cLabelsAndSubAddresses.get(lineIndex)[0])) {
+                    if (!doesStringArrayContainString(rtrnValsWithoutTwosComplement, i2cLabelsAndSubAddresses.get(lineIndex)[0])) {
                         i2cStrValue = twosComplementHexToDec(i2cValue.substring(1 + i2cValue.indexOf("x"))) + "";
                     } else {
                         i2cStrValue = "" + Integer.parseInt(i2cValue.substring(1 + i2cValue.indexOf("x")), 16);
@@ -215,5 +245,15 @@ public class DeviceI2cUtils {
         return i2cLabelsAndOutputValues;
     }
 
+    private boolean doesStringArrayContainString(String[] strArr, String strInd) {
+        boolean doesContain = false;
+        for (String sInd : strArr) {
+            if (sInd.equalsIgnoreCase(strInd)) {
+                doesContain = true;
+                break;
+            }
+        }
+        return doesContain;
+    }
 
 }
