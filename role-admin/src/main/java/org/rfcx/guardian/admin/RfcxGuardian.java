@@ -61,7 +61,7 @@ import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
-import org.rfcx.guardian.admin.device.i2c.sentry.SentryBME688Utils;
+import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;

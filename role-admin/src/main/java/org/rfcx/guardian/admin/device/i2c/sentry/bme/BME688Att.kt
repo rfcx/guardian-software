@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.i2c.sentry
+package org.rfcx.guardian.admin.device.i2c.sentry.bme
 
 import java.util.*
 
