@@ -27,27 +27,29 @@ public class AudioCastPingUtils {
         ArrayList<String> jsonList = new ArrayList<>();
         Pair<byte[], Integer> audioPair = app.audioCaptureUtils.getAudioBuffer();
         if (audioPair != null) {
-            String audioString = Base64.encodeToString(audioPair.first, Base64.URL_SAFE);
-            if (audioString != null) {
-                Integer audioReadSize = audioPair.second;
-                JSONObject audioJsonObject = new JSONObject()
-                        .put("amount", 1)
-                        .put("number", 1)
-                        .put("buffer", audioString)
-                        .put("read_size", audioReadSize);
-                if (audioJsonObject.toString().length() <= 65535) {
-                    jsonList.add(audioJsonObject.toString());
-                } else {
-                    List<byte[]> audioChunks = toSmallChunk(audioPair.first, 10);
-                    for (int i = 0; i < audioChunks.size(); i++) {
-                        int readSize = audioChunks.get(i).length;
-                        String audioChunkString = Base64.encodeToString(audioChunks.get(i), Base64.URL_SAFE);
-                        JSONObject audioChunkJsonObject = new JSONObject()
-                                .put("amount", audioChunks.size())
-                                .put("number", i + 1)
-                                .put("buffer", audioChunkString)
-                                .put("read_size", readSize);
-                        jsonList.add(audioChunkJsonObject.toString());
+            if (audioPair.first != null) {
+                String audioString = Base64.encodeToString(audioPair.first, Base64.URL_SAFE);
+                if (audioString != null) {
+                    Integer audioReadSize = audioPair.second;
+                    JSONObject audioJsonObject = new JSONObject()
+                            .put("amount", 1)
+                            .put("number", 1)
+                            .put("buffer", audioString)
+                            .put("read_size", audioReadSize);
+                    if (audioJsonObject.toString().length() <= 65535) {
+                        jsonList.add(audioJsonObject.toString());
+                    } else {
+                        List<byte[]> audioChunks = toSmallChunk(audioPair.first, 10);
+                        for (int i = 0; i < audioChunks.size(); i++) {
+                            int readSize = audioChunks.get(i).length;
+                            String audioChunkString = Base64.encodeToString(audioChunks.get(i), Base64.URL_SAFE);
+                            JSONObject audioChunkJsonObject = new JSONObject()
+                                    .put("amount", audioChunks.size())
+                                    .put("number", i + 1)
+                                    .put("buffer", audioChunkString)
+                                    .put("read_size", readSize);
+                            jsonList.add(audioChunkJsonObject.toString());
+                        }
                     }
                 }
             }

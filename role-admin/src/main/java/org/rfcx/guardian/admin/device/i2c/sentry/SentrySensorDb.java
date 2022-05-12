@@ -146,5 +146,9 @@ public class SentrySensorDb {
             return DbUtils.getConcatRows(getAllRows());
         }
 
+        public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+            return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+        }
+
     }
 }

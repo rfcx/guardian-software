@@ -29,7 +29,11 @@ public class DeviceI2CUtils {
         JSONArray sensorJsonArray = new JSONArray();
         try {
             JSONObject sensorJson = new JSONObject();
-            sensorJson.put("bme688", app.sentrySensorDb.dbBME688.getConcatRows());
+
+            String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
+            if (!bmeValues.split("\\*")[1].equalsIgnoreCase("null")) {
+                sensorJson.put("sentinel_sensor", app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688"));
+            }
             sensorJsonArray.put(sensorJson);
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
