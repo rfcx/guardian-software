@@ -99,16 +99,4 @@ class SentryBME688Utils(context: Context) {
     fun getCurrentBMEValues(): BME688Att? {
         return tempBMEValues
     }
-
-    fun getMomentaryConcatBME688ValuesAsJsonArray(): JSONArray {
-        saveBME688ValuesToDatabase(getBME688Values())
-
-        val bmeJsonArr = JSONArray()
-        if (tempBMEValues != null) {
-            val jsonObj = JSONObject()
-            jsonObj.put("bme688", tempBMEValues)
-            bmeJsonArr.put(jsonObj)
-        }
-        return bmeJsonArr
-    }
 }
