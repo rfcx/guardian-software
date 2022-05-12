@@ -35,6 +35,8 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import java.util.concurrent.TimeUnit;
 
 /*-
@@ -51,7 +53,7 @@ public class BME68x {
 		app = (RfcxGuardian) context.getApplicationContext();
 		initialise();
 	}
-	private static final String logtag = "BME68x";
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentryAccelUtils");
 
 	private RfcxGuardian app;
 
@@ -104,7 +106,7 @@ public class BME68x {
 
 		static OperatingMode valueOf(int value) {
 			if (value < 0 || value > SEQUENTIAL.getValue()) {
-				throw new IllegalArgumentException("Invalid OperatingMode value " + value);
+				Log.e(logTag,"Invalid OperatingMode value " + value);
 			}
 
 			return OperatingMode.values()[value];
@@ -157,7 +159,7 @@ public class BME68x {
 
 		static OversamplingMultiplier valueOf(int value) {
 			if (value < 0 || value > X16.getValue()) {
-				throw new IllegalArgumentException("Invalid OversamplingMultiplier value " + value);
+				Log.e(logTag,"Invalid OversamplingMultiplier value " + value);
 			}
 
 			return OversamplingMultiplier.values()[value];
@@ -196,7 +198,7 @@ public class BME68x {
 
 		static IirFilterCoefficient valueOf(int value) {
 			if (value < 0 || value > _127.getValue()) {
-				throw new IllegalArgumentException("Invalid IirFilterCoefficient value " + value);
+				Log.e(logTag,"Invalid IirFilterCoefficient value " + value);
 			}
 
 			return IirFilterCoefficient.values()[value];
@@ -222,7 +224,7 @@ public class BME68x {
 
 		static HeaterProfile valueOf(int value) {
 			if (value < 0 || value > PROFILE_9.getValue()) {
-				throw new IllegalArgumentException("Invalid HeaterProfile value " + value);
+				Log.e(logTag, "Invalid HeaterProfile value " + value);
 			}
 
 			return HeaterProfile.values()[value];
@@ -259,7 +261,7 @@ public class BME68x {
 
 		static ODR valueOf(int value) {
 			if (value < 0 || value > NONE.getValue()) {
-				throw new IllegalArgumentException("Invalid ODR value " + value);
+				Log.e(logTag, "Invalid ODR value " + value);
 			}
 
 			return ODR.values()[value];
@@ -473,11 +475,9 @@ public class BME68x {
 	 * bme68x_init
 	 */
 	public void initialise() {
-		Log.d(logtag, "get bme data");
-
 		chipId = app.deviceI2cUtils.i2cGetAsByte(REG_CHIP_ID, ALT_DEVICE_ADDRESS, true, false);
 		if (chipId != CHIP_ID_BME680) {
-			throw new IllegalStateException(String.format("%s %s not found.", CHIP_VENDOR, CHIP_NAME));
+			Log.e(logTag,String.format("%s %s not found.", CHIP_VENDOR, CHIP_NAME));
 		}
 
 		variantId = app.deviceI2cUtils.i2cGetAsByte(REG_VARIANT_ID, ALT_DEVICE_ADDRESS, true, false);
@@ -1182,19 +1182,19 @@ public class BME68x {
 
 	private static void analyseSensorData(Data[] data) {
 		if ((data[0].temperature < MIN_TEMPERATURE_CELSIUS) || (data[0].temperature > MAX_TEMPERATURE_CELSIUS)) {
-			Log.e(logtag, "Temperature " + Float.valueOf(data[0].temperature) + " out of range");
+			Log.e(logTag, "Temperature " + Float.valueOf(data[0].temperature) + " out of range");
 		}
 		if ((data[0].pressureHPa < MIN_PRESSURE_HPA) || (data[0].pressureHPa > MAX_PRESSURE_HPA)) {
-			Log.e(logtag,"Pressure " + Float.valueOf(data[0].pressureHPa) + " hPa out of range");
+			Log.e(logTag,"Pressure " + Float.valueOf(data[0].pressureHPa) + " hPa out of range");
 		}
 		if ((data[0].humidity < MIN_HUMIDITY_PERCENT) || (data[0].humidity > MAX_HUMIDITY_PERCENT)) {
-			Log.e(logtag,"Humidity " + Float.valueOf(data[0].humidity) + " %rh out of range");
+			Log.e(logTag,"Humidity " + Float.valueOf(data[0].humidity) + " %rh out of range");
 		}
 
 		// Every gas measurement should be valid
 		for (int i = 0; i < data.length; i++) {
 			if (!data[i].gasMeasurementValid) {
-				Log.e(logtag,"Gas measurement should be valid");
+				Log.e(logTag,"Gas measurement should be valid");
 			}
 		}
 
@@ -1204,13 +1204,13 @@ public class BME68x {
 		}
 
 		if (cent_res < 6) {
-			Log.e(logtag,"cent_res " + Float.valueOf(cent_res) + " should be >= 6 (??)");
+			Log.e(logTag,"cent_res " + Float.valueOf(cent_res) + " should be >= 6 (??)");
 		}
 	}
 
 	private void validateOperatingMode(OperatingMode mode) {
 		if (variantId == VARIANT_ID_BM680 && (mode == OperatingMode.PARALLEL || mode == OperatingMode.SEQUENTIAL)) {
-			throw new IllegalArgumentException("Invalid operating mode (" + mode + ") for BME680");
+			Log.e(logTag,"Invalid operating mode (" + mode + ") for BME680");
 		}
 	}
 
@@ -1607,7 +1607,6 @@ public class BME68x {
 
 	// Read calibration array
 	private byte[] readCalibrationData() {
-		Log.d(logtag, "read calibration data");
 		byte[] part1 = new byte[LEN_COEFF1];
 		part1 = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_COEFF1, ALT_DEVICE_ADDRESS, part1, true, false);
 		byte[] part2 = new byte[LEN_COEFF2];
@@ -1627,8 +1626,6 @@ public class BME68x {
 	 * get_calib_data
 	 */
 	private void getCalibrationData() {
-		Log.d(logtag, "get calibration data");
-
 		calibration = new Calibration();
 
 		// Read the raw calibration data
@@ -1750,15 +1747,13 @@ public class BME68x {
 
 		public HeaterConfig(boolean enabled, int[] heaterTempProfiles, int[] heaterDurationProfiles) {
 			if (heaterTempProfiles.length == 0 || heaterTempProfiles.length > MAX_NUM_HEATER_PROFILES) {
-				throw new IllegalArgumentException(
-						"Invalid number of heater temperature profiles: " + heaterTempProfiles.length);
+				Log.e(logTag,"Invalid number of heater temperature profiles: " + heaterTempProfiles.length);
 			}
 			if (heaterDurationProfiles.length == 0 || heaterDurationProfiles.length > MAX_NUM_HEATER_PROFILES) {
-				throw new IllegalArgumentException(
-						"Invalid number of heater duration profiles: " + heaterDurationProfiles.length);
+				Log.e(logTag,"Invalid number of heater duration profiles: " + heaterDurationProfiles.length);
 			}
 			if (heaterTempProfiles.length != heaterDurationProfiles.length) {
-				throw new IllegalArgumentException("Number of heater temperature profiles (" + heaterTempProfiles.length
+				Log.e(logTag,"Number of heater temperature profiles (" + heaterTempProfiles.length
 						+ ") != number of duration profiles (" + heaterDurationProfiles.length + ")");
 			}
 

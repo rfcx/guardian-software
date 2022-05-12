@@ -28,7 +28,7 @@ class SentryBME688Utils(context: Context) {
         val isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible
         if (isI2cHandlerAccessible) return false
 
-        val i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true)
+        val i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true, false)
         val isI2cAccelChipConnected = abs(
             DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)
         ) > 0
@@ -38,55 +38,34 @@ class SentryBME688Utils(context: Context) {
     }
 
     fun getBME688Values(): BME688Att {
-        System.out.format(
-            "hum os: %s, temp os: %s, press os: %s, IIR Filter: %s, ODR: %s%n",
-            bme.humidityOversample, bme.temperatureOversample, bme.pressureOversample,
-            bme.iirFilterConfig, bme.odr
-        )
         bme.setConfiguration(
             BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2,
             BME68x.IirFilterCoefficient._3, BME68x.ODR.NONE
         )
-        System.out.format(
-            "hum os: %s, temp os: %s, press os: %s, IIR Filter: %s, ODR: %s%n",
-            bme.humidityOversample, bme.temperatureOversample, bme.pressureOversample,
-            bme.iirFilterConfig, bme.odr
-        )
-        Log.d("main", "set heater")
+
         val targetOperatingMode = BME68x.OperatingMode.FORCED
         bme.setHeaterConfiguration(targetOperatingMode, BME68x.HeaterConfig(true, 320, 150))
 
-        Log.d("main", "getting duration")
-        // Calculate delay period in microseconds
         val measureDurationMs =
             (bme.calculateMeasureDuration(targetOperatingMode) / 1000).toLong()
-        // System.out.println("measure_duration_ms: " + measure_duration_ms + "
-        // milliseconds");
 
-        Log.d("main", "sleep")
         TimeUnit.MILLISECONDS.sleep(measureDurationMs)
 
+        val bmeValues = BME688Att()
         for (i in 0..4) {
-            for ((reading, data) in bme.getSensorData(targetOperatingMode).withIndex()) {
-                System.out.format(
-                    "Reading [%d]: Idx: %,d. Temperature: %,.2f C. Pressure: %,.2f hPa. Relative Humidity: %,.2f %%rH. Gas Idx: %,d. Gas Resistance: %,.2f Ohms. IDAC: %,.2f mA. Gas Wait: %,d (ms or multiplier). (heater stable: %b, gas valid: %b).%n",
-                    Integer.valueOf(reading),
-                    Integer.valueOf(data.measureIndex),
-                    java.lang.Float.valueOf(data.temperature),
-                    java.lang.Float.valueOf(data.pressure),
-                    java.lang.Float.valueOf(data.humidity),
-                    Integer.valueOf(data.gasMeasurementIndex),
-                    java.lang.Float.valueOf(data.gasResistance),
-                    java.lang.Float.valueOf(data.idacHeatMA),
-                    java.lang.Short.valueOf(data.gasWait),
-                    java.lang.Boolean.valueOf(data.isHeaterTempStable),
-                    java.lang.Boolean.valueOf(data.isGasMeasurementValid)
-                )
+            for (data in bme.getSensorData(targetOperatingMode)) {
+                if (i == 4) {
+                    bmeValues.measuredAt = Date()
+                    bmeValues.pressure = data.pressure
+                    bmeValues.temperature = data.temperature
+                    bmeValues.humidity = data.humidity
+                    bmeValues.gas = data.gasResistance
+                }
             }
 
             TimeUnit.SECONDS.sleep(1)
         }
-        return BME688Att(Date(),0.0,0.0,0.0,0.0)
+        return bmeValues
     }
 
     fun saveBME688ValuesToDatabase(values: BME688Att) {
