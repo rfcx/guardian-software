@@ -18,17 +18,18 @@ class SentryBME688Utils(context: Context) {
 
     private val app = context.applicationContext as RfcxGuardian
     private val bme = BME68x(context)
-    private val i2cMainAddr = "0x68"
+    private val i2cMainAddr = "0x77"
+    private var tempBMEValues: BME688Att? = null
 
     fun isChipAccessibleByI2c(): Boolean {
         val isNotExplicitlyDisabled: Boolean =
-            app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTRY_SENSOR)
+            app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_BME688)
         if (!isNotExplicitlyDisabled) return false
 
         val isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible
         if (isI2cHandlerAccessible) return false
 
-        val i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true, false)
+        val i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0xf0", i2cMainAddr, true, false)
         val isI2cAccelChipConnected = abs(
             DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)
         ) > 0
@@ -38,6 +39,13 @@ class SentryBME688Utils(context: Context) {
     }
 
     fun getBME688Values(): BME688Att {
+        if (!bme.isInitialised) {
+            bme.initialise()
+        }
+
+        bme.operatingMode = BME68x.OperatingMode.SLEEP
+        bme.softReset()
+
         bme.setConfiguration(
             BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2,
             BME68x.IirFilterCoefficient._3, BME68x.ODR.NONE
@@ -65,6 +73,8 @@ class SentryBME688Utils(context: Context) {
 
             TimeUnit.SECONDS.sleep(1)
         }
+        tempBMEValues = bmeValues
+        bme.softReset()
         return bmeValues
     }
 
@@ -78,15 +88,25 @@ class SentryBME688Utils(context: Context) {
         )
     }
 
+    fun resetBMEValues() {
+        tempBMEValues = null
+    }
+
+    fun updateSentryBMEValues() {
+        getBME688Values()
+    }
+
+    fun getCurrentBMEValues(): BME688Att? {
+        return tempBMEValues
+    }
+
     fun getMomentaryConcatBME688ValuesAsJsonArray(): JSONArray {
         saveBME688ValuesToDatabase(getBME688Values())
 
         val bmeJsonArr = JSONArray()
-        val bmeValues = app.sentrySensorDb.dbBME688.concatRows
-        if (bmeValues != null) {
+        if (tempBMEValues != null) {
             val jsonObj = JSONObject()
-            //TODO : filter values by prefs
-            jsonObj.put("bme688", bmeValues)
+            jsonObj.put("bme688", tempBMEValues)
             bmeJsonArr.put(jsonObj)
         }
         return bmeJsonArr

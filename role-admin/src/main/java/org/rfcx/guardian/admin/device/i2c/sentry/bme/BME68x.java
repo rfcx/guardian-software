@@ -51,9 +51,8 @@ public class BME68x {
 
 	BME68x(Context context) {
 		app = (RfcxGuardian) context.getApplicationContext();
-		initialise();
 	}
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentryAccelUtils");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "BME68x");
 
 	private RfcxGuardian app;
 
@@ -474,6 +473,10 @@ public class BME68x {
 	 *
 	 * bme68x_init
 	 */
+	public boolean isInitialised() {
+		return chipId != 0 && variantId != 0 && uniqueId != 0;
+	}
+
 	public void initialise() {
 		chipId = app.deviceI2cUtils.i2cGetAsByte(REG_CHIP_ID, ALT_DEVICE_ADDRESS, true, false);
 		if (chipId != CHIP_ID_BME680) {
@@ -1709,6 +1712,7 @@ public class BME68x {
 		// Alternative is to do multiple individual byte data writes
 		int startAddrInt = Integer.decode(registerStart);
 		for (int i = 0; i < data.length; i++) {
+			Log.d(logTag, i + " " + data[i]);
 			app.deviceI2cUtils.i2cSet("0x" + Integer.toHexString(startAddrInt + i), ALT_DEVICE_ADDRESS, data[i], false);
 		}
 	}

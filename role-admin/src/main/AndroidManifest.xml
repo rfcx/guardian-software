@@ -99,6 +99,7 @@
         <service android:name=".device.android.control.ClockSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.i2c.DeviceI2cService" />
+        <service android:name=".device.i2c.DeviceSensorService" />
         <service android:name=".comms.sms.SmsDispatchCycleService" />
         <service android:name=".comms.sbd.SbdDispatchService" />
         <service android:name=".comms.sbd.SbdDispatchCycleService" />

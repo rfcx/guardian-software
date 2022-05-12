@@ -57,6 +57,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2cService;
+import org.rfcx.guardian.admin.device.i2c.DeviceSensorService;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
@@ -145,6 +146,7 @@ public class RfcxGuardian extends Application {
             new String[]{
                     DeviceSystemService.SERVICE_NAME,
                     DeviceI2cService.SERVICE_NAME,
+                    DeviceSensorService.SERVICE_NAME,
                     SmsDispatchCycleService.SERVICE_NAME,
                     SbdDispatchCycleService.SERVICE_NAME,
                     SwmDispatchCycleService.SERVICE_NAME,
@@ -346,6 +348,7 @@ public class RfcxGuardian extends Application {
 
         this.rfcxSvc.addService(DeviceSystemService.SERVICE_NAME, DeviceSystemService.class);
         this.rfcxSvc.addService(DeviceI2cService.SERVICE_NAME, DeviceI2cService.class);
+        this.rfcxSvc.addService(DeviceSensorService.SERVICE_NAME, DeviceSensorService.class);
 
         this.rfcxSvc.addService(ScreenShotCaptureService.SERVICE_NAME, ScreenShotCaptureService.class);
         this.rfcxSvc.addService(ScheduledScreenShotCaptureService.SERVICE_NAME, ScheduledScreenShotCaptureService.class);

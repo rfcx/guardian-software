@@ -8,4 +8,9 @@ data class BME688Att(
     var humidity: Float = 0.0f,
     var temperature: Float = 0.0f,
     var gas: Float = 0.0f
-    )
+    ) {
+    override
+    fun toString(): String {
+        return "bme688*${this.measuredAt.time}*${this.pressure}*${this.humidity}*${this.temperature}*${this.gas}"
+    }
+}

@@ -25,6 +25,7 @@ import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
@@ -282,10 +283,6 @@ public class AdminContentProvider extends ContentProvider {
                     } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
                         if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                             momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
-                        }
-                    } else if (pathSeg.equalsIgnoreCase("sensor")) {
-                        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_BME688)) {
-                            momentaryValueArr = app.sentryBME688Utils.getMomentaryConcatBME688ValuesAsJsonArray();
                         }
                     }
 

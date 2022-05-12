@@ -25,8 +25,9 @@ public class I2cTools {
                 if (value < 0) {
                     throw new Exception("Read Failed");
                 }
+            } else {
+                throw new Exception("Set Slave Failed");
             }
-            throw new Exception("Set Slave Failed");
         }
         return (returnDecimal) ? value + "" : String.format("0x%x", value);
     }
