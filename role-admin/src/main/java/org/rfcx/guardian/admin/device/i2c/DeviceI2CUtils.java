@@ -31,7 +31,7 @@ public class DeviceI2CUtils {
             JSONObject sensorJson = new JSONObject();
 
             String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
-            if (!bmeValues.split("\\*")[1].equalsIgnoreCase("null")) {
+            if (!bmeValues.split("\\*")[2].equalsIgnoreCase("0")) {
                 sensorJson.put("sentinel_sensor", app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688"));
             }
             sensorJsonArray.put(sensorJson);
