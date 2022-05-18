@@ -1712,7 +1712,6 @@ public class BME68x {
 		// Alternative is to do multiple individual byte data writes
 		int startAddrInt = Integer.decode(registerStart);
 		for (int i = 0; i < data.length; i++) {
-			Log.d(logTag, i + " " + data[i]);
 			app.deviceI2cUtils.i2cSet("0x" + Integer.toHexString(startAddrInt + i), ALT_DEVICE_ADDRESS, data[i], false);
 		}
 	}

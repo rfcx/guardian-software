@@ -67,10 +67,11 @@ class DeviceSensorService : Service() {
 
                 try {
                     if (app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_BME688)) {
+                        Log.d(logTag, "Saving BME688 values to database")
                         app!!.sentryBME688Utils.saveBME688ValuesToDatabase(app!!.sentryBME688Utils.getBME688Values())
                     }
 
-                    sleep(120000)
+                    sleep(300000)
                 } catch (e: InterruptedException) {
                     deviceSensorService.runFlag = false
                     app!!.rfcxSvc.setRunState(SERVICE_NAME, false)

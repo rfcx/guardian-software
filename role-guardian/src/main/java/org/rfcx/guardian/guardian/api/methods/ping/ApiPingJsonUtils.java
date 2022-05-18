@@ -123,12 +123,6 @@ public class ApiPingJsonUtils {
             }
         }
 
-        if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sensor")) {
-            String sensor = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values",
-                    "sensor", app.getResolver()));
-            //TODO: bme add to json
-        }
-
         if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "meta")) {
             jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(jsonObj, Math.max(includeAssetBundleCount, 1), false);
             includePurgedAssetList = true;

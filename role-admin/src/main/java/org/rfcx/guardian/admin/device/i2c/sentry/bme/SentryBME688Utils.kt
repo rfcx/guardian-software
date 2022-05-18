@@ -27,7 +27,7 @@ class SentryBME688Utils(context: Context) {
         if (!isNotExplicitlyDisabled) return false
 
         val isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible
-        if (isI2cHandlerAccessible) return false
+        if (!isI2cHandlerAccessible) return false
 
         val i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0xf0", i2cMainAddr, true, false)
         val isI2cAccelChipConnected = abs(
@@ -74,7 +74,6 @@ class SentryBME688Utils(context: Context) {
             TimeUnit.SECONDS.sleep(1)
         }
         tempBMEValues = bmeValues
-        bme.softReset()
         return bmeValues
     }
 

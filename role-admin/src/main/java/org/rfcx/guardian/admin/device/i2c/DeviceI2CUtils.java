@@ -5,7 +5,6 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.device.i2c.sentry.bme.BME688Att;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -32,7 +31,7 @@ public class DeviceI2CUtils {
 
             String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
             if (!bmeValues.split("\\*")[2].equalsIgnoreCase("0")) {
-                sensorJson.put("sentinel_sensor", app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688"));
+                sensorJson.put("sentinel_sensor", bmeValues);
             }
             sensorJsonArray.put(sensorJson);
         } catch (Exception e) {
@@ -61,9 +60,10 @@ public class DeviceI2CUtils {
                 app.sentryAccelUtils.updateSentryAccelValues();
             }
 
-            if (app.sentryBME688Utils.isChipAccessibleByI2c()) {
+            boolean bmeAccessible = app.sentryBME688Utils.isChipAccessibleByI2c();
+            if (bmeAccessible) {
                 app.sentryBME688Utils.resetBMEValues();
-                app.sentryBME688Utils.updateSentryBMEValues();
+                app.sentryBME688Utils.saveBME688ValuesToDatabase(app.sentryBME688Utils.getBME688Values());
             }
         }
 
@@ -76,8 +76,10 @@ public class DeviceI2CUtils {
             }
 
             if (app.sentryBME688Utils.getCurrentBMEValues() != null) {
-                String bmeValues = app.sentryBME688Utils.getCurrentBMEValues().toString();
-                sensorJson.put("bme688", bmeValues);
+                String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
+                if (!bmeValues.split("\\*")[2].equalsIgnoreCase("0")) {
+                    sensorJson.put("bme688", bmeValues);
+                }
             }
 
             sensorJsonArray.put(sensorJson);
