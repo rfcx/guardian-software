@@ -91,10 +91,6 @@ class SentryBME688Utils(context: Context) {
         tempBMEValues = null
     }
 
-    fun updateSentryBMEValues() {
-        getBME688Values()
-    }
-
     fun getCurrentBMEValues(): BME688Att? {
         return tempBMEValues
     }

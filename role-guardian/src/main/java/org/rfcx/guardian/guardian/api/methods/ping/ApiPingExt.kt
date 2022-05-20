@@ -17,6 +17,7 @@ object ApiPingExt {
                 "instructions" -> shortenJson.put("instructions", ping.get("instructions"))
                 "library" -> shortenJson.put("lib", ping.get("library"))
                 "messages" -> shortenJson.put("msg", ping.get("messages"))
+                //TODO: bme688 -> bm & ss -> s & reduce decimal place
                 "sentinel_sensor" -> shortenJson.put("ss", ping.get("sentinel_sensor"))
                 "swm" -> shortenJson.put("swm", ping.get("swm"))
                 "purged" -> shortenJson.put("p", ping.get("purged"))

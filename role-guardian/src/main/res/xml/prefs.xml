@@ -722,6 +722,15 @@
             android:summary="string - true/false"
             android:title="enable_sensor_bme688" />
 
+    <ListPreference
+            android:defaultValue="@string/prefs_value_default_enable_sensor_bme688"
+            android:dialogTitle="enable_sensor_infineon"
+            android:entries="@array/prefs_values_true_or_false"
+            android:entryValues="@array/prefs_values_true_or_false"
+            android:key="enable_sensor_infineon"
+            android:summary="string - true/false"
+            android:title="enable_sensor_infineon" />
+
     <EditTextPreference
             android:defaultValue="@string/prefs_value_default_ping_sensor_values"
             android:enabled="true"

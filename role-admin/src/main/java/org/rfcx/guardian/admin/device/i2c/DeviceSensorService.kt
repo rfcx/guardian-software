@@ -71,6 +71,11 @@ class DeviceSensorService : Service() {
                         app!!.sentryBME688Utils.saveBME688ValuesToDatabase(app!!.sentryBME688Utils.getBME688Values())
                     }
 
+                    if (app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_INFINEON)) {
+                        Log.d(logTag, "Saving Infineon values to database")
+                        app!!.sentryInfineonUtils.saveInfineonValuesToDatabase(app!!.sentryInfineonUtils.getInfineonValues())
+                    }
+
                     sleep(300000)
                 } catch (e: InterruptedException) {
                     deviceSensorService.runFlag = false

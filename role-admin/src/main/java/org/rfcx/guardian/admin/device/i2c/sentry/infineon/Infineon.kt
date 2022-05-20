@@ -27,7 +27,7 @@ class Infineon(context: Context) {
     init {
         if (readRegValue(STATUS_REG) > 0) {
             pressure = getPressure()
-            setPressure()
+            setPressure( /* app.rfcxPrefs.getPrefAsLong(RfcxPrefs.INFINEON_PRESSURE_CALIB) */)
             setMode(Mode.IDLE)
         }
     }
@@ -85,7 +85,7 @@ class Infineon(context: Context) {
 
     private fun writeRegValue(reg: String, byte: Byte) {
         app.deviceI2cUtils.i2cSet(reg, MAIN_ADDRESS_REG, byte.toInt(), false)
-        sleep(400)
+        sleep(1000)
     }
 
     private fun combineHighAndLowRegValues(high: Byte, low: Byte): Int {
