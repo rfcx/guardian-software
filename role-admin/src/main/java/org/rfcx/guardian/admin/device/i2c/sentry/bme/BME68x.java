@@ -991,20 +991,20 @@ public class BME68x {
 		int tries = 5;
 		do {
 			// Read data from the sensor
-			String startAddr = "0x" + Integer.toHexString(Integer.decode(REG_FIELD0) + index * LEN_FIELD_OFFSET);
+			String startAddr = "0x" + Integer.toHexString((Integer.decode(REG_FIELD0) + index * LEN_FIELD_OFFSET) & 0xFF);
 			buffer = app.deviceI2cUtils.i2cGetBlockAsByteArr(startAddr, ALT_DEVICE_ADDRESS, buffer, true, false);
 
 			data = extractTphgReading(buffer);
 
 			if (data.newData) {
-				String startAddrIDACHeat = "0x" + Integer.toHexString(Integer.decode(REG_IDAC_HEAT0) + data.gasMeasurementIndex);
+				String startAddrIDACHeat = "0x" + Integer.toHexString((Integer.decode(REG_IDAC_HEAT0) + data.gasMeasurementIndex) & 0xFF);
 				data.idacHeatRegVal = (short) (app.deviceI2cUtils.i2cGetAsByte(startAddrIDACHeat, ALT_DEVICE_ADDRESS, true, false) & 0xff);
 				// Note that these fields aren't really required - they aren't changed
 				// TODO Do reverse calculation of calculateHeaterResistanceRegValFpu
-				String startAddrRESHeat = "0x" + Integer.toHexString(Integer.decode(REG_RES_HEAT0) + data.gasMeasurementIndex);
+				String startAddrRESHeat = "0x" + Integer.toHexString((Integer.decode(REG_RES_HEAT0) + data.gasMeasurementIndex) & 0xFF);
 				data.heaterResistance = (short) (app.deviceI2cUtils.i2cGetAsByte(startAddrRESHeat, ALT_DEVICE_ADDRESS, true, false) & 0xff);
 
-				String startAddrGas = "0x" + Integer.toHexString(Integer.decode(REG_GAS_WAIT0) + data.gasMeasurementIndex);
+				String startAddrGas = "0x" + Integer.toHexString((Integer.decode(REG_GAS_WAIT0) + data.gasMeasurementIndex) & 0xFF);
 				data.gasWaitMs = (short) gasWaitRegValToDuration(
 						app.deviceI2cUtils.i2cGetAsByte(startAddrGas, ALT_DEVICE_ADDRESS, true, false));
 
@@ -1034,7 +1034,7 @@ public class BME68x {
 		for (int i = 0; i < NUM_FIELDS; i++) {
 			// Get around the 32 byte limit when using SMBus commands - 51 bytes to read
 			// TODO Switch to I2C readWrite when supported in pigpio
-			String startAddr = "0x" + Integer.toHexString(Integer.decode(REG_FIELD0) + i * LEN_FIELD_OFFSET);
+			String startAddr = "0x" + Integer.toHexString((Integer.decode(REG_FIELD0) + i * LEN_FIELD_OFFSET) & 0xFF);
 			buffer[i] = app.deviceI2cUtils.i2cGetBlockAsByteArr(startAddr, ALT_DEVICE_ADDRESS, buffer[i], true, false);
 		}
 
@@ -1712,7 +1712,7 @@ public class BME68x {
 		// Alternative is to do multiple individual byte data writes
 		int startAddrInt = Integer.decode(registerStart);
 		for (int i = 0; i < data.length; i++) {
-			app.deviceI2cUtils.i2cSet("0x" + Integer.toHexString(startAddrInt + i), ALT_DEVICE_ADDRESS, data[i], false);
+			app.deviceI2cUtils.i2cSet("0x" + Integer.toHexString((startAddrInt + i) & 0xFF), ALT_DEVICE_ADDRESS, data[i], false);
 		}
 	}
 

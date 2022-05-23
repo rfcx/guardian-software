@@ -732,6 +732,13 @@
             android:title="enable_sensor_infineon" />
 
     <EditTextPreference
+            android:defaultValue="@string/prefs_value_default_infineon_pressure_calibrate_number"
+            android:enabled="true"
+            android:key="infineon_pressure_calibrate_number"
+            android:summary="number - hPa"
+            android:title="infineon_pressure_calibrate_number" />
+
+    <EditTextPreference
             android:defaultValue="@string/prefs_value_default_ping_sensor_values"
             android:enabled="true"
             android:key="ping_sensor_values"

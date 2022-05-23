@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.device.i2c.sentry.infineon
 
 import android.content.Context
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import java.math.BigInteger
 import java.util.concurrent.TimeUnit
 
@@ -27,12 +28,14 @@ class Infineon(context: Context) {
     init {
         if (readRegValue(STATUS_REG) > 0) {
             pressure = getPressure()
-            setPressure( /* app.rfcxPrefs.getPrefAsLong(RfcxPrefs.INFINEON_PRESSURE_CALIB) */)
+            setPressure(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.INFINEON_PRESSURE_CALIB))
             setMode(Mode.IDLE)
         }
     }
 
     fun getCO2Value(): Int {
+        setPressure(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.INFINEON_PRESSURE_CALIB))
+
         setMode(Mode.SINGLE)
 
         val co2High = readRegValue(CO2_H_REG)
@@ -52,6 +55,7 @@ class Infineon(context: Context) {
         if (pressureArr.size == 2) {
             writeRegValue(PRESSURE_H_REG, pressureArr[0])
             writeRegValue(PRESSURE_L_REG, pressureArr[1])
+            this.pressure = pressure
             sleep(400)
         } else {
             /* above than 4 bytes */

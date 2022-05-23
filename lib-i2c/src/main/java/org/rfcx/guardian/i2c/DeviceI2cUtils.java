@@ -124,7 +124,7 @@ public class DeviceI2cUtils {
 
     public boolean i2cSet(String subAddr, String mainAddr, int data, boolean isWord) {
         List<String[]> i2cLabelsAndSubAddresses = new ArrayList<String[]>();
-        i2cLabelsAndSubAddresses.add(new String[]{"no-label", subAddr, "0x" + Integer.toHexString(data)});
+        i2cLabelsAndSubAddresses.add(new String[]{"no-label", subAddr, "0x" + Integer.toHexString(data & 0xFF)});
         boolean isSet = i2cSet(i2cLabelsAndSubAddresses, mainAddr, isWord);
         return isSet;
     }
@@ -166,7 +166,7 @@ public class DeviceI2cUtils {
 
         int startAddrInt = Integer.decode(startAddr);
         for (int i = 0; i < buffer.length; i++) {
-            String subAddr = "0x" + Integer.toHexString(startAddrInt + i);
+            String subAddr = "0x" + Integer.toHexString((startAddrInt + i) & 0xFF);
             buffer[i] = i2cGetAsByte(subAddr, mainAddr, parseAsHex, isWord);
         }
         return buffer;
