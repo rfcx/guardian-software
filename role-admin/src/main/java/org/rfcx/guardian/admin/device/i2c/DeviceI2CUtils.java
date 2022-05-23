@@ -27,7 +27,6 @@ public class DeviceI2CUtils {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         JSONArray sensorJsonArray = new JSONArray();
         try {
-            JSONObject sensorJson = new JSONObject();
 
             String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsIgnoreNull("bme688");
             if (bmeValues != null) {
@@ -91,12 +90,10 @@ public class DeviceI2CUtils {
 
             if (app.sentryBME688Utils.getCurrentBMEValues() != null) {
                 sensorJson.put("bme688", app.sentrySensorDb.dbBME688.getConcatRowsIgnoreNull("bme688"));
-
             }
 
             if (app.sentryInfineonUtils.getCurrentInfineonValues() != null) {
                 sensorJson.put("infineon", app.sentrySensorDb.dbInfineon.getConcatRowsIgnoreNull("infineon"));
-
             }
 
             sensorJsonArray.put(sensorJson);
