@@ -209,7 +209,7 @@ public class DbUtils {
         ArrayList<String> rowList = new ArrayList<String>();
         try {
             for (String[] row : getRowsOutput) {
-                // if time is null then others also null
+                // if first sensor value is null then others also null
                 if (!row[1].equals("0")) {
                     rowList.add(labelToPrepend + "*" + StringUtils.joinArrayString(row, "*"));
                 }
