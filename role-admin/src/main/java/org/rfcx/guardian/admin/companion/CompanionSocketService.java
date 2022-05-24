@@ -94,7 +94,7 @@ public class CompanionSocketService extends Service {
                             currFailureThreshold = 0;
                             app.companionSocketUtils.updatePingJson(true);
                         } else {
-                            Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * pingPushCycleDurationMs);
+//                            Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * pingPushCycleDurationMs);
                             currFailureThreshold++;
                         }
 
