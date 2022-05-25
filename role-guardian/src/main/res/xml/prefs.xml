@@ -713,5 +713,21 @@
             android:summary="string - true/false"
             android:title="enable_file_socket" />
 
+    <ListPreference
+            android:defaultValue="@string/prefs_value_default_enable_sensor_bme688"
+            android:dialogTitle="enable_sensor_bme688"
+            android:entries="@array/prefs_values_true_or_false"
+            android:entryValues="@array/prefs_values_true_or_false"
+            android:key="enable_sensor_bme688"
+            android:summary="string - true/false"
+            android:title="enable_sensor_bme688" />
+
+    <EditTextPreference
+            android:defaultValue="@string/prefs_value_default_ping_sensor_values"
+            android:enabled="true"
+            android:key="ping_sensor_values"
+            android:summary="string - comma separated"
+            android:title="ping_sensor_values" />
+
 
 </PreferenceScreen>

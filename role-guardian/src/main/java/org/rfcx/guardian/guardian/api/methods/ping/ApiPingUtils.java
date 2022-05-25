@@ -102,6 +102,7 @@ public class ApiPingUtils {
 
     private int getPriority(String pingJson) {
         if (pingJson.contains("detections")) return 1;
+        if (pingJson.contains("bme688")) return 1;
         return 2;
     }
 

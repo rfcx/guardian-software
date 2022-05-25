@@ -24,52 +24,47 @@ public class DeviceI2CUtils {
     }
 
     public static JSONArray getI2cSensorValuesAsJsonArray(Context context) {
-
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         JSONArray sensorJsonArray = new JSONArray();
         try {
             JSONObject sensorJson = new JSONObject();
-            sensorJson.put("environment", app.sentinelSensorDb.dbEnvironment.getConcatRowsWithLabelPrepended("environment"));
-            sensorJson.put("battery", app.sentinelSensorDb.dbBattery.getConcatRowsWithLabelPrepended("battery"));
-            sensorJsonArray.put(sensorJson);
 
+            String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
+            if (!bmeValues.split("\\*")[2].equalsIgnoreCase("0")) {
+                sensorJson.put("sentinel_sensor", bmeValues);
+            }
+            sensorJsonArray.put(sensorJson);
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
-
-        } finally {
-            return sensorJsonArray;
         }
+        return sensorJsonArray;
     }
 
     public static int deleteI2cSensorValuesBeforeTimestamp(String timeStamp, Context context) {
-
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
         Date clearBefore = new Date(Long.parseLong(timeStamp));
-
-        app.sentinelSensorDb.dbEnvironment.clearRowsBefore(clearBefore);
-        app.sentinelSensorDb.dbBattery.clearRowsBefore(clearBefore);
+        app.sentrySensorDb.dbBME688.clearRowsBefore(clearBefore);
 
         return 1;
     }
 
 
     public static JSONArray getMomentaryI2cSensorValuesAsJsonArray(boolean forceUpdate, Context context) {
-
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         JSONArray sensorJsonArray = new JSONArray();
 
         if (forceUpdate) {
-
             if (app.sentryAccelUtils.isChipAccessibleByI2c()) {
                 app.sentryAccelUtils.resetAccelValues();
                 app.sentryAccelUtils.updateSentryAccelValues();
             }
 
-//            if (app.sentinelCompassUtils.isCaptureAllowed()) {
-//                app.sentinelCompassUtils.resetCompassValues();
-//                app.sentinelCompassUtils.updateSentinelCompassValues();
-//            }
+            boolean bmeAccessible = app.sentryBME688Utils.isChipAccessibleByI2c();
+            if (bmeAccessible) {
+                app.sentryBME688Utils.resetBMEValues();
+                app.sentryBME688Utils.saveBME688ValuesToDatabase(app.sentryBME688Utils.getBME688Values());
+            }
         }
 
         try {
@@ -80,10 +75,12 @@ public class DeviceI2CUtils {
                 sensorJson.put("accelerometer", "accelerometer*" + accelVals[4] + "*" + accelVals[0] + "*" + accelVals[1] + "*" + accelVals[2] + "*" + accelVals[3]);
             }
 
-//            if (app.sentinelCompassUtils.getCompassValues().size() > 0) {
-//                long[] compassVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelCompassUtils.getCompassValues()));
-//                sensorJson.put("compass", "compass*"+compassVals[4]+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
-//            }
+            if (app.sentryBME688Utils.getCurrentBMEValues() != null) {
+                String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
+                if (!bmeValues.split("\\*")[2].equalsIgnoreCase("0")) {
+                    sensorJson.put("bme688", bmeValues);
+                }
+            }
 
             sensorJsonArray.put(sensorJson);
 

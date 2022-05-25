@@ -57,10 +57,12 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2cService;
+import org.rfcx.guardian.admin.device.i2c.DeviceSensorService;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
@@ -136,6 +138,7 @@ public class RfcxGuardian extends Application {
     public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
     public SentinelPowerUtils sentinelPowerUtils = null;
     public SentryAccelUtils sentryAccelUtils = null;
+    public SentryBME688Utils sentryBME688Utils = null;
     public SbdUtils sbdUtils = null;
     public SwmUtils swmUtils = null;
     public SpeedTest speedTest = null;
@@ -143,6 +146,7 @@ public class RfcxGuardian extends Application {
             new String[]{
                     DeviceSystemService.SERVICE_NAME,
                     DeviceI2cService.SERVICE_NAME,
+                    DeviceSensorService.SERVICE_NAME,
                     SmsDispatchCycleService.SERVICE_NAME,
                     SbdDispatchCycleService.SERVICE_NAME,
                     SwmDispatchCycleService.SERVICE_NAME,
@@ -171,6 +175,7 @@ public class RfcxGuardian extends Application {
         this.deviceUtils = new DeviceUtils(this);
         this.sentinelPowerUtils = new SentinelPowerUtils(this);
         this.sentryAccelUtils = new SentryAccelUtils(this);
+        this.sentryBME688Utils = new SentryBME688Utils(this);
         this.assetUtils = new AssetUtils(this);
         this.companionSocketUtils = new CompanionSocketUtils(this);
         this.companionPingJsonUtils = new CompanionPingJsonUtils(this);
@@ -343,6 +348,7 @@ public class RfcxGuardian extends Application {
 
         this.rfcxSvc.addService(DeviceSystemService.SERVICE_NAME, DeviceSystemService.class);
         this.rfcxSvc.addService(DeviceI2cService.SERVICE_NAME, DeviceI2cService.class);
+        this.rfcxSvc.addService(DeviceSensorService.SERVICE_NAME, DeviceSensorService.class);
 
         this.rfcxSvc.addService(ScreenShotCaptureService.SERVICE_NAME, ScreenShotCaptureService.class);
         this.rfcxSvc.addService(ScheduledScreenShotCaptureService.SERVICE_NAME, ScheduledScreenShotCaptureService.class);

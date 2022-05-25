@@ -39,12 +39,7 @@ int i2cSetAddress(int i2cAdapter, unsigned char address) {
 
 int i2cWriteByte(int i2cAdapter, unsigned char address, unsigned char byte)
 {
-	unsigned char buff[2];
-
-   	buff[0] = i2cAdapter;
-   	buff[1] = byte;
-
-	if(write(i2cAdapter, buff, 2)!=2)
+	if(i2c_smbus_write_byte_data(i2cAdapter, address, byte) < 0)
 	{
 		return -1;
 	}
