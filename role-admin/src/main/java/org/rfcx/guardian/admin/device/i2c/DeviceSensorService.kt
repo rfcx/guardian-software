@@ -66,9 +66,14 @@ class DeviceSensorService : Service() {
                 }
 
                 try {
-                    if (app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_BME688)) {
+                    if (app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_BME688) && app!!.sentryBME688Utils.isChipAccessibleByI2c()) {
                         Log.d(logTag, "Saving BME688 values to database")
                         app!!.sentryBME688Utils.saveBME688ValuesToDatabase(app!!.sentryBME688Utils.getBME688Values())
+                    }
+
+                    if (app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_INFINEON) && app!!.sentryInfineonUtils.isChipAccessibleByI2c()) {
+                        Log.d(logTag, "Saving Infineon values to database")
+                        app!!.sentryInfineonUtils.saveInfineonValuesToDatabase(app!!.sentryInfineonUtils.getInfineonValues())
                     }
 
                     sleep(300000)

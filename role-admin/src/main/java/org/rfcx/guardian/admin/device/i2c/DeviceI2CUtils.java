@@ -27,13 +27,21 @@ public class DeviceI2CUtils {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         JSONArray sensorJsonArray = new JSONArray();
         try {
-            JSONObject sensorJson = new JSONObject();
 
-            String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
-            if (!bmeValues.split("\\*")[2].equalsIgnoreCase("0")) {
-                sensorJson.put("sentinel_sensor", bmeValues);
+            String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsIgnoreNull("bme688");
+            if (bmeValues != null) {
+                JSONObject bmeObj = new JSONObject();
+                bmeObj.put("bme688", bmeValues);
+                sensorJsonArray.put(bmeObj);
             }
-            sensorJsonArray.put(sensorJson);
+
+            String infValues = app.sentrySensorDb.dbInfineon.getConcatRowsIgnoreNull("infineon");
+            if (infValues != null) {
+                JSONObject infObj = new JSONObject();
+                infObj.put("infineon", infValues);
+                sensorJsonArray.put(infObj);
+            }
+
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
@@ -45,6 +53,7 @@ public class DeviceI2CUtils {
 
         Date clearBefore = new Date(Long.parseLong(timeStamp));
         app.sentrySensorDb.dbBME688.clearRowsBefore(clearBefore);
+        app.sentrySensorDb.dbInfineon.clearRowsBefore(clearBefore);
 
         return 1;
     }
@@ -60,10 +69,14 @@ public class DeviceI2CUtils {
                 app.sentryAccelUtils.updateSentryAccelValues();
             }
 
-            boolean bmeAccessible = app.sentryBME688Utils.isChipAccessibleByI2c();
-            if (bmeAccessible) {
+            if (app.sentryBME688Utils.isChipAccessibleByI2c()) {
                 app.sentryBME688Utils.resetBMEValues();
                 app.sentryBME688Utils.saveBME688ValuesToDatabase(app.sentryBME688Utils.getBME688Values());
+            }
+
+            if (app.sentryInfineonUtils.isChipAccessibleByI2c()) {
+                app.sentryInfineonUtils.resetInfineonValues();
+                app.sentryInfineonUtils.saveInfineonValuesToDatabase(app.sentryInfineonUtils.getInfineonValues());
             }
         }
 
@@ -76,10 +89,11 @@ public class DeviceI2CUtils {
             }
 
             if (app.sentryBME688Utils.getCurrentBMEValues() != null) {
-                String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsWithLabelPrepended("bme688");
-                if (!bmeValues.split("\\*")[2].equalsIgnoreCase("0")) {
-                    sensorJson.put("bme688", bmeValues);
-                }
+                sensorJson.put("bme688", app.sentrySensorDb.dbBME688.getConcatRowsIgnoreNull("bme688"));
+            }
+
+            if (app.sentryInfineonUtils.getCurrentInfineonValues() != null) {
+                sensorJson.put("infineon", app.sentrySensorDb.dbInfineon.getConcatRowsIgnoreNull("infineon"));
             }
 
             sensorJsonArray.put(sensorJson);

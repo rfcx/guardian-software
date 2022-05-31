@@ -160,8 +160,8 @@ public class SwmMessageDb {
             this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
         }
 
-        public void clearRowsByIds(List<String> ids) {
-            this.dbUtils.deleteRowsWithinValuesByOneColumn(TABLE, C_MESSAGE_ID, ids.toArray(new String[0]));
+        public void clearRowsByGroupIds(List<String> ids) {
+            this.dbUtils.deleteRowsWithinValuesByOneColumn(TABLE, C_GROUP_ID, ids.toArray(new String[0]));
         }
 
         public int deleteSingleRowByMessageId(String message_id) {

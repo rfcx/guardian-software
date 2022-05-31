@@ -30,6 +30,7 @@ class SentryBME688Utils(context: Context) {
         if (!isI2cHandlerAccessible) return false
 
         val i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0xf0", i2cMainAddr, true, false)
+            ?: return false
         val isI2cAccelChipConnected = abs(
             DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)
         ) > 0
@@ -89,10 +90,6 @@ class SentryBME688Utils(context: Context) {
 
     fun resetBMEValues() {
         tempBMEValues = null
-    }
-
-    fun updateSentryBMEValues() {
-        getBME688Values()
     }
 
     fun getCurrentBMEValues(): BME688Att? {

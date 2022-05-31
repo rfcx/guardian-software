@@ -89,4 +89,36 @@ class DbUtilsTest {
         // Assert
         assertNull(arr)
     }
+
+    @Test
+    fun canIgnoreNullSensor() {
+        // Arrange
+        val sensorRows = listOf(
+            arrayOf("1634289349000", "0"),
+            arrayOf(
+                "1634289349257",
+                "0",
+                "0",
+                "0"
+            )
+        )
+
+        // Act
+        val arr = DbUtils.getConcatRowsIgnoreNullSensors("sensor", sensorRows)
+
+        // Assert
+        assertNull(arr)
+    }
+
+    @Test
+    fun canIgnoreNullSensorOnEmptyArr() {
+        // Arrange
+        val sensorRows = listOf<Array<String>>()
+
+        // Act
+        val arr = DbUtils.getConcatRowsIgnoreNullSensors("sensor", sensorRows)
+
+        // Assert
+        assertNull(arr)
+    }
 }

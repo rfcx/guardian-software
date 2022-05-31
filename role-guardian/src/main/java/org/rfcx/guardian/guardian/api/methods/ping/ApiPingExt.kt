@@ -17,7 +17,6 @@ object ApiPingExt {
                 "instructions" -> shortenJson.put("instructions", ping.get("instructions"))
                 "library" -> shortenJson.put("lib", ping.get("library"))
                 "messages" -> shortenJson.put("msg", ping.get("messages"))
-                "sentinel_sensor" -> shortenJson.put("ss", ping.get("sentinel_sensor"))
                 "swm" -> shortenJson.put("swm", ping.get("swm"))
                 "purged" -> shortenJson.put("p", ping.get("purged"))
                 "prefs" -> {
@@ -187,6 +186,14 @@ object ApiPingExt {
                     val removedCommaDetectionsString =
                         detectionsAsList.joinToString("|") { it.joinToString("*") }
                     shortenJson.put("dtt", removedCommaDetectionsString)
+                }
+                "sentinel_sensor" -> {
+                    val sentinelSensor = ping.getString("sentinel_sensor")
+                    val shortenSentinelSensor = sentinelSensor.let {
+                        it.replace("bme688", "bm")
+                            .replace("infineon", "ifn")
+                    }
+                    shortenJson.put("s", shortenSentinelSensor)
                 }
                 else -> shortenJson.put(it, ping.get(it))
             }

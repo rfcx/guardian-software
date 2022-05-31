@@ -149,7 +149,10 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
                 put(Pref.ENABLE_FILE_SOCKET, "false");
 
-                put(Pref.ENABLE_SENSOR_BME688, "true");
+                put(Pref.ENABLE_SENSOR_BME688, "false");
+                put(Pref.ENABLE_SENSOR_INFINEON, "false");
+                put(Pref.INFINEON_PRESSURE_CALIB, "1013");
+
                 put(Pref.PING_SENSOR_VALUES, "bme");
             }}
     );
@@ -657,6 +660,8 @@ public class RfcxPrefs {
         public static final String ENABLE_FILE_SOCKET = "enable_file_socket";
 
         public static final String ENABLE_SENSOR_BME688 = "enable_sensor_bme688";
+        public static final String ENABLE_SENSOR_INFINEON = "enable_sensor_infineon";
+        public static final String INFINEON_PRESSURE_CALIB = "infineon_pressure_calibrate_number";
         public static final String PING_SENSOR_VALUES = "ping_sensor_values";
     }
 

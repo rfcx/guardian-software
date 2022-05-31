@@ -23,6 +23,7 @@ public class SentrySensorDb {
     private static final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_VALUE_1, C_VALUE_2, C_VALUE_3, C_VALUE_4};
     public final DbAccelerometer dbAccelerometer;
     public final DbBME688 dbBME688;
+    public final DbInfineon dbInfineon;
     private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
 
@@ -31,6 +32,7 @@ public class SentrySensorDb {
         this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
         this.dbAccelerometer = new DbAccelerometer(context);
         this.dbBME688 = new DbBME688(context);
+        this.dbInfineon = new DbInfineon(context);
     }
 
     private String createColumnString(String tableName) {
@@ -144,6 +146,66 @@ public class SentrySensorDb {
 
         public String getConcatRows() {
             return DbUtils.getConcatRows(getAllRows());
+        }
+
+        public String getConcatRowsIgnoreNull(String labelToPrepend) {
+            return DbUtils.getConcatRowsIgnoreNullSensors(labelToPrepend, getAllRows());
+        }
+
+        public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+            return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+        }
+
+    }
+
+    public class DbInfineon {
+
+        final DbUtils dbUtils;
+        public String FILEPATH;
+
+        private final String TABLE = "infineon";
+
+        private static final String C_CO2 = "co2";
+
+        private final String[] ALL_COLUMNS = new String[]{C_MEASURED_AT, C_CO2};
+
+        private String createColumnString() {
+            StringBuilder sbOut = new StringBuilder();
+            sbOut.append("CREATE TABLE ").append(TABLE)
+                    .append("(").append(C_MEASURED_AT).append(" INTEGER")
+                    .append(", ").append(C_CO2).append(" INTEGER")
+                    .append(")");
+            return sbOut.toString();
+        }
+
+        public DbInfineon(Context context) {
+            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(), DROP_TABLE_ON_UPGRADE);
+            FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+        }
+
+        public int insert(Date measured_at, int co2) {
+
+            ContentValues values = new ContentValues();
+            values.put(C_MEASURED_AT, measured_at.getTime());
+            values.put(C_CO2, co2);
+
+            return this.dbUtils.insertRow(TABLE, values);
+        }
+
+        private List<String[]> getAllRows() {
+            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+        }
+
+        public void clearRowsBefore(Date date) {
+            this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+        }
+
+        public String getConcatRows() {
+            return DbUtils.getConcatRows(getAllRows());
+        }
+
+        public String getConcatRowsIgnoreNull(String labelToPrepend) {
+            return DbUtils.getConcatRowsIgnoreNullSensors(labelToPrepend, getAllRows());
         }
 
         public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
