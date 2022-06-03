@@ -60,7 +60,7 @@ public class RfcxPrefs {
                 put(Pref.ENABLE_REBOOT_FORCED_DAILY, "false");
                 put(Pref.REBOOT_FORCED_DAILY_AT, "23:55:00");
 
-                put(Pref.AUDIO_CYCLE_DURATION, "90");
+                put(Pref.AUDIO_CYCLE_DURATION, "60");
 
                 put(Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS, "true");
                 put(Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
