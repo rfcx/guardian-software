@@ -36,7 +36,7 @@ public class RfcxPrefs {
                 put(Pref.ENABLE_AUDIO_STREAM, "true");
                 put(Pref.ENABLE_AUDIO_VAULT, "false");
                 put(Pref.ENABLE_AUDIO_CLASSIFY, "false");
-                put(Pref.ENABLE_AUDIO_CAST, "false");
+                put(Pref.ENABLE_AUDIO_CAST, "true");
 
                 put(Pref.ENABLE_CHECKIN_PUBLISH, "true");
                 put(Pref.ENABLE_CHECKIN_ARCHIVE, "true");
@@ -147,13 +147,11 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS, "[ssid]:[password]");
                 put(Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS, "[ssid]:rfcxrfcx");
                 put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
-                put(Pref.ENABLE_FILE_SOCKET, "false");
+                put(Pref.ENABLE_FILE_SOCKET, "true");
 
                 put(Pref.ENABLE_SENSOR_BME688, "false");
                 put(Pref.ENABLE_SENSOR_INFINEON, "false");
                 put(Pref.INFINEON_PRESSURE_CALIB, "1013");
-
-                put(Pref.PING_SENSOR_VALUES, "bme");
             }}
     );
     private final String logTag;
