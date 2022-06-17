@@ -293,10 +293,12 @@ public class AudioCaptureUtils {
             isAudioCaptureDisabledRightNow = true;
 
         } else if (limitBasedOnCaptureSamplingRatio()) {
-            msgNoCapture.append("a sampling ratio definition. ")
-                    .append("Ratio is '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)).append("'. ")
-                    .append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0] + this.samplingRatioArr[1]).append(".");
-            isAudioCaptureDisabledRightNow = true;
+            if (samplingRatioArr.length == 2) {
+                msgNoCapture.append("a sampling ratio definition. ")
+                        .append("Ratio is '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)).append("'. ")
+                        .append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0] + this.samplingRatioArr[1]).append(".");
+                isAudioCaptureDisabledRightNow = true;
+            }
 
         } else if (!app.isGuardianRegistered()) {
             msgNoCapture.append("the Guardian not having been activated/registered.");
