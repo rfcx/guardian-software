@@ -166,6 +166,7 @@ public class AudioClassifyUtils {
         }
 
         jsonObj.put("detections", jsonDetections);
+        Log.e(logTag, jsonDetections.toString());
         return jsonObj;
     }
 
