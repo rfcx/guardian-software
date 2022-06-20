@@ -24,7 +24,7 @@ public class AudioCaptureWavRecorder {
     //	STOPPED: reset needed
     // The interval in which the recorded samples are output to the file used only in uncompressed mode
 //	private static final int TIMER_INTERVAL_UNCOMPRESSED = 480;
-    private static final int TIMER_INTERVAL_UNCOMPRESSED = 333;
+    private static final int TIMER_INTERVAL_UNCOMPRESSED = 250;
 
     private static State recorderState;
     public byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)

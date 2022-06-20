@@ -232,8 +232,8 @@ public class MetaJsonUtils {
             ) {
                 if (!forceFullValuesDump) {
                     Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
+                    prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
                 }
-                prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
                 app.rfcxPrefs.prefsSync_TimestampLastSync = System.currentTimeMillis();
             }
         } catch (JSONException e) {

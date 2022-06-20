@@ -111,7 +111,7 @@ public class AudioDetectionFilterJobService extends Service {
 //						}
 //						filterRow = filters.get(filterId);
 
-                        String[] allowedClassifications = new String[]{"chainsaw"};
+                        String[] allowedClassifications = new String[]{"chainsaw", "elephas_maximus"};
                         double filterConfidenceMinThreshold = 0.95;
                         double filterConfidenceMinCountPerMinute = 4;
                         int detectionSigFigs = 2;
@@ -142,6 +142,10 @@ public class AudioDetectionFilterJobService extends Service {
                                         classTag, clsfrId, clsfrName, clsfrVersion, filterId,
                                         audioId, beginsAtMs, windowSizeMs, stepSizeMs, TextUtils.join(",", filteredConfidences));
                                 Log.v(logTag, eligibleDetectionsCount + " detection windows (" + Math.round((Double.parseDouble("" + eligibleDetectionsCount) / Double.parseDouble("" + confidences.length())) * 100) + "%) for classification '" + classTag + "' are above the " + filterConfidenceMinThreshold + " confidence threshold and have been preserved (required per minute: " + Math.round(filterConfidenceMinCountPerMinute) + ").");
+                                // only allow sms guardian to force send detection
+                                if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).contains("sms")) {
+                                    app.apiPingUtils.sendPing(false, new String[] { "detections" }, true);
+                                }
                             } else {
                                 Log.w(logTag, eligibleDetectionsCount + " detection windows (" + Math.round((Double.parseDouble("" + eligibleDetectionsCount) / Double.parseDouble("" + confidences.length())) * 100) + "%) for classification '" + classTag + "' are above the " + filterConfidenceMinThreshold + " confidence threshold (required per minute: " + Math.round(filterConfidenceMinCountPerMinute) + "). None will be preserved.");
                             }

@@ -104,7 +104,7 @@ public class ApiPingCycleService extends Service {
                                 if (app.apiPingUtils.sendPing(
                                         ArrayUtils.doesStringArrayContainString(includePingFields, "all"),
                                         includePingFields,
-                                        (ArrayUtils.doesStringArrayContainString(includePingFields, "meta") || ArrayUtils.doesStringArrayContainString(includePingFields, "detections")) ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT) : 0,
+                                        (ArrayUtils.doesStringArrayContainString(includePingFields, "meta") || ArrayUtils.doesStringArrayContainString(includePingFields, "detections")) ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.PING_META_SEND_BUNDLE_LIMIT) : 0,
                                         "all",
                                         true
                                 )) {

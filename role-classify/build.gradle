@@ -31,13 +31,18 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable false
             jniDebuggable false
             renderscriptDebuggable false
         }
+    }
+
+    aaptOptions {
+        noCompress "tflite"
+        noCompress "lite"
     }
 }
 
@@ -49,6 +54,8 @@ dependencies {
 
     implementation "com.android.support:support-core-utils:28.0.0"
 
-    implementation 'org.tensorflow:tensorflow-lite:2.3.0'
+    implementation 'org.tensorflow:tensorflow-lite:2.5.0'
+    // implementation 'org.tensorflow:tensorflow-lite:2.1.0'
+    // implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:2.3.0'
 
 }
