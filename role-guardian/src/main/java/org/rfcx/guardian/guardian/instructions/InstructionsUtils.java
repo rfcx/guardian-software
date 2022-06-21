@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -153,23 +152,6 @@ public class InstructionsUtils {
                             app.setSharedPref(prefKey.toLowerCase(), prefsKeysVals.getString(prefKey).toLowerCase());
                         }
                     }
-                }
-
-                // Execute Control Command
-            } else if (instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("clsf")) {
-
-                if (!instrMeta.toString().equalsIgnoreCase("{}")) {
-                    String assetId = instrMeta.getString("assetId");
-                    String fileType = instrMeta.getString("fileType");
-                    String checksum = instrMeta.getString("checksum");
-                    String metaJsonBlob = instrMeta.getString("metaJsonBlob");
-
-                    String libraryPath = app.assetLibraryUtils.getLibraryAssetFilePath("classifier", assetId, fileType);
-                    FileUtils.initializeDirectoryRecursively(libraryPath.substring(0, libraryPath.lastIndexOf("/")), false);
-
-                    app.assetLibraryDb.dbClassifier.insert(assetId, fileType, checksum, libraryPath,
-                            FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob, 0, 0);
-                    app.audioClassifyUtils.activateClassifier(assetId);
                 }
 
             } else if (instrType.equalsIgnoreCase("ctrl")) {

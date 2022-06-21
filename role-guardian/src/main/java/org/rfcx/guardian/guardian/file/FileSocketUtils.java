@@ -120,6 +120,8 @@ public class FileSocketUtils {
 
                             int derimeter = -1;
                             int count = 0;
+
+                            // Get File name if needed
                             while (true) {
                                 char chr = (char) (fullRead[count] & 0xFF);
                                 if (Character.toString(chr).equals("|")) {
@@ -130,6 +132,18 @@ public class FileSocketUtils {
                                 fileName.append(chr);
                             }
 
+                            // Get Meta file if needed
+                            StringBuilder fileMeta = new StringBuilder();
+                            while (true) {
+                                char chr = (char) (fullRead[count] & 0xFF);
+                                if (Character.toString(chr).equals("|")) {
+                                    break;
+                                }
+                                count++;
+                                derimeter = count;
+                                fileMeta.append(chr);
+                            }
+
                             if (derimeter != -1) {
                                 Log.d(logTag, "Writing: " + fileName);
                                 FileType type = FileType.APK;
@@ -137,6 +151,7 @@ public class FileSocketUtils {
                                     type = FileType.MODEL;
                                 }
                                 InputStream fullInput = new ByteArrayInputStream(Arrays.copyOfRange(fullRead, count + 1, fullRead.length));
+                                // Write file to disk with extension
                                 boolean result = writeStreamToDisk(fullInput, fileName.toString(), type);
                                 Log.d(logTag, "Writing: " + fileName + " " + result);
                                 isReading = false;
@@ -178,6 +193,18 @@ public class FileSocketUtils {
                                         FileUtils.initializeDirectoryRecursively(libDstPath.substring(0, libDstPath.lastIndexOf("/")), false);
                                         FileUtils.delete(libDstPath);
                                         FileUtils.copy(modelSrcPath, libDstPath);
+
+                                        if (!fileMeta.toString().equals("")) {
+                                            JSONObject obj = new JSONObject(fileMeta.toString());
+                                            String assetId = obj.getString("assetId");
+                                            String fileType = obj.getString("fileType");
+                                            String checksum = obj.getString("checksum");
+                                            String metaJsonBlob = obj.getString("metaJsonBlob");
+
+                                            app.assetLibraryDb.dbClassifier.insert(assetId, fileType, checksum, libDstPath,
+                                                    FileUtils.getFileSizeInBytes(libDstPath), metaJsonBlob, 0, 0);
+                                            app.audioClassifyUtils.activateClassifier(assetId);
+                                        }
                                     }
 
                                 }
