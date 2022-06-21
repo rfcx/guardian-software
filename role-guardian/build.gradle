@@ -13,8 +13,8 @@ android {
         applicationId "org.rfcx.guardian.guardian"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 15
-        versionName "1.0.0"
+        versionCode 16
+        versionName "1.0.1"
         resConfigs "en"
         setProperty("archivesBaseName", "guardian-$versionName")
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]
