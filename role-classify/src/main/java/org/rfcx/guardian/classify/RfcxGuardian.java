@@ -56,7 +56,7 @@ public class RfcxGuardian extends Application {
 
         this.audioClassifyUtils = new AudioClassifyUtils(this);
 
-        this.audioClassifyUtils.moveClassifierFromRawToDirectory(this);
+//        this.audioClassifyUtils.moveClassifierFromRawToDirectory(this);
 
         setDbHandlers();
         setServiceHandlers();

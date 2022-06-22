@@ -106,11 +106,12 @@ public class AudioClassifyJobService extends Service {
                         float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
                         float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[10]);
                         String clsfrClassifications = latestQueuedAudioToClassify[11];
-                        String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate / 1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
+                        String clsfrClassificationsThreshold = latestQueuedAudioToClassify[12];
+                        String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate / 1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize + ", with threshold " + clsfrClassificationsThreshold;
                         String audioId = latestQueuedAudioToClassify[1];
                         long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
                         String audioOrigRelativePath = latestQueuedAudioToClassify[7];
-                        int previousAttempts = Integer.parseInt(latestQueuedAudioToClassify[12]);
+                        int previousAttempts = Integer.parseInt(latestQueuedAudioToClassify[13]);
 
                         if (previousAttempts >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
@@ -133,8 +134,7 @@ public class AudioClassifyJobService extends Service {
 
                             } else {
 
-                                boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
-
+                                boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications, clsfrClassificationsThreshold);
                                 if (!isClassifierInitialized) {
 
                                     Log.e(logTag, "Classifier could not be initialized: " + clsfLoggingSummary);

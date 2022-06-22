@@ -49,7 +49,7 @@ public class AudioClassifyUtils {
         (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioClassifyDir(context)}, audioQueuedForClassification, Math.round(maxAgeInMilliseconds / 60000), false, false);
     }
 
-    public void queueClassifyJobAcrossRoles(String audioId, String classifierId, String classifierVersion, int classifierSampleRate, String audioFilePath, String classifierFilePath, String classifierWindowSize, String classifierStepSize, String classifierClasses) {
+    public void queueClassifyJobAcrossRoles(String audioId, String classifierId, String classifierVersion, int classifierSampleRate, String audioFilePath, String classifierFilePath, String classifierWindowSize, String classifierStepSize, String classifierClasses, String classifierThreshold) {
 
         try {
             String classifyJobUrlBlob = TextUtils.join("|", new String[]{
@@ -61,7 +61,8 @@ public class AudioClassifyUtils {
                     RfcxComm.urlEncode(classifierFilePath),
                     RfcxComm.urlEncode(classifierWindowSize),
                     RfcxComm.urlEncode(classifierStepSize),
-                    RfcxComm.urlEncode(classifierClasses)
+                    RfcxComm.urlEncode(classifierClasses),
+                    RfcxComm.urlEncode(classifierThreshold)
             });
 
             Cursor classifyQueueResponse = app.getResolver().query(
@@ -97,12 +98,14 @@ public class AudioClassifyUtils {
             JSONArray vaultJsonArr = new JSONArray();
             boolean isVaultEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT);
 
+            int thresholdIndex = 0;
             for (Iterator<String> classificationNames = jsonObj.getJSONObject("detections").keys(); classificationNames.hasNext(); ) {
                 String classificationTag = classificationNames.next();
                 JSONArray detections = jsonObj.getJSONObject("detections").getJSONArray(classificationTag);
+                String threshold = jsonObj.getString("threshold");
                 app.audioDetectionDb.dbUnfiltered.insert(
                         classificationTag, classifierId, classifierName, classifierVersion, "-",
-                        audioId, audioId, windowSize, stepSize, detections.toString()
+                        audioId, audioId, windowSize, stepSize, detections.toString(), threshold.split(",")[thresholdIndex++]
                 );
 
                 if (isVaultEnabled) {
@@ -182,8 +185,9 @@ public class AudioClassifyUtils {
                     String clsfrWindowSize = jsonMeta.getString("window_size");
                     String clsfrStepSize = jsonMeta.getString("step_size");
                     String clsfrClassifications = jsonMeta.getString("classifications");
+                    String clsfrThreshold = jsonMeta.getString("classifications_filter_threshold");
 
-                    app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrInputGain, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
+                    app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrInputGain, clsfrWindowSize, clsfrStepSize, clsfrClassifications, clsfrThreshold);
 
                     FileUtils.delete(clsfrActiveFilePath);
                     FileUtils.copy(clsfrLibraryFilePath, clsfrActiveFilePath);

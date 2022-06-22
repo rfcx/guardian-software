@@ -112,6 +112,7 @@ public class AudioQueuePostProcessingService extends IntentService {
                             String classifierWindowSize = classiferRow[9];
                             String classifierStepSize = classiferRow[10];
                             String classifierClasses = classiferRow[11];
+                            String classifierThreshold = classiferRow[12];
 
                             if (app.audioClassifyUtils.isClassifyAllowedAtThisTimeOfDay(classifierId)) {
                                 if (classifierSampleRate <= captureSampleRate) {
@@ -119,7 +120,7 @@ public class AudioQueuePostProcessingService extends IntentService {
                                             "" + captureTimestampActual, classifierId, classifierVersion,
                                             captureSampleRate, classifierSampleRate, classifierInputGain,
                                             preClassifyFilePath, classifierFilePath,
-                                            classifierWindowSize, classifierStepSize, classifierClasses);
+                                            classifierWindowSize, classifierStepSize, classifierClasses, classifierThreshold);
                                 } else {
                                     Log.e(logTag, "Classification job skipped because Classifier Sample Rate (" + classifierSampleRate + ") is higher than Capture Sample Rate (" + captureSampleRate + ").");
                                 }

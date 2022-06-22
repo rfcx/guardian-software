@@ -133,6 +133,7 @@ public class FileSocketUtils {
                             }
 
                             // Get Meta file if needed
+                            count++;
                             StringBuilder fileMeta = new StringBuilder();
                             while (true) {
                                 char chr = (char) (fullRead[count] & 0xFF);
@@ -194,12 +195,13 @@ public class FileSocketUtils {
                                         FileUtils.delete(libDstPath);
                                         FileUtils.copy(modelSrcPath, libDstPath);
 
+                                        Log.d(logTag, fileMeta.toString() + "meta");
                                         if (!fileMeta.toString().equals("")) {
                                             JSONObject obj = new JSONObject(fileMeta.toString());
-                                            String assetId = obj.getString("assetId");
-                                            String fileType = obj.getString("fileType");
+                                            String assetId = obj.getString("asset_id");
+                                            String fileType = obj.getString("file_type");
                                             String checksum = obj.getString("checksum");
-                                            String metaJsonBlob = obj.getString("metaJsonBlob");
+                                            String metaJsonBlob = obj.getString("meta_json_blob");
 
                                             app.assetLibraryDb.dbClassifier.insert(assetId, fileType, checksum, libDstPath,
                                                     FileUtils.getFileSizeInBytes(libDstPath), metaJsonBlob, 0, 0);
@@ -223,6 +225,7 @@ public class FileSocketUtils {
 
     private boolean writeStreamToDisk(InputStream body, String fullFileName, FileType type) {
         try {
+            Log.d(logTag, type.name());
             File dir = new File(Environment.getExternalStorageDirectory().toString() + "/rfcx", "apk");
             if (type == FileType.MODEL) {
                 dir = new File(Environment.getExternalStorageDirectory().toString() + "/rfcx", "classifier");
@@ -232,6 +235,10 @@ public class FileSocketUtils {
             }
             FileOutputStream output = null;
             File file = new File(dir, fullFileName);
+
+            if (file.exists()) {
+                file.delete();
+            }
 
             try {
                 output = new FileOutputStream(file);
