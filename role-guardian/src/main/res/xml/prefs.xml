@@ -383,6 +383,13 @@
             android:summary="int - hertz"
             android:title="audio_cast_sample_rate_minimum" />
 
+    <EditTextPreference
+            android:defaultValue="@string/prefs_value_default_audio_classify_class"
+            android:enabled="true"
+            android:key="audio_classify_class"
+            android:summary="string - classify class, comma separated"
+            android:title="audio_classify_class" />
+
 
     <!-- Battery Cutoff Thresholds -->
 

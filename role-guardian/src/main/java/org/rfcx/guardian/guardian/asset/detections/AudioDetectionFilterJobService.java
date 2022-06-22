@@ -112,7 +112,7 @@ public class AudioDetectionFilterJobService extends Service {
 //						}
 //						filterRow = filters.get(filterId);
 
-                        String[] allowedClassifications = new String[]{"chainsaw", "elephant"};
+                        String[] allowedClassifications = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
                         double filterConfidenceMinThreshold = Double.parseDouble(threshold);
                         double filterConfidenceMinCountPerMinute = 4;
                         int detectionSigFigs = 2;
