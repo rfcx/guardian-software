@@ -14,10 +14,9 @@ class AudioClassifierUtils(context: Context) {
 
     private var app: RfcxGuardian = context.applicationContext as RfcxGuardian
 
-    fun getActiveClassifierInfoAsJson(): JSONObject {
-        val activeClsfObj = JSONObject()
+    fun getActiveClassifierInfoAsJson(): JSONArray {
+        val classifierActiveArr = JSONArray()
         try {
-            val classifierActiveArr = JSONArray()
             app.audioClassifierDb.dbActive.allRows.forEach {
                 if (it[0] != null) {
                     val classifierId = it[1]
@@ -29,11 +28,10 @@ class AudioClassifierUtils(context: Context) {
                     classifierActiveArr.put(classifierObj)
                 }
             }
-            activeClsfObj.put(RfcxAsset.getTypePlural("active-classifier"), classifierActiveArr)
         } catch (e: JSONException) {
             RfcxLog.logExc(logTag, e)
         }
-        return activeClsfObj
+        return classifierActiveArr
     }
 
     fun getActiveClassifierCount(): Int {
