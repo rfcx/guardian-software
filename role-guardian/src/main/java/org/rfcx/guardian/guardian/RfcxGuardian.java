@@ -39,6 +39,7 @@ import org.rfcx.guardian.guardian.asset.AssetExchangeLogDb;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.guardian.asset.classifier.AudioClassifierDb;
+import org.rfcx.guardian.guardian.asset.classifier.AudioClassifierUtils;
 import org.rfcx.guardian.guardian.asset.detections.AudioDetectionDb;
 import org.rfcx.guardian.guardian.asset.detections.AudioDetectionFilterJobService;
 import org.rfcx.guardian.guardian.asset.detections.AudioDetectionJsonUtils;
@@ -134,6 +135,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public CompanionSocketUtils companionSocketUtils = null;
     public AssetDownloadUtils assetDownloadUtils = null;
     public AssetLibraryUtils assetLibraryUtils = null;
+    public AudioClassifierUtils audioClassifierUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
     public ApiPingJsonUtils apiPingJsonUtils = null;
@@ -203,6 +205,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.assetDownloadUtils = new AssetDownloadUtils(this);
         this.assetLibraryUtils = new AssetLibraryUtils(this);
+        this.audioClassifierUtils = new AudioClassifierUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
         this.apiPingUtils = new ApiPingUtils(this);
