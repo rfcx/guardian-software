@@ -148,7 +148,7 @@ public class FileSocketUtils {
                             if (derimeter != -1) {
                                 Log.d(logTag, "Writing: " + fileName);
                                 FileType type = FileType.APK;
-                                if (fileName.toString().endsWith(".tflite")) {
+                                if (fileName.toString().endsWith(".tflite.gz")) {
                                     type = FileType.MODEL;
                                 }
                                 InputStream fullInput = new ByteArrayInputStream(Arrays.copyOfRange(fullRead, count + 1, fullRead.length));
@@ -188,12 +188,14 @@ public class FileSocketUtils {
                                     } else {
                                         String modelTimestamp = fileName.toString().split("\\.")[0];
                                         String modelSrcPath = Environment.getExternalStorageDirectory().toString() + "/rfcx/classifier/" + fileName;
+                                        String unzippedPath = Environment.getExternalStorageDirectory().toString() + "/rfcx/classifier/" + "unzipped-" + fileName;
+                                        FileUtils.gUnZipFile(modelSrcPath, unzippedPath);
 
                                         // Move file to classifier library
                                         String libDstPath = app.assetLibraryUtils.getLibraryAssetFilePath("classifier", modelTimestamp, null);
                                         FileUtils.initializeDirectoryRecursively(libDstPath.substring(0, libDstPath.lastIndexOf("/")), false);
                                         FileUtils.delete(libDstPath);
-                                        FileUtils.copy(modelSrcPath, libDstPath);
+                                        FileUtils.copy(unzippedPath, libDstPath);
 
                                         Log.d(logTag, fileMeta.toString() + "meta");
                                         if (!fileMeta.toString().equals("")) {
