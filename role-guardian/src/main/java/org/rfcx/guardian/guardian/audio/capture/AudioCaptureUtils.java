@@ -15,6 +15,7 @@ import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -174,12 +175,23 @@ public class AudioCaptureUtils {
     }
 
     public void updateSamplingRatioIteration() {
+        // check if prefs value is correct to avoid app crash
+        if (!isSamplingRatioInCorrectFormat()) return;
+
         this.samplingRatioStrArr = TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO), ":");
         this.samplingRatioArr = new int[]{Integer.parseInt(this.samplingRatioStrArr[0]), Integer.parseInt(this.samplingRatioStrArr[1])};
         if (this.samplingRatioIteration > this.samplingRatioArr[1]) {
             this.samplingRatioIteration = 0;
         }
         this.samplingRatioIteration++;
+    }
+
+    private boolean isSamplingRatioInCorrectFormat() {
+        String[] ratio = TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO), ":");
+        // only allow 1 set of ratio
+        if (ratio.length != 2) return false;
+        // only allow real number both ratio
+        return TextUtils.isDigitsOnly(ratio[0]) && TextUtils.isDigitsOnly(ratio[1]);
     }
 
     public int getRequiredCaptureSampleRate() {
@@ -293,10 +305,12 @@ public class AudioCaptureUtils {
             isAudioCaptureDisabledRightNow = true;
 
         } else if (limitBasedOnCaptureSamplingRatio()) {
-            msgNoCapture.append("a sampling ratio definition. ")
-                    .append("Ratio is '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)).append("'. ")
-                    .append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0] + this.samplingRatioArr[1]).append(".");
-            isAudioCaptureDisabledRightNow = true;
+            if (samplingRatioArr.length == 2) {
+                msgNoCapture.append("a sampling ratio definition. ")
+                        .append("Ratio is '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)).append("'. ")
+                        .append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0] + this.samplingRatioArr[1]).append(".");
+                isAudioCaptureDisabledRightNow = true;
+            }
 
         } else if (!app.isGuardianRegistered()) {
             msgNoCapture.append("the Guardian not having been activated/registered.");
