@@ -19,9 +19,9 @@ import java.util.TimeZone;
 public class CompanionSocketUtils {
 
     private static final String[] includePingFields = new String[]{
-            "battery", "instructions", "prefs_full", "software", "library", "device", "companion", "swm"
+            "battery", "prefs_full", "software", "library", "device", "companion", "swm", "active-classifier"
     };
-    private static final String[] excludeFromLogs = new String[]{"prefs"};
+    private static final String[] excludeFromLogs = new String[]{};
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
     public SocketUtils socketUtils;
     private final RfcxGuardian app;

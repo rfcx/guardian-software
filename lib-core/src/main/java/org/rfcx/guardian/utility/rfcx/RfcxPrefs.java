@@ -95,6 +95,8 @@ public class RfcxPrefs {
 
                 put(Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM, "12000");
 
+                put(Pref.AUDIO_CLASSIFY_CLASS, "chainsaw");
+
                 put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
                 put(Pref.CHECKIN_FAILURE_LIMIT, "3");
 
@@ -103,6 +105,7 @@ public class RfcxPrefs {
                 put(Pref.CHECKIN_STASH_FILESIZE_BUFFER, "160");
                 put(Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET, "32");
 
+                put(Pref.PING_META_SEND_BUNDLE_LIMIT, "4");
                 put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
                 put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
@@ -139,6 +142,7 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
                 put(Pref.ADMIN_VERBOSE_CPU, "false");
                 put(Pref.ADMIN_VERBOSE_NETWORK, "false");
+                put(Pref.ADMIN_VERBOSE_CLASSIFY, "false");
 
                 put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
                 put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
@@ -598,6 +602,8 @@ public class RfcxPrefs {
         public static final String AUDIO_VAULT_CODEC = "audio_vault_codec";
         public static final String AUDIO_VAULT_BITRATE = "audio_vault_bitrate";
 
+        public static final String AUDIO_CLASSIFY_CLASS = "audio_classify_class";
+
         public static final String AUDIO_CAST_SAMPLE_RATE_MINIMUM = "audio_cast_sample_rate_minimum";
 
         public static final String CHECKIN_FAILURE_THRESHOLDS = "checkin_failure_thresholds";
@@ -608,6 +614,7 @@ public class RfcxPrefs {
         public static final String CHECKIN_STASH_FILESIZE_BUFFER = "checkin_stash_filesize_buffer";
         public static final String CHECKIN_ARCHIVE_FILESIZE_TARGET = "checkin_archive_filesize_target";
 
+        public static final String PING_META_SEND_BUNDLE_LIMIT = "ping_meta_send_bundle_limit";
         public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
         public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
@@ -642,6 +649,7 @@ public class RfcxPrefs {
         public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
         public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
         public static final String ADMIN_VERBOSE_NETWORK = "admin_verbose_network";
+        public static final String ADMIN_VERBOSE_CLASSIFY = "admin_verbose_classify";
 
         public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
         public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";

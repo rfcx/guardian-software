@@ -72,8 +72,10 @@ public class DeviceCPU {
         if (((prevCpuPct[0] + prevCpuPct[1]) > 0) && ((currCpuPct[0] + currCpuPct[1]) > 0)) {
 
             double cpuPct = 100 * (currCpuPct[1] - prevCpuPct[1]) / ((currCpuPct[1] + currCpuPct[0]) - (prevCpuPct[1] + prevCpuPct[0]));
-//			double cpu0Pct = 100 * (currCpu0Pct[1] - prevCpu0Pct[1]) / ((currCpu0Pct[1] + currCpu0Pct[0]) - (prevCpu0Pct[1] + prevCpu0Pct[0]));
-//			double cpu1Pct = 100 * (currCpu1Pct[1] - prevCpu1Pct[1]) / ((currCpu1Pct[1] + currCpu1Pct[0]) - (prevCpu1Pct[1] + prevCpu1Pct[0]));
+            double cpu0PctSum = (currCpu0Pct[1] + currCpu0Pct[0]) - (prevCpu0Pct[1] + prevCpu0Pct[0]);
+            double cpu1PctSum = (currCpu1Pct[1] + currCpu1Pct[0]) - (prevCpu1Pct[1] + prevCpu1Pct[0]);
+            double cpu0Pct = (cpu0PctSum == 0) ? 0 : (100 * (currCpu0Pct[1] - prevCpu0Pct[1]) / cpu0PctSum);
+            double cpu1Pct = (cpu1PctSum == 0) ? 0 : (100 * (currCpu1Pct[1] - prevCpu1Pct[1]) / cpu1PctSum);
 
             if ((cpuPct <= 100) && (cpuPct > 0)) {
 
@@ -85,7 +87,7 @@ public class DeviceCPU {
                 cpuCntVals.add(cpuCnt);
 
                 if (verboseLogging) {
-                    Log.d(logTag, "[ total: " + Math.round(cpuPct) + "%, " + Math.round(cpuClk) + " MHz, " + Math.round(cpuCnt / 100) + " core(s) ]");
+                    Log.d(logTag, "[ total: " + Math.round(cpuPct) + "%, " + Math.round(cpuClk) + " MHz, " + Math.round(cpuCnt) + "% core usage ]");
                 }
             }
 

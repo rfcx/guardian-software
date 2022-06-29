@@ -154,7 +154,6 @@ public class InstructionsUtils {
                     }
                 }
 
-                // Execute Control Command
             } else if (instrType.equalsIgnoreCase("ctrl")) {
 
                 String commandValue = null;
@@ -204,6 +203,18 @@ public class InstructionsUtils {
 
 
 				}*/
+            } else if (instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("classifier")) {
+
+                if (!instrMeta.toString().equalsIgnoreCase("{}")) {
+                    JSONObject classifierObj = instrMeta;
+                    String type = classifierObj.getString("type");
+                    String classifierId = classifierObj.getString("id");
+                    if (type.equalsIgnoreCase("activate")) {
+                        app.audioClassifyUtils.activateClassifier(classifierId);
+                    } else {
+                        app.audioClassifyUtils.deActivateClassifier(classifierId);
+                    }
+                }
             }
 
         } catch (Exception e) {

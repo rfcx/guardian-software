@@ -7,7 +7,6 @@ import org.rfcx.guardian.classify.service.AudioClassifyJobService;
 import org.rfcx.guardian.classify.service.AudioDetectionSendService;
 import org.rfcx.guardian.classify.status.ClassifyStatus;
 import org.rfcx.guardian.classify.utils.AudioClassifyDb;
-import org.rfcx.guardian.classify.utils.AudioClassifyModelUtils;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.classify.utils.AudioDetectionDb;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
@@ -27,7 +26,6 @@ public class RfcxGuardian extends Application {
     public RfcxSvc rfcxSvc = null;
     public ClassifyStatus rfcxStatus = null;
 
-    public AudioClassifyModelUtils audioClassifyModelUtils = null;
     public AudioClassifyUtils audioClassifyUtils = null;
 
     // Database Handlers
@@ -56,10 +54,9 @@ public class RfcxGuardian extends Application {
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
 
-        this.audioClassifyModelUtils = new AudioClassifyModelUtils(this);
         this.audioClassifyUtils = new AudioClassifyUtils(this);
 
-        this.audioClassifyUtils.moveClassifierFromRawToDirectory(this);
+//        this.audioClassifyUtils.moveClassifierFromRawToDirectory(this);
 
         setDbHandlers();
         setServiceHandlers();

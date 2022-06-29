@@ -25,6 +25,7 @@ public class RfcxAsset {
                 put(Type.APK, "apks");
                 put(Type.DETECTION, "detections");
                 put(Type.CLASSIFIER, "classifiers");
+                put(Type.ACTIVE_CLASSIFIER, "active-classifiers");
                 put(Type.INSTRUCTION, "instructions");
                 put(Type.PREF, "prefs");
                 put(Type.SEGMENT, "segments");
@@ -43,6 +44,7 @@ public class RfcxAsset {
                 put(Type.APK, "apk");
                 put(Type.DETECTION, "det");
                 put(Type.CLASSIFIER, "cls");
+                put(Type.ACTIVE_CLASSIFIER, "a-cls");
                 put(Type.INSTRUCTION, "ins");
                 put(Type.PREF, "prf");
                 put(Type.SEGMENT, "seg");
@@ -154,6 +156,7 @@ public class RfcxAsset {
         public static final String APK = "apk";
         public static final String DETECTION = "detection";
         public static final String CLASSIFIER = "classifier";
+        public static final String ACTIVE_CLASSIFIER = "active-classifier";
         public static final String INSTRUCTION = "instruction";
         public static final String PREF = "pref";
         public static final String SEGMENT = "segment";

@@ -114,8 +114,9 @@ public class ClassifyContentProvider extends ContentProvider {
                 String windowSize = clsfyJob[6];
                 String stepSize = clsfyJob[7];
                 String classes = clsfyJob[8];
+                String threshold = clsfyJob[9];
 
-                app.audioClassifyDb.dbQueued.insert(audioId, clsfrId, clsfrVer, 0, sampleRate, 0, audioFile, clsfrFile, windowSize, stepSize, classes);
+                app.audioClassifyDb.dbQueued.insert(audioId, clsfrId, clsfrVer, 0, sampleRate, 0, audioFile, clsfrFile, windowSize, stepSize, classes, threshold);
 
                 Log.d(logTag, "Audio Classify Job added to Queue"
                         + " - Audio: " + audioId + " - Classifier: " + clsfrId + ", "

@@ -119,6 +119,14 @@ public class ApiCommandUtils {
                 }
                 app.assetUtils.purgeListOfAssets(RfcxAsset.Type.VIDEO, videoIds);
 
+                // parse detections info and use it to purge the data locally
+                JSONArray detectionsArr = RfcxAsset.getJsonArrayForField(jsonObj, RfcxAsset.Type.DETECTION);
+                List<String> detectionsIds = new ArrayList<>();
+                for (int i = 0; i < detectionsArr.length(); i++) {
+                    detectionsIds.add( extractAssetIdFromJsonArrayAtIndex(detectionsArr, i) );
+                }
+                app.assetUtils.purgeListOfAssets(RfcxAsset.Type.DETECTION, detectionsIds);
+
 
                 // parse segment info and use it to purge the data locally
                 JSONArray segmentArr = RfcxAsset.getJsonArrayForField(jsonObj, RfcxAsset.Type.SEGMENT);

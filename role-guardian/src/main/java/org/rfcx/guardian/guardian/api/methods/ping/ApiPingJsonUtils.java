@@ -49,6 +49,12 @@ public class ApiPingJsonUtils {
             }
         }
 
+        if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "active-classifier")) {
+            if (app.audioClassifierUtils.getActiveClassifierCount() > 0) {
+                jsonObj.put("active-classifier", app.audioClassifierUtils.getActiveClassifierInfoAsJson());
+            }
+        }
+
         if (ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs_full")) {
             jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(true, true));
         } else if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {

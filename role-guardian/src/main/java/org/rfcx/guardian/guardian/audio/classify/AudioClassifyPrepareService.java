@@ -104,6 +104,7 @@ public class AudioClassifyPrepareService extends Service {
                         String classifierWindowSize = latestQueuedAudioToClassify[9];
                         String classifierStepSize = latestQueuedAudioToClassify[10];
                         String classifierClasses = latestQueuedAudioToClassify[11];
+                        String classifierThreshold = latestQueuedAudioToClassify[12];
                         File classifierFile = new File(latestQueuedAudioToClassify[8]);
                         File preClassifyAudioFile = new File(latestQueuedAudioToClassify[7]);
 
@@ -120,7 +121,7 @@ public class AudioClassifyPrepareService extends Service {
                             Log.e(logTag, "Skipping Audio Classify Job because input audio file could not be found: " + RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE));
                             app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 
-                        } else if (Integer.parseInt(latestQueuedAudioToClassify[12]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
+                        } else if (Integer.parseInt(latestQueuedAudioToClassify[13]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
                             Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
@@ -144,7 +145,7 @@ public class AudioClassifyPrepareService extends Service {
                                         audioId, classifierId, classifierVersion, classifierSampleRate,
                                         RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
                                         RfcxAssetCleanup.conciseFilePath(classifierFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
-                                        classifierWindowSize, classifierStepSize, classifierClasses
+                                        classifierWindowSize, classifierStepSize, classifierClasses, classifierThreshold
                                 );
 
                                 app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);

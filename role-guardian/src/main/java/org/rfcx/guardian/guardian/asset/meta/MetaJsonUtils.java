@@ -223,18 +223,19 @@ public class MetaJsonUtils {
             String prefsSha1 = app.rfcxPrefs.getPrefsChecksum();
             prefsObj.put("sha1", prefsSha1.substring(0, RfcxPrefs.prefsSync_Sha1CharLimit));
 
-            if (forceFullValuesDump
-                    || ((app.rfcxPrefs.prefsSync_Sha1Value != null)
+            if (((app.rfcxPrefs.prefsSync_Sha1Value != null)
                     && !app.rfcxPrefs.prefsSync_Sha1Value.equalsIgnoreCase(prefsSha1.substring(0, RfcxPrefs.prefsSync_Sha1CharLimit))
                     && !app.rfcxPrefs.prefsSync_Sha1Value.equalsIgnoreCase(prefsSha1)
-                    && (overrideLimitByLastAccessedAt || (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength()))
-            )
-            ) {
-                if (!forceFullValuesDump) {
-                    Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
-                }
+                    && (overrideLimitByLastAccessedAt || (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength())))) {
+                Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
                 prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
                 app.rfcxPrefs.prefsSync_TimestampLastSync = System.currentTimeMillis();
+            }
+
+            if (forceFullValuesDump) {
+                if (!prefsObj.has("vals")) {
+                    prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
+                }
             }
         } catch (JSONException e) {
             RfcxLog.logExc(logTag, e);

@@ -261,31 +261,31 @@ public class RfcxGuardian extends Application {
                             + "|" + (this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_CAMERA_CAPTURE_CYCLE) * 60 * 1000)
                     ,
                     SystemSettingsService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:03").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    SystemCPUGovernorService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:06").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    AirplaneModeSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:09").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    BluetoothStateSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:12").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    WifiStateSetService.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits a few seconds before running
                             + "|" + "norepeat"
                     ,
-                    ADBStateSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:18").getTimeInMillis() // waits a few seconds before running
+                    SystemCPUGovernorService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits a few seconds before running
                             + "|" + "norepeat"
                     ,
+                    WifiStateSetService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:05").getTimeInMillis() // waits a few seconds before running
+                            + "|" + "norepeat"
+                    ,
+                    ADBStateSetService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
+                            + "|" + "norepeat"
+                    ,
+                    AirplaneModeSetService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:25").getTimeInMillis() // waits a few seconds before running
+                            + "|" + "norepeat"
+                    ,
+//					BluetoothStateSetService.SERVICE_NAME
+//							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits a few seconds before running
+//							+ "|" + "norepeat"
+//							,
                     SSHStateSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:18").getTimeInMillis() // waits a few seconds before running
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:35").getTimeInMillis() // waits a few seconds before running
                             + "|" + "norepeat"
             };
 

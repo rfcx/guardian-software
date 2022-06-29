@@ -90,8 +90,8 @@ public class AudioClassifyJobService extends Service {
                     Log.d(logTag, "No classification jobs are currently queued.");
                 }
                 long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-                AudioClassifyUtils.cleanupClassifyDirectory(context, latestQueuedAudioFilesToClassify, Math.round(RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration));
-                AudioClassifyUtils.cleanupSnippetDirectory(context, new ArrayList<String[]>(), Math.round(RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration));
+                AudioClassifyUtils.cleanupClassifyDirectory(context, latestQueuedAudioFilesToClassify, Math.round(3 * RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration));
+                AudioClassifyUtils.cleanupSnippetDirectory(context, new ArrayList<String[]>(), Math.round(3 * RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration));
 
                 for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 
@@ -106,11 +106,12 @@ public class AudioClassifyJobService extends Service {
                         float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
                         float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[10]);
                         String clsfrClassifications = latestQueuedAudioToClassify[11];
-                        String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate / 1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
+                        String clsfrClassificationsThreshold = latestQueuedAudioToClassify[12];
+                        String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate / 1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize + ", with threshold " + clsfrClassificationsThreshold;
                         String audioId = latestQueuedAudioToClassify[1];
                         long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
                         String audioOrigRelativePath = latestQueuedAudioToClassify[7];
-                        int previousAttempts = Integer.parseInt(latestQueuedAudioToClassify[12]);
+                        int previousAttempts = Integer.parseInt(latestQueuedAudioToClassify[13]);
 
                         if (previousAttempts >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
@@ -133,8 +134,7 @@ public class AudioClassifyJobService extends Service {
 
                             } else {
 
-                                boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
-
+                                boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications, clsfrClassificationsThreshold);
                                 if (!isClassifierInitialized) {
 
                                     Log.e(logTag, "Classifier could not be initialized: " + clsfLoggingSummary);
@@ -154,7 +154,7 @@ public class AudioClassifyJobService extends Service {
                                         Log.i(logTag, "Beginning Audio Classify Job - Audio: " + audioId + " - Classifier: " + classifierId);
 
                                         long classifyStartTime = System.currentTimeMillis();
-                                        List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath);
+                                        List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath, app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_VERBOSE_CLASSIFY));
                                         Log.i(logTag, "Completed Audio Classify Job - " + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime) + " - Audio: " + audioId + " - Classifier: " + classifierId);
 
                                         JSONObject classifyOutputJson = app.audioClassifyUtils.classifyOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
