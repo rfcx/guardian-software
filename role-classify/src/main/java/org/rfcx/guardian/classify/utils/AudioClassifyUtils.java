@@ -194,25 +194,4 @@ public class AudioClassifyUtils {
         }
     }
 
-    public void moveClassifierFromRawToDirectory(Context context) {
-        InputStream is = context.getResources().openRawResource(R.raw.c1617208867756);
-        String path = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong("1617208867756"));
-        Log.d(logTag, path);
-        if (new File(path).exists()) {
-            return;
-        }
-
-        try {
-            OutputStream outStream = new FileOutputStream(path);
-            byte[] buffer = new byte[8 * 1024];
-            int bytesRead;
-            while ((bytesRead = is.read(buffer)) != -1) {
-                outStream.write(buffer, 0, bytesRead);
-            }
-            Log.d(logTag, "Done moving classifier");
-        } catch (IOException exception) {
-            RfcxLog.logExc(exception.getMessage(), exception);
-        }
-    }
-
 }

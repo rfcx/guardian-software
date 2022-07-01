@@ -226,7 +226,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         initializeRoleServices();
 
-//        this.assetDownloadUtils.createPreClassifierValues(this);
     }
 
     public void onTerminate() {
