@@ -9,8 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.network.SocketUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -24,8 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 
 public class FileSocketUtils {
 
@@ -34,6 +30,7 @@ public class FileSocketUtils {
     public SocketUtils socketUtils;
     private boolean isReading = false;
     private JSONObject pingObj;
+
     public FileSocketUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
@@ -96,6 +93,7 @@ public class FileSocketUtils {
                         StringBuilder fileName = new StringBuilder();
 
                         //read until reach '|'
+                        Log.d(logTag, "Receiving file transfer from Companion");
                         if (!isReading) {
                             isReading = true;
 
@@ -111,6 +109,7 @@ public class FileSocketUtils {
                                 String forthChr = Character.toString((char) (buffer[3] & 0xFF));
                                 String exit = firstChr + secondChr + thirdChr + forthChr;
                                 if (exit.equals("****")) {
+                                    Log.d(logTag, "Received file transfer from Companion");
                                     break;
                                 }
                                 byteOut.write(buffer, 0, bRead);
@@ -125,6 +124,7 @@ public class FileSocketUtils {
                             while (true) {
                                 char chr = (char) (fullRead[count] & 0xFF);
                                 if (Character.toString(chr).equals("|")) {
+                                    Log.d(logTag, "Received file name: " + fileName);
                                     break;
                                 }
                                 count++;
@@ -138,6 +138,7 @@ public class FileSocketUtils {
                             while (true) {
                                 char chr = (char) (fullRead[count] & 0xFF);
                                 if (Character.toString(chr).equals("|")) {
+                                    Log.d(logTag, "Received file meta: " + fileMeta);
                                     break;
                                 }
                                 count++;
