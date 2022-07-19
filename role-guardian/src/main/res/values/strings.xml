@@ -61,6 +61,7 @@
     <string name="prefs_value_default_audio_cast_sample_rate_minimum">12000</string>
 
     <string name="prefs_value_default_audio_classify_class">chainsaw</string>
+    <string name="prefs_value_default_audio_classify_minimum_detection">4</string>
 
     <string name="prefs_value_default_enable_cutoffs_internal_battery">false</string>
     <string name="prefs_value_default_checkin_cutoff_internal_battery">100</string>
