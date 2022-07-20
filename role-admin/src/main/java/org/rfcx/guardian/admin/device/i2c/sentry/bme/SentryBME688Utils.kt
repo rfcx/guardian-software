@@ -26,10 +26,11 @@ class SentryBME688Utils(context: Context) {
             app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_BME688)
         if (!isNotExplicitlyDisabled) return false
 
-        val isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible
+        val isI2cHandlerAccessible = app.sensorI2cUtils.isI2cHandlerAccessible
+        Log.d(logTag, isI2cHandlerAccessible.toString())
         if (!isI2cHandlerAccessible) return false
 
-        val i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0xf0", i2cMainAddr, true, false)
+        val i2cConnectAttempt = app.sensorI2cUtils.i2cGetAsString("0xf0", i2cMainAddr, true, false)
             ?: return false
         val isI2cAccelChipConnected = abs(
             DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)
@@ -42,15 +43,14 @@ class SentryBME688Utils(context: Context) {
     fun getBME688Values(): BME688Att {
         if (!bme.isInitialised) {
             bme.initialise()
+            bme.operatingMode = BME68x.OperatingMode.SLEEP
+            bme.softReset()
+
+            bme.setConfiguration(
+                BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2,
+                BME68x.IirFilterCoefficient._3, BME68x.ODR.NONE
+            )
         }
-
-        bme.operatingMode = BME68x.OperatingMode.SLEEP
-        bme.softReset()
-
-        bme.setConfiguration(
-            BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2, BME68x.OversamplingMultiplier.X2,
-            BME68x.IirFilterCoefficient._3, BME68x.ODR.NONE
-        )
 
         val targetOperatingMode = BME68x.OperatingMode.FORCED
         bme.setHeaterConfiguration(targetOperatingMode, BME68x.HeaterConfig(true, 320, 150))
@@ -74,6 +74,7 @@ class SentryBME688Utils(context: Context) {
 
             TimeUnit.SECONDS.sleep(1)
         }
+        Log.d(logTag, bmeValues.toString())
         tempBMEValues = bmeValues
         return bmeValues
     }

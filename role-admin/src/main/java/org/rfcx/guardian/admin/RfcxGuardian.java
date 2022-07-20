@@ -71,6 +71,7 @@ import org.rfcx.guardian.admin.status.AdminStatus;
 import org.rfcx.guardian.admin.status.StatusCacheService;
 import org.rfcx.guardian.gpio.DeviceGpioUtils;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.i2c.SensorI2cUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
@@ -136,6 +137,7 @@ public class RfcxGuardian extends Application {
     public CompanionSocketUtils companionSocketUtils = null;
     public CompanionPingJsonUtils companionPingJsonUtils = null;
     public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
+    public SensorI2cUtils sensorI2cUtils = new SensorI2cUtils(APP_ROLE);
     public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
     public SentinelPowerUtils sentinelPowerUtils = null;
     public SentryAccelUtils sentryAccelUtils = null;
@@ -194,6 +196,7 @@ public class RfcxGuardian extends Application {
 
         // Initialize I2C Handler
         this.deviceI2cUtils.initializeOrReInitialize();
+        this.sensorI2cUtils.initializeOrReInitialize();
 
         initializeRoleServices();
 
@@ -446,6 +449,7 @@ public class RfcxGuardian extends Application {
 
             // Sets I2C interface
             this.deviceI2cUtils.setInterface(DeviceHardware_OrangePi_3G_IOT.DEVICE_I2C_INTERFACE);
+            this.sensorI2cUtils.setInterface(0);
 
             // Sets GPIO interface
             this.deviceGpioUtils.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);

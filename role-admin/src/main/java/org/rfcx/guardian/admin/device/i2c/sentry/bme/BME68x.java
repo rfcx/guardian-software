@@ -478,13 +478,13 @@ public class BME68x {
 	}
 
 	public void initialise() {
-		chipId = app.deviceI2cUtils.i2cGetAsByte(REG_CHIP_ID, ALT_DEVICE_ADDRESS, true, false);
+		chipId = app.sensorI2cUtils.i2cGetAsByte(REG_CHIP_ID, ALT_DEVICE_ADDRESS, true, false);
 		if (chipId != CHIP_ID_BME680) {
 			Log.e(logTag,String.format("%s %s not found.", CHIP_VENDOR, CHIP_NAME));
 		}
 
-		variantId = app.deviceI2cUtils.i2cGetAsByte(REG_VARIANT_ID, ALT_DEVICE_ADDRESS, true, false);
-		uniqueId = app.deviceI2cUtils.i2cGetAsByte(REG_UNIQUE_ID, ALT_DEVICE_ADDRESS, true, false);
+		variantId = app.sensorI2cUtils.i2cGetAsByte(REG_VARIANT_ID, ALT_DEVICE_ADDRESS, true, false);
+		uniqueId = app.sensorI2cUtils.i2cGetAsByte(REG_UNIQUE_ID, ALT_DEVICE_ADDRESS, true, false);
 
 		softReset();
 
@@ -497,7 +497,7 @@ public class BME68x {
 	 * bme68x_soft_reset
 	 */
 	public void softReset() {
-		app.deviceI2cUtils.i2cSet(REG_SOFT_RESET, ALT_DEVICE_ADDRESS, SOFT_RESET_COMMAND, false);
+		app.sensorI2cUtils.i2cSet(REG_SOFT_RESET, ALT_DEVICE_ADDRESS, SOFT_RESET_COMMAND, false);
 
 		try {
 			TimeUnit.MILLISECONDS.sleep(RESET_PERIOD_MILLISECONDS);
@@ -547,7 +547,7 @@ public class BME68x {
 	 * @return Current operating mode
 	 */
 	public OperatingMode getOperatingMode() {
-		return OperatingMode.valueOf(app.deviceI2cUtils.i2cGetAsByte(REG_CTRL_MEAS, ALT_DEVICE_ADDRESS, true, false) & OPERATING_MODE_MASK);
+		return OperatingMode.valueOf(app.sensorI2cUtils.i2cGetAsByte(REG_CTRL_MEAS, ALT_DEVICE_ADDRESS, true, false) & OPERATING_MODE_MASK);
 	}
 
 	/**
@@ -601,7 +601,7 @@ public class BME68x {
 		// Register data starting from REG_CTRL_GAS_1(0x71) up to REG_CONFIG(0x75)
 		final int LEN_CONFIG = 5;
 		byte[] data_array = new byte[LEN_CONFIG];
-		data_array = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_CTRL_GAS_1, ALT_DEVICE_ADDRESS, data_array, true, false);
+		data_array = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_CTRL_GAS_1, ALT_DEVICE_ADDRESS, data_array, true, false);
 		data_array[1] = BitManipulation.updateWithMaskedData(data_array[1], (byte) OVERSAMPLING_HUMIDITY_MASK,
 				humidityOversampling.getValue(), OVERSAMPLING_HUMIDITY_POSITION);
 		data_array[3] = BitManipulation.updateWithMaskedData(data_array[3], (byte) OVERSAMPLING_PRESSURE_MASK,
@@ -635,7 +635,7 @@ public class BME68x {
 	 */
 	public OversamplingMultiplier getHumidityOversample() {
 		return OversamplingMultiplier.valueOf(
-				(app.deviceI2cUtils.i2cGetAsByte(REG_CTRL_HUM, ALT_DEVICE_ADDRESS, true, false) & OVERSAMPLING_HUMIDITY_MASK) >> OVERSAMPLING_HUMIDITY_POSITION);
+				(app.sensorI2cUtils.i2cGetAsByte(REG_CTRL_HUM, ALT_DEVICE_ADDRESS, true, false) & OVERSAMPLING_HUMIDITY_MASK) >> OVERSAMPLING_HUMIDITY_POSITION);
 	}
 
 	/**
@@ -644,7 +644,7 @@ public class BME68x {
 	 * @return Current temperature oversampling mode
 	 */
 	public OversamplingMultiplier getTemperatureOversample() {
-		return OversamplingMultiplier.valueOf((app.deviceI2cUtils.i2cGetAsByte(REG_CTRL_MEAS, ALT_DEVICE_ADDRESS, true, false)
+		return OversamplingMultiplier.valueOf((app.sensorI2cUtils.i2cGetAsByte(REG_CTRL_MEAS, ALT_DEVICE_ADDRESS, true, false)
 				& OVERSAMPLING_TEMPERATURE_MASK) >> OVERSAMPLING_TEMPERATURE_POSITION);
 	}
 
@@ -655,7 +655,7 @@ public class BME68x {
 	 */
 	public OversamplingMultiplier getPressureOversample() {
 		return OversamplingMultiplier.valueOf(
-				(app.deviceI2cUtils.i2cGetAsByte(REG_CTRL_MEAS, ALT_DEVICE_ADDRESS, true, false) & OVERSAMPLING_PRESSURE_MASK) >> OVERSAMPLING_PRESSURE_POSITION);
+				(app.sensorI2cUtils.i2cGetAsByte(REG_CTRL_MEAS, ALT_DEVICE_ADDRESS, true, false) & OVERSAMPLING_PRESSURE_MASK) >> OVERSAMPLING_PRESSURE_POSITION);
 	}
 
 	/**
@@ -664,12 +664,12 @@ public class BME68x {
 	 * @return IIR filter configuration
 	 */
 	public IirFilterCoefficient getIirFilterConfig() {
-		return IirFilterCoefficient.valueOf((app.deviceI2cUtils.i2cGetAsByte(REG_CONFIG, ALT_DEVICE_ADDRESS, true, false) & FILTER_MASK) >> FILTER_POSITION);
+		return IirFilterCoefficient.valueOf((app.sensorI2cUtils.i2cGetAsByte(REG_CONFIG, ALT_DEVICE_ADDRESS, true, false) & FILTER_MASK) >> FILTER_POSITION);
 	}
 
 	public ODR getOdr() {
-		byte odr20 = (byte) ((app.deviceI2cUtils.i2cGetAsByte(REG_CONFIG, ALT_DEVICE_ADDRESS, true, false) & ODR20_MASK) >> ODR20_POSITION);
-		byte odr3 = (byte) ((app.deviceI2cUtils.i2cGetAsByte(REG_CTRL_GAS_1, ALT_DEVICE_ADDRESS, true, false) & ODR3_MASK) >> ODR3_POSITION);
+		byte odr20 = (byte) ((app.sensorI2cUtils.i2cGetAsByte(REG_CONFIG, ALT_DEVICE_ADDRESS, true, false) & ODR20_MASK) >> ODR20_POSITION);
+		byte odr3 = (byte) ((app.sensorI2cUtils.i2cGetAsByte(REG_CTRL_GAS_1, ALT_DEVICE_ADDRESS, true, false) & ODR3_MASK) >> ODR3_POSITION);
 
 		return ODR.valueOf(odr3 << 3 | odr20);
 	}
@@ -786,27 +786,27 @@ public class BME68x {
 	 */
 	public HeaterConfig getHeaterConfiguration() {
 		// Turn off current injected to heater by setting bit to 1
-		boolean heater_enabled = (app.deviceI2cUtils.i2cGetAsByte(REG_CTRL_GAS_0, ALT_DEVICE_ADDRESS, true, false) & HEATER_CONTROL_MASK) == 0;
+		boolean heater_enabled = (app.sensorI2cUtils.i2cGetAsByte(REG_CTRL_GAS_0, ALT_DEVICE_ADDRESS, true, false) & HEATER_CONTROL_MASK) == 0;
 
-		int nb_conv = (app.deviceI2cUtils.i2cGetAsByte(REG_CTRL_GAS_1, ALT_DEVICE_ADDRESS, true, false) & NBCONV_MASK) >> NBCONV_POSITION;
+		int nb_conv = (app.sensorI2cUtils.i2cGetAsByte(REG_CTRL_GAS_1, ALT_DEVICE_ADDRESS, true, false) & NBCONV_MASK) >> NBCONV_POSITION;
 
 		byte[] data_array = new byte[nb_conv];
 
-		data_array = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_RES_HEAT0, ALT_DEVICE_ADDRESS, data_array, true, false);
+		data_array = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_RES_HEAT0, ALT_DEVICE_ADDRESS, data_array, true, false);
 		int[] temp_profiles = new int[nb_conv];
 		for (int i = 0; i < data_array.length; i++) {
 			// TODO Do reverse calculation of calculateHeaterResistanceRegValFpu
 			temp_profiles[i] = data_array[i] & 0xff;
 		}
 
-		data_array = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_GAS_WAIT0, ALT_DEVICE_ADDRESS, data_array, true, false);
+		data_array = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_GAS_WAIT0, ALT_DEVICE_ADDRESS, data_array, true, false);
 		int[] dur_profiles = new int[nb_conv];
 		for (int i = 0; i < data_array.length; i++) {
 			dur_profiles[i] = gasWaitRegValToDuration(data_array[i]);
 		}
 
 		// Opposite calculation of calculateGasWaitSharedRegVal
-		byte gas_wait_shared_reg_val = app.deviceI2cUtils.i2cGetAsByte(REG_GAS_WAIT_SHARED, ALT_DEVICE_ADDRESS, true, false);
+		byte gas_wait_shared_reg_val = app.sensorI2cUtils.i2cGetAsByte(REG_GAS_WAIT_SHARED, ALT_DEVICE_ADDRESS, true, false);
 		int mult_factor = (int) Math.pow(4, (gas_wait_shared_reg_val & 0b11000000) >> 6);
 		int gas_wait_shared = (int) ((gas_wait_shared_reg_val & 0b00111111) * mult_factor * 0.477f);
 
@@ -827,7 +827,7 @@ public class BME68x {
 		byte nb_conv = setHeaterConfigInternal(heaterConfig, targetOperatingMode);
 
 		byte[] ctrl_gas_data = new byte[2];
-		ctrl_gas_data = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_CTRL_GAS_0, ALT_DEVICE_ADDRESS, ctrl_gas_data, true, false);
+		ctrl_gas_data = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_CTRL_GAS_0, ALT_DEVICE_ADDRESS, ctrl_gas_data, true, false);
 
 		byte hctrl, run_gas;
 		if (heaterConfig.isEnabled()) {
@@ -992,21 +992,21 @@ public class BME68x {
 		do {
 			// Read data from the sensor
 			String startAddr = "0x" + Integer.toHexString((Integer.decode(REG_FIELD0) + index * LEN_FIELD_OFFSET) & 0xFF);
-			buffer = app.deviceI2cUtils.i2cGetBlockAsByteArr(startAddr, ALT_DEVICE_ADDRESS, buffer, true, false);
+			buffer = app.sensorI2cUtils.i2cGetBlockAsByteArr(startAddr, ALT_DEVICE_ADDRESS, buffer, true, false);
 
 			data = extractTphgReading(buffer);
 
 			if (data.newData) {
 				String startAddrIDACHeat = "0x" + Integer.toHexString((Integer.decode(REG_IDAC_HEAT0) + data.gasMeasurementIndex) & 0xFF);
-				data.idacHeatRegVal = (short) (app.deviceI2cUtils.i2cGetAsByte(startAddrIDACHeat, ALT_DEVICE_ADDRESS, true, false) & 0xff);
+				data.idacHeatRegVal = (short) (app.sensorI2cUtils.i2cGetAsByte(startAddrIDACHeat, ALT_DEVICE_ADDRESS, true, false) & 0xff);
 				// Note that these fields aren't really required - they aren't changed
 				// TODO Do reverse calculation of calculateHeaterResistanceRegValFpu
 				String startAddrRESHeat = "0x" + Integer.toHexString((Integer.decode(REG_RES_HEAT0) + data.gasMeasurementIndex) & 0xFF);
-				data.heaterResistance = (short) (app.deviceI2cUtils.i2cGetAsByte(startAddrRESHeat, ALT_DEVICE_ADDRESS, true, false) & 0xff);
+				data.heaterResistance = (short) (app.sensorI2cUtils.i2cGetAsByte(startAddrRESHeat, ALT_DEVICE_ADDRESS, true, false) & 0xff);
 
 				String startAddrGas = "0x" + Integer.toHexString((Integer.decode(REG_GAS_WAIT0) + data.gasMeasurementIndex) & 0xFF);
 				data.gasWaitMs = (short) gasWaitRegValToDuration(
-						app.deviceI2cUtils.i2cGetAsByte(startAddrGas, ALT_DEVICE_ADDRESS, true, false));
+						app.sensorI2cUtils.i2cGetAsByte(startAddrGas, ALT_DEVICE_ADDRESS, true, false));
 
 				break;
 			}
@@ -1035,12 +1035,12 @@ public class BME68x {
 			// Get around the 32 byte limit when using SMBus commands - 51 bytes to read
 			// TODO Switch to I2C readWrite when supported in pigpio
 			String startAddr = "0x" + Integer.toHexString((Integer.decode(REG_FIELD0) + i * LEN_FIELD_OFFSET) & 0xFF);
-			buffer[i] = app.deviceI2cUtils.i2cGetBlockAsByteArr(startAddr, ALT_DEVICE_ADDRESS, buffer[i], true, false);
+			buffer[i] = app.sensorI2cUtils.i2cGetBlockAsByteArr(startAddr, ALT_DEVICE_ADDRESS, buffer[i], true, false);
 		}
 
 		// idac, res_heat, gas_wait
 		byte[] set_val = new byte[NUM_FIELDS * MAX_NUM_HEATER_PROFILES];
-		set_val = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_IDAC_HEAT0, ALT_DEVICE_ADDRESS, set_val, true, false);
+		set_val = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_IDAC_HEAT0, ALT_DEVICE_ADDRESS, set_val, true, false);
 
 		for (int i = 0; i < NUM_FIELDS; i++) {
 			data[i] = extractTphgReading(buffer[i]);
@@ -1559,8 +1559,8 @@ public class BME68x {
 			// Always use heater profile 0 in forced mode (nb_conv = 0)
 			nb_conv = 0;
 
-			app.deviceI2cUtils.i2cSet(REG_RES_HEAT0, ALT_DEVICE_ADDRESS, calculateHeaterResistanceRegValFpu(calibration, ambientTemperature, heaterConfig.getHeaterTemp(0)), false);
-			app.deviceI2cUtils.i2cSet(REG_GAS_WAIT0, ALT_DEVICE_ADDRESS, calculateGasWaitRegVal(heaterConfig.getHeaterDuration(0)), false);
+			app.sensorI2cUtils.i2cSet(REG_RES_HEAT0, ALT_DEVICE_ADDRESS, calculateHeaterResistanceRegValFpu(calibration, ambientTemperature, heaterConfig.getHeaterTemp(0)), false);
+			app.sensorI2cUtils.i2cSet(REG_GAS_WAIT0, ALT_DEVICE_ADDRESS, calculateGasWaitRegVal(heaterConfig.getHeaterDuration(0)), false);
 
 			break;
 		case SEQUENTIAL:
@@ -1588,7 +1588,7 @@ public class BME68x {
 			setRegByte(REG_CTRL_GAS_1, (byte) NBCONV_MASK, NBCONV_POSITION, nb_conv);
 
 			int gas_wait_shared = calculateGasWaitSharedRegVal(heaterConfig.getSharedHeaterDurationMs());
-			app.deviceI2cUtils.i2cSet(REG_GAS_WAIT_SHARED, ALT_DEVICE_ADDRESS, gas_wait_shared, false);
+			app.sensorI2cUtils.i2cSet(REG_GAS_WAIT_SHARED, ALT_DEVICE_ADDRESS, gas_wait_shared, false);
 
 			rh_reg_data = new byte[nb_conv];
 			gw_reg_data = new byte[nb_conv];
@@ -1611,11 +1611,11 @@ public class BME68x {
 	// Read calibration array
 	private byte[] readCalibrationData() {
 		byte[] part1 = new byte[LEN_COEFF1];
-		part1 = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_COEFF1, ALT_DEVICE_ADDRESS, part1, true, false);
+		part1 = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_COEFF1, ALT_DEVICE_ADDRESS, part1, true, false);
 		byte[] part2 = new byte[LEN_COEFF2];
-		part2 = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_COEFF2, ALT_DEVICE_ADDRESS, part2, true, false);
+		part2 = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_COEFF2, ALT_DEVICE_ADDRESS, part2, true, false);
 		byte[] part3 = new byte[LEN_COEFF3];
-		part3 = app.deviceI2cUtils.i2cGetBlockAsByteArr(REG_COEFF3, ALT_DEVICE_ADDRESS, part3, true, false);
+		part3 = app.sensorI2cUtils.i2cGetBlockAsByteArr(REG_COEFF3, ALT_DEVICE_ADDRESS, part3, true, false);
 
 		final byte[] calibration_data = new byte[LEN_COEFF1 + LEN_COEFF2 + LEN_COEFF3];
 		System.arraycopy(part1, 0, calibration_data, 0, part1.length);
@@ -1712,13 +1712,13 @@ public class BME68x {
 		// Alternative is to do multiple individual byte data writes
 		int startAddrInt = Integer.decode(registerStart);
 		for (int i = 0; i < data.length; i++) {
-			app.deviceI2cUtils.i2cSet("0x" + Integer.toHexString((startAddrInt + i) & 0xFF), ALT_DEVICE_ADDRESS, data[i], false);
+			app.sensorI2cUtils.i2cSet("0x" + Integer.toHexString((startAddrInt + i) & 0xFF), ALT_DEVICE_ADDRESS, data[i], false);
 		}
 	}
 
 	private void setRegByte(final String address, final byte mask, final byte position, final byte value) {
-		byte getValue = app.deviceI2cUtils.i2cGetAsByte(address, ALT_DEVICE_ADDRESS, true, false);
-		app.deviceI2cUtils.i2cSet(address, ALT_DEVICE_ADDRESS, BitManipulation.updateWithMaskedData(getValue, mask, value, position), false);
+		byte getValue = app.sensorI2cUtils.i2cGetAsByte(address, ALT_DEVICE_ADDRESS, true, false);
+		app.sensorI2cUtils.i2cSet(address, ALT_DEVICE_ADDRESS, BitManipulation.updateWithMaskedData(getValue, mask, value, position), false);
 	}
 
 	static class Calibration {

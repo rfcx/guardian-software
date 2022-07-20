@@ -61,7 +61,9 @@ class DeviceSensorService : Service() {
             app = application as RfcxGuardian
 
             while (deviceSensorService.runFlag) {
+                Log.d(logTag, "Getting Sensor values...")
                 if (!isNowOutsideTimeRange(app!!.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
+                    Log.d(logTag, "Getting Sensor failed due to preference 'admin-diagnostic-off-hours'")
                     continue
                 }
 

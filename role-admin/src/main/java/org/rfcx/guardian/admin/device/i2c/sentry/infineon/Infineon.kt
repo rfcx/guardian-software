@@ -82,13 +82,13 @@ class Infineon(context: Context) {
     }
 
     private fun readRegValue(reg: String): Byte {
-        val value = app.deviceI2cUtils.i2cGetAsByte(reg, MAIN_ADDRESS_REG, true, false)
+        val value = app.sensorI2cUtils.i2cGetAsByte(reg, MAIN_ADDRESS_REG, true, false)
         sleep(5)
         return value
     }
 
     private fun writeRegValue(reg: String, byte: Byte) {
-        app.deviceI2cUtils.i2cSet(reg, MAIN_ADDRESS_REG, byte.toInt(), false)
+        app.sensorI2cUtils.i2cSet(reg, MAIN_ADDRESS_REG, byte.toInt(), false)
         sleep(1000)
     }
 

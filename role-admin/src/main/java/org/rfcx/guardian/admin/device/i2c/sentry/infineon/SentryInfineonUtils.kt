@@ -21,11 +21,11 @@ class SentryInfineonUtils(context: Context) {
             app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_SENSOR_INFINEON)
         if (!isNotExplicitlyDisabled) return false
 
-        val isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible
+        val isI2cHandlerAccessible = app.sensorI2cUtils.isI2cHandlerAccessible
         if (!isI2cHandlerAccessible) return false
 
         val i2cConnectAttempt =
-            app.deviceI2cUtils.i2cGetAsString("0x01", Infineon.MAIN_ADDRESS_REG, true, false)
+            app.sensorI2cUtils.i2cGetAsString("0x01", Infineon.MAIN_ADDRESS_REG, true, false)
                 ?: return false
         val isI2cAccelChipConnected = abs(
             DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)
