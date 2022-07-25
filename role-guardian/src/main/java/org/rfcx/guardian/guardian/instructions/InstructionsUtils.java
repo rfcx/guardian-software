@@ -212,36 +212,9 @@ public class InstructionsUtils {
                     String type = classifierObj.getString("type");
                     String classifierId = classifierObj.getString("id");
                     if (type.equalsIgnoreCase("activate")) {
-                        boolean result = app.audioClassifyUtils.activateClassifier(classifierId);
-                        if (result) {
-                            String[] currentClasses = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
-                            ArrayList<String> currentClassesList = new ArrayList<>(Arrays.asList(currentClasses));
-                            String[] active = app.audioClassifierDb.dbActive.getSingleRowById(classifierId);
-                            if (active != null) {
-                                String classification = active[11].split(",")[0];
-                                if (!currentClassesList.contains(classification)) {
-                                    currentClassesList.add(classification);
-                                }
-                                app.rfcxPrefs.setPref(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS, TextUtils.join(",", currentClassesList));
-                            }
-                        }
+                        app.audioClassifyUtils.activateClassifier(classifierId);
                     } else {
-                        String[] active = app.audioClassifierDb.dbActive.getSingleRowById(classifierId);
-                        boolean result = app.audioClassifyUtils.deActivateClassifier(classifierId);
-                        if (result) {
-                            String[] currentClasses = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
-                            ArrayList<String> currentClassesList = new ArrayList<>(Arrays.asList(currentClasses));
-                            if (active != null) {
-                                String classification = active[11].split(",")[0];
-                                if (currentClassesList.contains(classification)) {
-                                    int indexOfClass = currentClassesList.indexOf(classification);
-                                    if (indexOfClass != -1) {
-                                        currentClassesList.remove(indexOfClass);
-                                    }
-                                    app.rfcxPrefs.setPref(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS, TextUtils.join(",", currentClassesList));
-                                }
-                            }
-                        }
+                        app.audioClassifyUtils.deActivateClassifier(classifierId);
                     }
                 }
             }

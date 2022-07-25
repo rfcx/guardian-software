@@ -89,7 +89,7 @@ public class AudioClassifierDb {
         }
 
         public String[] getSingleRowById(String id) {
-            return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, C_CLASSES + " = ?", new String[]{ id }, null, 0);
+            return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, C_CLASSIFIER_ID + " = ?", new String[]{ id }, null, 0);
         }
 
         public List<String[]> getAllRows() {
