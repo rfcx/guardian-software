@@ -126,45 +126,56 @@ public class RfcxComm {
 
     public static JSONArray getQuery(String role, String function, String query, ContentResolver contentResolver) {
         JSONArray getQueryResults = new JSONArray();
+        Cursor queryCursor = contentResolver.query(getUri(role, function, query), getProjection(role, function), null, null, null);
         try {
-            Cursor queryCursor = contentResolver.query(getUri(role, function, query), getProjection(role, function), null, null, null);
             if ((queryCursor != null) && (queryCursor.getCount() > 0) && queryCursor.moveToFirst()) {
                 do {
                     getQueryResults = new JSONArray(queryCursor.getString(queryCursor.getColumnIndex("result")));
                 } while (queryCursor.moveToNext());
-                queryCursor.close();
             }
         } catch (JSONException e) {
             RfcxLog.logExc(logTag, e);
+        } finally {
+            if (queryCursor != null) {
+                queryCursor.close();
+            }
         }
         return getQueryResults;
     }
 
     public static int deleteQuery(String role, String function, String query, ContentResolver contentResolver) {
         int deleteQueryResult = 0;
+        Cursor queryCursor = contentResolver.query(getUri(role, function, query), getProjection(role, function), null, null, null);
         try {
-            Cursor queryCursor = contentResolver.query(getUri(role, function, query), getProjection(role, function), null, null, null);
             if ((queryCursor != null) && (queryCursor.getCount() > 0) && queryCursor.moveToFirst()) {
                 do {
                     deleteQueryResult = Integer.parseInt(queryCursor.getString(queryCursor.getColumnIndex("result")));
                 } while (queryCursor.moveToNext());
-                queryCursor.close();
             }
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
+        } finally {
+            if (queryCursor != null) {
+                queryCursor.close();
+            }
         }
         return deleteQueryResult;
     }
 
     public static int updateQuery(String role, String function, String query, ContentResolver contentResolver) {
         int updateQueryResult = 0;
+        Cursor queryCursor = contentResolver.query(getUri(role, function, query), getProjection(role, function), null, null, null);
         try {
-            Cursor queryCursor = contentResolver.query(getUri(role, function, query), getProjection(role, function), null, null, null);
-//			if ((queryCursor != null) && (queryCursor.getCount() > 0) && queryCursor.moveToFirst()) { do {
-//				updateQueryResult = (int) Integer.parseInt( queryCursor.getString( queryCursor.getColumnIndex("result") ) );
-//			} while (queryCursor.moveToNext()); queryCursor.close(); }
+//			if (queryCursor != null) {
+//                queryCursor.close();
+//			}
+
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
+        } finally {
+            if (queryCursor != null) {
+                queryCursor.close();
+            }
         }
         return updateQueryResult;
     }

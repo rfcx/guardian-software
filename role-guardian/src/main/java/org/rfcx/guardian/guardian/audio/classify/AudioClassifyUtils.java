@@ -22,6 +22,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -192,7 +193,11 @@ public class AudioClassifyUtils {
                     FileUtils.delete(clsfrActiveFilePath);
                     FileUtils.copy(clsfrLibraryFilePath, clsfrActiveFilePath);
 
-                    return FileUtils.sha1Hash(clsfrActiveFilePath).equalsIgnoreCase(clsfrDigest);
+                    boolean result = FileUtils.sha1Hash(clsfrActiveFilePath).equalsIgnoreCase(clsfrDigest);
+                    if (result) {
+                        addClassificationToPrefs(clsfrId);
+                    }
+                    return result;
                 }
             }
 
@@ -202,11 +207,44 @@ public class AudioClassifyUtils {
         return false;
     }
 
+    public void addClassificationToPrefs(String classifierId) {
+        String[] currentClasses = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
+        ArrayList<String> currentClassesList = new ArrayList<>(Arrays.asList(currentClasses));
+        if (currentClassesList.size() == 1 && currentClassesList.get(0).equalsIgnoreCase("")) {
+            currentClassesList.clear();
+        }
+        String[] active = app.audioClassifierDb.dbActive.getSingleRowById(classifierId);
+        if (active != null) {
+            String classification = active[11].split(",")[0];
+            if (!currentClassesList.contains(classification)) {
+                currentClassesList.add(classification);
+            }
+            app.setSharedPref(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS, TextUtils.join(",", currentClassesList));
+        }
+    }
+
+    public void removeClassificationFromPrefs(String classifierId) {
+        String[] active = app.audioClassifierDb.dbActive.getSingleRowById(classifierId);
+        String[] currentClasses = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
+        ArrayList<String> currentClassesList = new ArrayList<>(Arrays.asList(currentClasses));
+        if (active != null) {
+            String classification = active[11].split(",")[0];
+            if (currentClassesList.contains(classification)) {
+                int indexOfClass = currentClassesList.indexOf(classification);
+                if (indexOfClass != -1) {
+                    currentClassesList.remove(indexOfClass);
+                }
+                app.setSharedPref(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS, TextUtils.join(",", currentClassesList));
+            }
+        }
+    }
+
     public boolean deActivateClassifier(String clsfrId) {
 
         String clsfrActiveFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), Long.parseLong(clsfrId));
         FileUtils.delete(clsfrActiveFilePath);
 
+        removeClassificationFromPrefs(clsfrId);
         app.audioClassifierDb.dbActive.deleteSingleRow(clsfrId);
 
         return (app.audioClassifierDb.dbActive.getCountByAssetId(clsfrId) == 0);
