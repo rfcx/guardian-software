@@ -114,7 +114,7 @@ public class AudioDetectionFilterJobService extends Service {
 
                         String[] allowedClassifications = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
                         double filterConfidenceMinThreshold = Double.parseDouble(threshold);
-                        double filterConfidenceMinCountPerMinute = 4;
+                        double filterConfidenceMinCountPerMinute = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CLASSIFY_MINIMUM_DETECTION);
                         int detectionSigFigs = 2;
 
 

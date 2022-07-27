@@ -96,6 +96,7 @@ public class RfcxPrefs {
                 put(Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM, "12000");
 
                 put(Pref.AUDIO_CLASSIFY_CLASS, "chainsaw");
+                put(Pref.AUDIO_CLASSIFY_MINIMUM_DETECTION, "4");
 
                 put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
                 put(Pref.CHECKIN_FAILURE_LIMIT, "3");
@@ -603,6 +604,7 @@ public class RfcxPrefs {
         public static final String AUDIO_VAULT_BITRATE = "audio_vault_bitrate";
 
         public static final String AUDIO_CLASSIFY_CLASS = "audio_classify_class";
+        public static final String AUDIO_CLASSIFY_MINIMUM_DETECTION = "audio_classify_minimum_detection";
 
         public static final String AUDIO_CAST_SAMPLE_RATE_MINIMUM = "audio_cast_sample_rate_minimum";
 
