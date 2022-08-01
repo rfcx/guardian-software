@@ -66,7 +66,7 @@ public class AudioCastUtils {
             Looper.prepare();
             try {
                 socketUtils.serverSetup();
-                while (true) {
+                while (!socketUtils.serverThread.isInterrupted()) {
                     InputStream socketInput = socketUtils.socketSetup();
                     if (socketInput != null) {
                         String jsonStr = socketUtils.streamSetup(socketInput);
