@@ -87,6 +87,11 @@ public class FileSocketUtils {
             try {
                 socketUtils.serverSetup();
                 while (true) {
+                    if (socketUtils.serverThread.isInterrupted()) {
+                        Log.d(logTag, "interrupted");
+                        Looper.myLooper().quit();
+                        return;
+                    }
                     InputStream socketInput = socketUtils.socketSetup();
                     if (socketInput != null) {
                         InputStream fileInput = socketUtils.streamFileSetup(socketInput);
@@ -218,7 +223,8 @@ public class FileSocketUtils {
                     }
                 }
             } catch (IOException | JSONException | NullPointerException e) {
-                    RfcxLog.logExc(logTag, e);
+                RfcxLog.logExc(logTag, e);
+                Looper.myLooper().quit();
             }
             Looper.loop();
         });

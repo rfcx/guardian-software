@@ -66,7 +66,12 @@ public class AudioCastUtils {
             Looper.prepare();
             try {
                 socketUtils.serverSetup();
-                while (!socketUtils.serverThread.isInterrupted()) {
+                while (true) {
+                    if (socketUtils.serverThread.isInterrupted()) {
+                        Log.d(logTag, "interrupted");
+                        Looper.myLooper().quit();
+                        return;
+                    }
                     InputStream socketInput = socketUtils.socketSetup();
                     if (socketInput != null) {
                         String jsonStr = socketUtils.streamSetup(socketInput);
@@ -77,6 +82,7 @@ public class AudioCastUtils {
                 }
             } catch (IOException | NullPointerException e) {
                     RfcxLog.logExc(logTag, e);
+                    Looper.myLooper().quit();
             }
             Looper.loop();
         });
