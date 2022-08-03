@@ -25,7 +25,7 @@ public class AssetLibraryDb {
     static final String C_META_NUMERIC_2 = "meta_numeric_2";
     static final String C_ATTEMPTS = "attempts";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{ "1.1.1" }; // "0.6.43"
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{ "1.1.3" }; // "0.6.43"
     private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_ASSET_ID, C_ASSET_TYPE, C_FORMAT, C_DIGEST, C_FILEPATH, C_FILESIZE, C_META_TEXT, C_META_NUMERIC_1, C_META_NUMERIC_2, C_ATTEMPTS, C_LAST_ACCESSED_AT};
     public final DbAudio dbAudio;
     public final DbClassifier dbClassifier;
