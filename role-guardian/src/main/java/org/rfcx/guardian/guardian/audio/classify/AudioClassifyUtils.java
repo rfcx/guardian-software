@@ -188,6 +188,7 @@ public class AudioClassifyUtils {
                     String clsfrClassifications = jsonMeta.getString("classifications");
                     String clsfrThreshold = jsonMeta.getString("classifications_filter_threshold");
 
+                    List<String[]> otherActiveClassifiers = app.audioClassifierDb.dbActive.getAllRows();
                     app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrInputGain, clsfrWindowSize, clsfrStepSize, clsfrClassifications, clsfrThreshold);
 
                     FileUtils.delete(clsfrActiveFilePath);
@@ -195,7 +196,15 @@ public class AudioClassifyUtils {
 
                     boolean result = FileUtils.sha1Hash(clsfrActiveFilePath).equalsIgnoreCase(clsfrDigest);
                     if (result) {
+                        // add classification class to prefs
                         addClassificationToPrefs(clsfrId);
+                        // deactivate other classifiers - allow only one at a time
+                        for (String[] clsf: otherActiveClassifiers) {
+                            deActivateClassifier(clsf[1]);
+                        }
+                        // set sample rate to match classifier
+                        app.setSharedPref(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE, "" + clsfrSampleRate);
+                        app.setSharedPref(RfcxPrefs.Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM, "" + clsfrSampleRate);
                     }
                     return result;
                 }
@@ -207,7 +216,7 @@ public class AudioClassifyUtils {
         return false;
     }
 
-    public void addClassificationToPrefs(String classifierId) {
+    private void addClassificationToPrefs(String classifierId) {
         String[] currentClasses = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
         ArrayList<String> currentClassesList = new ArrayList<>(Arrays.asList(currentClasses));
         if (currentClassesList.size() == 1 && currentClassesList.get(0).equalsIgnoreCase("")) {
@@ -223,7 +232,7 @@ public class AudioClassifyUtils {
         }
     }
 
-    public void removeClassificationFromPrefs(String classifierId) {
+    private void removeClassificationFromPrefs(String classifierId) {
         String[] active = app.audioClassifierDb.dbActive.getSingleRowById(classifierId);
         String[] currentClasses = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
         ArrayList<String> currentClassesList = new ArrayList<>(Arrays.asList(currentClasses));
