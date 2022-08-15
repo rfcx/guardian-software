@@ -10,6 +10,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.network.SocketUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +56,18 @@ public class CompanionSocketUtils {
     }
 
     private void processReceivedJson(String jsonStr) {
-        // do nothing — we don't expect to receive anything
+        try {
+            JSONObject json = new JSONObject(jsonStr);
+            if (!json.has("command")) return;
+            String command = json.getString("command");
+            if (command.equalsIgnoreCase("connection")) {
+                if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+                    app.swmUtils.power.setOn(true);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 
