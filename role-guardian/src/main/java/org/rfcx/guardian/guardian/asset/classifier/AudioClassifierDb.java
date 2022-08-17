@@ -26,7 +26,7 @@ public class AudioClassifierDb {
     static final String C_STEP_SIZE = "step_size";
     static final String C_CLASSES = "classes";
     static final String C_THRESHOLD = "threshold";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{"0.6.81"}; // "0.6.43"
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{"1.1.4"}; // "0.6.43"
     private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_INPUT_GAIN, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES, C_THRESHOLD};
     public final DbActive dbActive;
     private int VERSION = 1;
@@ -34,7 +34,7 @@ public class AudioClassifierDb {
 
     public AudioClassifierDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
         this.dbActive = new DbActive(context);
     }
 

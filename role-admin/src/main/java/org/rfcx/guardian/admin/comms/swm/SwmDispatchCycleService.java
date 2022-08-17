@@ -14,7 +14,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -105,7 +104,8 @@ public class SwmDispatchCycleService extends Service {
         private void trigger() throws InterruptedException {
             // Check if Swarm should be OFF due to prefs
             if (!DateTimeUtils.isCurrentTimeBefore2022()) {
-                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS))) {
+                // If socket connected then no need to off swarm tile
+                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS)) && !app.companionSocketUtils.socketUtils.isConnectingWithCompanion) {
                     Log.d(logTag, "Swarm is OFF at this time");
                     app.swmUtils.getPower().setOn(false);
                     return;

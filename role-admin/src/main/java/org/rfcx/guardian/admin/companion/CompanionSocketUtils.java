@@ -56,18 +56,7 @@ public class CompanionSocketUtils {
     }
 
     private void processReceivedJson(String jsonStr) {
-        try {
-            JSONObject json = new JSONObject(jsonStr);
-            if (!json.has("command")) return;
-            String command = json.getString("command");
-            if (command.equalsIgnoreCase("connection")) {
-                if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
-                    app.swmUtils.power.setOn(true);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        // do nothing — we don't expect to receive anything
     }
 
 
