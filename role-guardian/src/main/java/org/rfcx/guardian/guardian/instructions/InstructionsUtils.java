@@ -8,6 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.audio.cast.AudioCastSocketService;
+import org.rfcx.guardian.guardian.file.FileSocketService;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -154,6 +156,15 @@ public class InstructionsUtils {
                             app.setSharedPref(prefKey.toLowerCase(), prefsKeysVals.getString(prefKey).toLowerCase());
                         }
                     }
+                }
+
+            } else if (instrType.equalsIgnoreCase("ctrl") && instrCmd.equalsIgnoreCase("restart")) {
+                if (instrMeta.toString().equalsIgnoreCase("file-socket")) {
+                    app.rfcxSvc.stopService(FileSocketService.SERVICE_NAME);
+                    app.rfcxSvc.triggerService(FileSocketService.SERVICE_NAME, true);
+                } else if (instrMeta.toString().equalsIgnoreCase("audio-cast-socket")) {
+                    app.rfcxSvc.stopService(AudioCastSocketService.SERVICE_NAME);
+                    app.rfcxSvc.triggerService(AudioCastSocketService.SERVICE_NAME, true);
                 }
 
             } else if (instrType.equalsIgnoreCase("ctrl")) {
