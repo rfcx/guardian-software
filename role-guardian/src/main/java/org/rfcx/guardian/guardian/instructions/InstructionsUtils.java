@@ -159,12 +159,14 @@ public class InstructionsUtils {
                 }
 
             } else if (instrType.equalsIgnoreCase("ctrl") && instrCmd.equalsIgnoreCase("restart")) {
-                if (instrMeta.toString().equalsIgnoreCase("file-socket")) {
-                    app.rfcxSvc.stopService(FileSocketService.SERVICE_NAME);
-                    app.rfcxSvc.triggerService(FileSocketService.SERVICE_NAME, true);
-                } else if (instrMeta.toString().equalsIgnoreCase("audio-cast-socket")) {
-                    app.rfcxSvc.stopService(AudioCastSocketService.SERVICE_NAME);
-                    app.rfcxSvc.triggerService(AudioCastSocketService.SERVICE_NAME, true);
+                if (instrMeta.has("service")) {
+                    if (instrMeta.getString("service").equalsIgnoreCase("file-socket")) {
+                        app.rfcxSvc.stopService(FileSocketService.SERVICE_NAME);
+                        app.rfcxSvc.triggerService(FileSocketService.SERVICE_NAME, true);
+                    } else if (instrMeta.getString("service").equalsIgnoreCase("audio-cast-socket")) {
+                        app.rfcxSvc.stopService(AudioCastSocketService.SERVICE_NAME);
+                        app.rfcxSvc.triggerService(AudioCastSocketService.SERVICE_NAME, true);
+                    }
                 }
 
             } else if (instrType.equalsIgnoreCase("ctrl")) {
