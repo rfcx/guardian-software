@@ -46,8 +46,9 @@ public class FileSocketUtils {
         return this.socketUtils.sendJson(getPingObject().toString(), areSocketInteractionsAllowed());
     }
 
-    public void resetPingObject() {
+    public void resetObject() {
         this.pingObj = new JSONObject();
+        isReading = false;
     }
 
     public JSONObject getPingObject() {
@@ -225,6 +226,7 @@ public class FileSocketUtils {
             } catch (IOException | JSONException | NullPointerException e) {
                 RfcxLog.logExc(logTag, e);
                 Looper.myLooper().quit();
+                isReading = false;
             }
             Looper.loop();
         });
