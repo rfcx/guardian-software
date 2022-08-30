@@ -250,7 +250,7 @@ public class AudioCaptureUtils {
         return (this.samplingRatioIteration == 1);
     }
 
-    public boolean isAudioCaptureAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
+    public Pair<Boolean, String> isAudioCaptureAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
 
         // we set this to true, and cycle through conditions that might make it false
         // we then return the resulting true/false value
@@ -284,10 +284,10 @@ public class AudioCaptureUtils {
                     .toString());
         }
 
-        return isAudioCaptureAllowedUnderKnownConditions;
+        return new Pair<>(isAudioCaptureAllowedUnderKnownConditions, msgNoCapture.toString());
     }
 
-    public boolean isAudioCaptureDisabled(boolean printFeedbackInLog) {
+    public Pair<Boolean, String> isAudioCaptureDisabled(boolean printFeedbackInLog) {
 
         // we set this to false, and cycle through conditions that might make it true
         // we then return the resulting true/false value
@@ -325,7 +325,7 @@ public class AudioCaptureUtils {
                     .toString());
         }
 
-        return isAudioCaptureDisabledRightNow;
+        return new Pair<>(isAudioCaptureDisabledRightNow, msgNoCapture.toString());
     }
 
     public boolean updateCaptureQueue(long timeStampFile, long timeStampActual, int sampleRate) {

@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.companion;
 import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Pair;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,10 +51,35 @@ public class CompanionSocketUtils {
 
             companionObj.put("system_timezone", TimeZone.getDefault().getID());
 
+            Pair<Boolean, String> isCapturing =  isAudioCapturing();
+            companionObj.put("is_audio_capturing", isCapturing.first);
+            companionObj.put("audio_capturing_message", isCapturing.second);
+
         } catch (JSONException e) {
             RfcxLog.logExc(logTag, e);
         }
         return companionObj;
+    }
+
+    private Pair<Boolean, String> isAudioCapturing() {
+        Pair<Boolean, String> isDisabled = app.audioCaptureUtils.isAudioCaptureDisabled(false);
+        Pair<Boolean, String> isAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true, false);
+        boolean capturing = false;
+        StringBuilder msg = new StringBuilder();
+
+        if (!isDisabled.first && isAllowed.first) {
+            capturing = true;
+        }
+
+        if (!isDisabled.second.isEmpty()) {
+            msg.append(isDisabled.second);
+        }
+
+        if (!isAllowed.second.isEmpty()) {
+            msg.append(isAllowed.second);
+        }
+
+        return new Pair<>(capturing, msg.toString());
     }
 
     private JSONObject getLatestAllSentCheckInType() throws JSONException {
