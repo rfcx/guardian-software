@@ -24,52 +24,60 @@ public class DeviceI2CUtils {
     }
 
     public static JSONArray getI2cSensorValuesAsJsonArray(Context context) {
-
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         JSONArray sensorJsonArray = new JSONArray();
         try {
-            JSONObject sensorJson = new JSONObject();
-            sensorJson.put("environment", app.sentinelSensorDb.dbEnvironment.getConcatRowsWithLabelPrepended("environment"));
-            sensorJson.put("battery", app.sentinelSensorDb.dbBattery.getConcatRowsWithLabelPrepended("battery"));
-            sensorJsonArray.put(sensorJson);
+
+            String bmeValues = app.sentrySensorDb.dbBME688.getConcatRowsIgnoreNull("bme688");
+            if (bmeValues != null) {
+                JSONObject bmeObj = new JSONObject();
+                bmeObj.put("bme688", bmeValues);
+                sensorJsonArray.put(bmeObj);
+            }
+
+            String infValues = app.sentrySensorDb.dbInfineon.getConcatRowsIgnoreNull("infineon");
+            if (infValues != null) {
+                JSONObject infObj = new JSONObject();
+                infObj.put("infineon", infValues);
+                sensorJsonArray.put(infObj);
+            }
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
-
-        } finally {
-            return sensorJsonArray;
         }
+        return sensorJsonArray;
     }
 
     public static int deleteI2cSensorValuesBeforeTimestamp(String timeStamp, Context context) {
-
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
         Date clearBefore = new Date(Long.parseLong(timeStamp));
-
-        app.sentinelSensorDb.dbEnvironment.clearRowsBefore(clearBefore);
-        app.sentinelSensorDb.dbBattery.clearRowsBefore(clearBefore);
+        app.sentrySensorDb.dbBME688.clearRowsBefore(clearBefore);
+        app.sentrySensorDb.dbInfineon.clearRowsBefore(clearBefore);
 
         return 1;
     }
 
 
     public static JSONArray getMomentaryI2cSensorValuesAsJsonArray(boolean forceUpdate, Context context) {
-
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         JSONArray sensorJsonArray = new JSONArray();
 
         if (forceUpdate) {
-
             if (app.sentryAccelUtils.isChipAccessibleByI2c()) {
                 app.sentryAccelUtils.resetAccelValues();
                 app.sentryAccelUtils.updateSentryAccelValues();
             }
 
-//            if (app.sentinelCompassUtils.isCaptureAllowed()) {
-//                app.sentinelCompassUtils.resetCompassValues();
-//                app.sentinelCompassUtils.updateSentinelCompassValues();
-//            }
+            if (app.sentryBME688Utils.isChipAccessibleByI2c()) {
+                app.sentryBME688Utils.resetBMEValues();
+                app.sentryBME688Utils.saveBME688ValuesToDatabase(app.sentryBME688Utils.getBME688Values());
+            }
+
+            if (app.sentryInfineonUtils.isChipAccessibleByI2c()) {
+                app.sentryInfineonUtils.resetInfineonValues();
+                app.sentryInfineonUtils.saveInfineonValuesToDatabase(app.sentryInfineonUtils.getInfineonValues());
+            }
         }
 
         try {
@@ -80,10 +88,13 @@ public class DeviceI2CUtils {
                 sensorJson.put("accelerometer", "accelerometer*" + accelVals[4] + "*" + accelVals[0] + "*" + accelVals[1] + "*" + accelVals[2] + "*" + accelVals[3]);
             }
 
-//            if (app.sentinelCompassUtils.getCompassValues().size() > 0) {
-//                long[] compassVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelCompassUtils.getCompassValues()));
-//                sensorJson.put("compass", "compass*"+compassVals[4]+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
-//            }
+            if (app.sentryBME688Utils.getCurrentBMEValues() != null) {
+                sensorJson.put("bme688", app.sentrySensorDb.dbBME688.getConcatRowsIgnoreNull("bme688"));
+            }
+
+            if (app.sentryInfineonUtils.getCurrentInfineonValues() != null) {
+                sensorJson.put("infineon", app.sentrySensorDb.dbInfineon.getConcatRowsIgnoreNull("infineon"));
+            }
 
             sensorJsonArray.put(sensorJson);
 

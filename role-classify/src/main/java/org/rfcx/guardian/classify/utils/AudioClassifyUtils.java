@@ -38,6 +38,7 @@ public class AudioClassifyUtils {
     private final RfcxGuardian app;
     private final Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
     private final Map<String, String[]> classifierClassifications = new HashMap<String, String[]>();
+    private final Map<String, String> classifierThreshold = new HashMap<String, String>();
     private final Map<String, Integer> classifierSampleRates = new HashMap<String, Integer>();
     private final Map<String, Float> classifierWindowSizes = new HashMap<String, Float>();
     private final Map<String, Float> classifierStepSizes = new HashMap<String, Float>();
@@ -77,7 +78,7 @@ public class AudioClassifyUtils {
         (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(new String[]{RfcxAudioFileUtils.audioSnippetDir(context)}, audioSnippets, Math.round(maxAgeInMilliseconds / 60000), false, false);
     }
 
-    public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, int sampleRate, float windowSize, float stepSize, String classificationsStr) {
+    public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, int sampleRate, float windowSize, float stepSize, String classificationsStr, String threshold) {
 
         String clsfrId = classifierId.toLowerCase(Locale.US);
 
@@ -88,6 +89,7 @@ public class AudioClassifyUtils {
             audioClassifier.loadClassifier();
 
             this.classifierClassifications.put(clsfrId, classificationsStr.split(","));
+            this.classifierThreshold.put(clsfrId, threshold);
             this.classifierSampleRates.put(clsfrId, sampleRate);
             this.classifierWindowSizes.put(clsfrId, windowSize);
             this.classifierStepSizes.put(clsfrId, stepSize);
@@ -110,6 +112,14 @@ public class AudioClassifyUtils {
         String clsfrId = classifierId.toLowerCase(Locale.US);
         if (this.classifierClassifications.containsKey(clsfrId)) {
             return this.classifierClassifications.get(clsfrId);
+        }
+        return null;
+    }
+
+    private String getClassifierClassificationsThreshold(String classifierId) {
+        String clsfrId = classifierId.toLowerCase(Locale.US);
+        if (this.classifierThreshold.containsKey(clsfrId)) {
+            return this.classifierThreshold.get(clsfrId);
         }
         return null;
     }
@@ -141,6 +151,7 @@ public class AudioClassifyUtils {
     public JSONObject classifyOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
 
         String[] classifierClassifications = app.audioClassifyUtils.getClassifierClassifications(classifierId);
+        String classifierClassificationThreshold = app.audioClassifyUtils.getClassifierClassificationsThreshold(classifierId);
         int classifierSampleRate = app.audioClassifyUtils.getClassifierSampleRate(classifierId);
         float classifierWindowSize = app.audioClassifyUtils.getClassifierWindowSize(classifierId);
         float classifierStepSize = app.audioClassifyUtils.getClassifierStepSize(classifierId);
@@ -164,8 +175,10 @@ public class AudioClassifyUtils {
             }
             jsonDetections.put(classifierClassifications[j], classArr);
         }
+        jsonObj.put("threshold", classifierClassificationThreshold);
 
         jsonObj.put("detections", jsonDetections);
+        Log.e(logTag, jsonDetections.toString());
         return jsonObj;
     }
 
@@ -178,27 +191,6 @@ public class AudioClassifyUtils {
                         null, null, null);
         if (sendDetectionsResponse != null) {
             sendDetectionsResponse.close();
-        }
-    }
-
-    public void moveClassifierFromRawToDirectory(Context context) {
-        InputStream is = context.getResources().openRawResource(R.raw.c1617208867756);
-        String path = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong("1617208867756"));
-        Log.d(logTag, path);
-        if (new File(path).exists()) {
-            return;
-        }
-
-        try {
-            OutputStream outStream = new FileOutputStream(path);
-            byte[] buffer = new byte[8 * 1024];
-            int bytesRead;
-            while ((bytesRead = is.read(buffer)) != -1) {
-                outStream.write(buffer, 0, bytesRead);
-            }
-            Log.d(logTag, "Done moving classifier");
-        } catch (IOException exception) {
-            RfcxLog.logExc(exception.getMessage(), exception);
         }
     }
 

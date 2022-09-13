@@ -201,6 +201,26 @@ public class DbUtils {
         return concatRows;
     }
 
+    /**
+     * Used by sensor diagnostic db to compress null sensor values
+     */
+    public static String getConcatRowsIgnoreNullSensors(String labelToPrepend, List<String[]> getRowsOutput) {
+        String concatRows = null;
+        ArrayList<String> rowList = new ArrayList<String>();
+        try {
+            for (String[] row : getRowsOutput) {
+                // if first sensor value is null then others also null
+                if (!row[1].equals("0")) {
+                    rowList.add(labelToPrepend + "*" + StringUtils.joinArrayString(row, "*"));
+                }
+            }
+            concatRows = (rowList.size() > 0) ? StringUtils.joinArrayString(rowList.toArray(new String[0]), "|") : null;
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return concatRows;
+    }
+
     public static String getConcatRowsWithLabelPrepended(String labelToPrepend, List<String[]> getRowsOutput) {
         String concatRows = null;
         ArrayList<String> rowList = new ArrayList<String>();

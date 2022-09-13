@@ -154,7 +154,7 @@ public class SentinelPowerUtils {
                 chipAccessibleFailMessage = "Sentinel Power Chip could not be accessed because I2C handler is not accessible...";
                 Log.e(logTag, chipAccessibleFailMessage);
             } else {
-                String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x4a", i2cMainAddr, true);
+                String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x4a", i2cMainAddr, true, true);
                 isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
                 if (!isI2cPowerChipConnected) {
                     chipAccessibleFailMessage = "Sentinel Power Chip is NOT Accessible via I2C...";
@@ -230,7 +230,7 @@ public class SentinelPowerUtils {
 
                 List<String[]> i2cSetConfigLabelsAddressesValues = new ArrayList<>();
 
-                for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(chipConfigI2cLabelsAndSubAddresses, i2cMainAddr, false, new String[]{})) {
+                for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(chipConfigI2cLabelsAndSubAddresses, i2cMainAddr, false, true, new String[]{})) {
 
                     String outputValue = "0x" + StringUtils.leftPadStringWithChar(i2cLabeledOutput[1].substring(2), 4, "0");
 
@@ -243,7 +243,7 @@ public class SentinelPowerUtils {
 
                 if (i2cSetConfigLabelsAddressesValues.size() == 0) {
                     Log.i(logTag, "Sentinel Power I2C Configuration verified.");
-                } else if (!app.deviceI2cUtils.i2cSet(i2cSetConfigLabelsAddressesValues, i2cMainAddr)) {
+                } else if (!app.deviceI2cUtils.i2cSet(i2cSetConfigLabelsAddressesValues, i2cMainAddr, true)) {
                     Log.e(logTag, "Sentinel Power Chip configuration attempted and failed to be set over I2C.");
                 } else {
                     Log.v(logTag, "Sentinel Power I2C Configuration was successfully updated.");
@@ -326,7 +326,7 @@ public class SentinelPowerUtils {
 
             resetI2cTmpValues();
 
-            for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(buildI2cQueryList(), i2cMainAddr, true, this.getWithoutTwoComplement)) {
+            for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(buildI2cQueryList(), i2cMainAddr, true, true, this.getWithoutTwoComplement)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
                 String valueType = i2cLabeledOutput[0].substring(1 + i2cLabeledOutput[0].indexOf("-"));
                 double[] valueSet = this.i2cTmpValues.get(groupName);
@@ -414,7 +414,7 @@ public class SentinelPowerUtils {
             if (isChipAccessibleByI2c()) {
                 List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
                 i2cLabelsAddressesValues.add(new String[]{"qcount", "0x13", "0x" + Long.toHexString(Long.parseLong("" + Math.round(qCountVal)))});
-                app.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues, i2cMainAddr);
+                app.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues, i2cMainAddr, true);
                 Log.v(logTag, calibrationMsg);
             } else {
                 Log.e(logTag, "Failed to Set/Calibrate QCount value via I2C...");

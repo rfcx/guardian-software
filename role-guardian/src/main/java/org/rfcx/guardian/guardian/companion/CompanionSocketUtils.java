@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.companion;
 import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Pair;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,9 +20,9 @@ import java.util.TimeZone;
 public class CompanionSocketUtils {
 
     private static final String[] includePingFields = new String[]{
-            "battery", "instructions", "prefs_full", "software", "library", "device", "companion", "swm"
+            "battery", "prefs_full", "software", "library", "device", "companion", "swm", "active-classifier"
     };
-    private static final String[] excludeFromLogs = new String[]{"prefs"};
+    private static final String[] excludeFromLogs = new String[]{};
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
     public SocketUtils socketUtils;
     private final RfcxGuardian app;
@@ -50,10 +51,35 @@ public class CompanionSocketUtils {
 
             companionObj.put("system_timezone", TimeZone.getDefault().getID());
 
+            Pair<Boolean, String> isCapturing =  isAudioCapturing();
+            companionObj.put("is_audio_capturing", isCapturing.first);
+            companionObj.put("audio_capturing_message", isCapturing.second);
+
         } catch (JSONException e) {
             RfcxLog.logExc(logTag, e);
         }
         return companionObj;
+    }
+
+    private Pair<Boolean, String> isAudioCapturing() {
+        Pair<Boolean, String> isDisabled = app.audioCaptureUtils.isAudioCaptureDisabled(false);
+        Pair<Boolean, String> isAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true, false);
+        boolean capturing = false;
+        StringBuilder msg = new StringBuilder();
+
+        if (!isDisabled.first && isAllowed.first) {
+            capturing = true;
+        }
+
+        if (!isDisabled.second.isEmpty()) {
+            msg.append(isDisabled.second);
+        }
+
+        if (!isAllowed.second.isEmpty()) {
+            msg.append(isAllowed.second);
+        }
+
+        return new Pair<>(capturing, msg.toString());
     }
 
     private JSONObject getLatestAllSentCheckInType() throws JSONException {
@@ -133,6 +159,11 @@ public class CompanionSocketUtils {
             try {
                 socketUtils.serverSetup();
                 while (true) {
+                    if (socketUtils.serverThread.isInterrupted()) {
+                        Log.d(logTag, "interrupted");
+                        Looper.myLooper().quit();
+                        return;
+                    }
                     InputStream socketInput = socketUtils.socketSetup();
                     if (socketInput != null) {
                         String jsonStr = socketUtils.streamSetup(socketInput);
@@ -141,10 +172,9 @@ public class CompanionSocketUtils {
                         }
                     }
                 }
-            } catch (IOException e) {
-                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
-                    RfcxLog.logExc(logTag, e);
-                }
+            } catch (IOException | NullPointerException e ) {
+                RfcxLog.logExc(logTag, e);
+                Looper.myLooper().quit();
             }
             Looper.loop();
         });

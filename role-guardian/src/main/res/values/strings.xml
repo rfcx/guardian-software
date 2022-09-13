@@ -39,6 +39,7 @@
     <string name="prefs_value_default_api_ping_schedule_off_hours">23:55-23:56,23:57-23:59</string>
     <string name="prefs_value_default_api_checkin_publish_schedule_off_hours">23:55-23:56,23:57-23:59</string>
     <string name="prefs_value_default_api_checkin_requeue_schedule_off_hours">00:01-10:00,14:00-23:59</string>
+    <string name="prefs_value_default_admin_diagnostic_off_hours">23:55-23:56,23:57-23:59</string>
     >
     <string name="prefs_value_default_api_satellite_off_hours">23:55-23:56,23:57-23:59</string>
 
@@ -59,6 +60,9 @@
 
     <string name="prefs_value_default_audio_cast_sample_rate_minimum">12000</string>
 
+    <string name="prefs_value_default_audio_classify_class">chainsaw</string>
+    <string name="prefs_value_default_audio_classify_minimum_detection">4</string>
+
     <string name="prefs_value_default_enable_cutoffs_internal_battery">false</string>
     <string name="prefs_value_default_checkin_cutoff_internal_battery">100</string>
     <string name="prefs_value_default_audio_cutoff_internal_battery">100</string>
@@ -76,6 +80,7 @@
     <string name="prefs_value_default_checkin_stash_filesize_buffer">160</string>
     <string name="prefs_value_default_checkin_archive_filesize_target">32</string>
 
+    <string name="prefs_value_default_ping_meta_send_bundle_limit">4</string>
     <string name="prefs_value_default_checkin_meta_send_bundle_limit">16</string>
     <string name="prefs_value_default_checkin_meta_queue_filesize_limit">8</string>
 
@@ -110,6 +115,7 @@
     <string name="prefs_value_default_admin_verbose_sentinel">false</string>
     <string name="prefs_value_default_admin_verbose_cpu">false</string>
     <string name="prefs_value_default_admin_verbose_network">false</string>
+    <string name="prefs_value_default_admin_verbose_classify">false</string>
 
     <string name="prefs_value_default_admin_system_settings_override">auto_time_zone:system,i,0;</string>
     <string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
@@ -124,6 +130,12 @@
     <string name="prefs_value_default_api_satellite_protocol">off</string>
 
     <string name="prefs_value_default_enable_file_socket">true</string>
+
+    <string name="prefs_value_default_enable_sensor_bme688">false</string>
+    <string name="prefs_value_default_enable_sensor_infineon">false</string>
+    <string name="prefs_value_default_infineon_pressure_calibrate_number">1013</string>
+
+    <string name="prefs_value_default_ping_sensor_values">bme</string>
 
 
     <string-array name="prefs_values_api_satellite_protocol">

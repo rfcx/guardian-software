@@ -8,6 +8,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -180,6 +181,10 @@ public class DeviceI2cService extends Service {
 
             while (deviceI2cService.runFlag) {
 
+                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
+                    continue;
+                }
+
                 try {
 
                     confirmOrSetCaptureParameters();
@@ -205,7 +210,6 @@ public class DeviceI2cService extends Service {
                     app.rfcxSvc.setRunState(SERVICE_NAME, false);
                     RfcxLog.logExc(logTag, e);
                 }
-
             }
             Log.v(logTag, "Stopping service: " + logTag);
         }

@@ -57,11 +57,14 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2cService;
+import org.rfcx.guardian.admin.device.i2c.DeviceSensorService;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
+import org.rfcx.guardian.admin.device.i2c.sentry.infineon.SentryInfineonUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.admin.status.AdminStatus;
@@ -136,6 +139,8 @@ public class RfcxGuardian extends Application {
     public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
     public SentinelPowerUtils sentinelPowerUtils = null;
     public SentryAccelUtils sentryAccelUtils = null;
+    public SentryBME688Utils sentryBME688Utils = null;
+    public SentryInfineonUtils sentryInfineonUtils = null;
     public SbdUtils sbdUtils = null;
     public SwmUtils swmUtils = null;
     public SpeedTest speedTest = null;
@@ -143,6 +148,7 @@ public class RfcxGuardian extends Application {
             new String[]{
                     DeviceSystemService.SERVICE_NAME,
                     DeviceI2cService.SERVICE_NAME,
+                    DeviceSensorService.SERVICE_NAME,
                     SmsDispatchCycleService.SERVICE_NAME,
                     SbdDispatchCycleService.SERVICE_NAME,
                     SwmDispatchCycleService.SERVICE_NAME,
@@ -171,6 +177,8 @@ public class RfcxGuardian extends Application {
         this.deviceUtils = new DeviceUtils(this);
         this.sentinelPowerUtils = new SentinelPowerUtils(this);
         this.sentryAccelUtils = new SentryAccelUtils(this);
+        this.sentryBME688Utils = new SentryBME688Utils(this);
+        this.sentryInfineonUtils = new SentryInfineonUtils(this);
         this.assetUtils = new AssetUtils(this);
         this.companionSocketUtils = new CompanionSocketUtils(this);
         this.companionPingJsonUtils = new CompanionPingJsonUtils(this);
@@ -253,31 +261,31 @@ public class RfcxGuardian extends Application {
                             + "|" + (this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_CAMERA_CAPTURE_CYCLE) * 60 * 1000)
                     ,
                     SystemSettingsService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:03").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    SystemCPUGovernorService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:06").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    AirplaneModeSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:09").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    BluetoothStateSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:12").getTimeInMillis() // waits a few seconds before running
-                            + "|" + "norepeat"
-                    ,
-                    WifiStateSetService.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits a few seconds before running
                             + "|" + "norepeat"
                     ,
-                    ADBStateSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:18").getTimeInMillis() // waits a few seconds before running
+                    SystemCPUGovernorService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits a few seconds before running
                             + "|" + "norepeat"
                     ,
+                    WifiStateSetService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:05").getTimeInMillis() // waits a few seconds before running
+                            + "|" + "norepeat"
+                    ,
+                    ADBStateSetService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
+                            + "|" + "norepeat"
+                    ,
+                    AirplaneModeSetService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:25").getTimeInMillis() // waits a few seconds before running
+                            + "|" + "norepeat"
+                    ,
+//					BluetoothStateSetService.SERVICE_NAME
+//							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits a few seconds before running
+//							+ "|" + "norepeat"
+//							,
                     SSHStateSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:18").getTimeInMillis() // waits a few seconds before running
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:35").getTimeInMillis() // waits a few seconds before running
                             + "|" + "norepeat"
             };
 
@@ -343,6 +351,7 @@ public class RfcxGuardian extends Application {
 
         this.rfcxSvc.addService(DeviceSystemService.SERVICE_NAME, DeviceSystemService.class);
         this.rfcxSvc.addService(DeviceI2cService.SERVICE_NAME, DeviceI2cService.class);
+        this.rfcxSvc.addService(DeviceSensorService.SERVICE_NAME, DeviceSensorService.class);
 
         this.rfcxSvc.addService(ScreenShotCaptureService.SERVICE_NAME, ScreenShotCaptureService.class);
         this.rfcxSvc.addService(ScheduledScreenShotCaptureService.SERVICE_NAME, ScheduledScreenShotCaptureService.class);
@@ -459,7 +468,9 @@ public class RfcxGuardian extends Application {
         ShellCommands.executeCommandAsRoot(
                 new String[]{
                         "rm -f /data/log_temp/boot/*",
-                        "rm -f /data/data/org.rfcx.guardian.guardian/files/audio/encode/*"
+                        "rm -f /data/data/org.rfcx.guardian.guardian/files/audio/encode/*",
+                        "rm -rf /storage/sdcard0/mtklog",
+                        "rm -rf /storage/sdcard1/mtklog"
                 });
     }
 

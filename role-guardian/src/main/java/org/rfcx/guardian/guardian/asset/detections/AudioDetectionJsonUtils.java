@@ -23,7 +23,7 @@ public class AudioDetectionJsonUtils {
 
     }
 
-    public JSONObject retrieveAndBundleDetectionJson(JSONObject insertDetectionsInto, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
+    public JSONObject retrieveAndBundleDetectionJson(JSONObject insertDetectionsInto, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt, boolean forSatellite) throws JSONException {
 
         if (insertDetectionsInto == null) {
             insertDetectionsInto = new JSONObject();
@@ -31,18 +31,26 @@ public class AudioDetectionJsonUtils {
 
         JSONArray dtcnIds = new JSONArray();
         ArrayList<String> dtcnList = new ArrayList<>();
-
-        List<String[]> dtcnRows = (overrideFilterByLastAccessedAt) ? app.audioDetectionDb.dbFiltered.getLatestRowsWithLimit(maxDtcnRowsToBundle) :
-                app.audioDetectionDb.dbFiltered.getLatestRowsNotAccessedSinceWithLimit((System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxDtcnRowsToBundle);
+        List<String[]> dtcnRows;
+        if (forSatellite) {
+            dtcnRows = app.audioDetectionDb.dbFiltered.getLatestRowsNotAccessedWithLimit(maxDtcnRowsToBundle);
+        } else {
+            dtcnRows = (overrideFilterByLastAccessedAt) ? app.audioDetectionDb.dbFiltered.getLatestRowsWithLimit(maxDtcnRowsToBundle) :
+                    app.audioDetectionDb.dbFiltered.getLatestRowsNotAccessedSinceWithLimit((System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxDtcnRowsToBundle);
+        }
 
         for (String[] dtcnRow : dtcnRows) {
 
             // add detection set ID to array of IDs
             dtcnIds.put(dtcnRow[0]);
-            dtcnList.add(TextUtils.join("*", new String[]{dtcnRow[1], dtcnRow[3] + "-v" + dtcnRow[4], dtcnRow[7], "" + Math.round(Double.parseDouble(dtcnRow[8]) * 1000), dtcnRow[10]}));
+            dtcnList.add(TextUtils.join("*", new String[]{dtcnRow[1], dtcnRow[3] + "-v" + dtcnRow[4], dtcnRow[7], "" + Math.round(Double.parseDouble(dtcnRow[8])), dtcnRow[10]}));
 
             // mark this row as accessed in the database
-            app.audioDetectionDb.dbFiltered.updateLastAccessedAtByCreatedAt(dtcnRow[0]);
+            if (forSatellite) {
+                app.audioDetectionDb.dbFiltered.deleteSingleRow(dtcnRow[1], dtcnRow[6]);
+            } else {
+                app.audioDetectionDb.dbFiltered.updateLastAccessedAtByCreatedAt(dtcnRow[0]);
+            }
 
             // if the bundle already contains max number of snapshots, stop here
             if (dtcnIds.length() >= maxDtcnRowsToBundle) {

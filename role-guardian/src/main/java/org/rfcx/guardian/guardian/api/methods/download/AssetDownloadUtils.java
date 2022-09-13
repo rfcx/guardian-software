@@ -32,6 +32,46 @@ public class AssetDownloadUtils {
 
     public void createDummyRow() {
 
+        //				app.assetDownloadDb.dbQueued.insert(
+//				"classifier",
+//				"1637739334295",
+//				"331e7a8c2453c9ca27c61be6018d9f4098d9c366",
+//				"http",
+//				"http://192.168.1.102:8080/cdn/tflite/asianelephant_v5.tflite.gz",
+//				13635432,
+//				"tflite",
+//				"{"
+//						+"\"classifier_name\":\"asianelephant\","
+//						+"\"classifier_version\":\"5\","
+//						+"\"sample_rate\":\"8000\","
+//						+"\"input_gain\":\"1.0\","
+//						+"\"window_size\":\"3.5000\","
+//						+"\"step_size\":\"1\","
+//						+"\"classifications\":\"asianelephant,environment\","
+//						+"\"classifications_filter_threshold\":\"0.99,1.00\""
+//						+"}"
+//		);
+
+//		app.assetDownloadDb.dbQueued.insert(
+//				"classifier",
+//				"1637901623151",
+//				"69482d8b65083e2fabcf1096033c863409cc50f7",
+//				"http",
+//				"http://192.168.43.107:8080/cdn/tflite/asia-elephant-edge_v2.tflite.gz",
+//				12469754,
+//				"tflite",
+//				"{"
+//						+"\"classifier_name\":\"asia-elephant-edge\","
+//						+"\"classifier_version\":\"2\","
+//						+"\"sample_rate\":\"8000\","
+//						+"\"input_gain\":\"1.0\","
+//						+"\"window_size\":\"2.5000\","
+//						+"\"step_size\":\"2.0000\","
+//						+"\"classifications\":\"elephas_maximus,environment\","
+//						+"\"classifications_filter_threshold\":\"0.98,1.00\""
+//						+"}"
+//		);
+
         app.assetDownloadDb.dbQueued.insert(
                 "classifier",
                 "1617208867756",
@@ -52,45 +92,6 @@ public class AssetDownloadUtils {
                         + "}"
         );
 
-    }
-
-    public void createPreClassifierValues(Context context) {
-        String assetId = "1617208867756";
-        String filePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong(assetId));
-        Uri fileOriginUri = RfcxComm.getFileUri("classify", RfcxAssetCleanup.conciseFilePath(filePath, RfcxGuardian.APP_ROLE));
-        String fileChecksum = FileUtils.sha1Hash(filePath);
-        if (new File(filePath).exists()) {
-            return;
-        }
-        RfcxComm.getFileRequest(fileOriginUri, filePath, app.getResolver());
-
-        String fileType = "tflite";
-        String metaJsonBlob = "{"
-                + "\"classifier_name\":\"chainsaw\","
-                + "\"classifier_version\":\"5\","
-                + "\"sample_rate\":\"12000\","
-                + "\"input_gain\":\"1.0\","
-                + "\"window_size\":\"0.9750\","
-                + "\"step_size\":\"1\","
-                + "\"classifications\":\"chainsaw,environment\","
-                + "\"classifications_filter_threshold\":\"0.95,1.00\""
-                + "}";
-
-        String[] existClassifier = app.assetLibraryDb.dbClassifier.getSingleRowById(assetId);
-        if (existClassifier[1] != null && existClassifier[1].equals(assetId)) {
-            return;
-        }
-        app.assetLibraryDb.dbClassifier.insert(
-                assetId,
-                fileType,
-                fileChecksum,
-                filePath,
-                FileUtils.getFileSizeInBytes(filePath),
-                metaJsonBlob,
-                0,
-                0
-        );
-        app.audioClassifyUtils.activateClassifier(assetId);
     }
 
     public String getTmpAssetFilePath(String assetType, String assetId) {

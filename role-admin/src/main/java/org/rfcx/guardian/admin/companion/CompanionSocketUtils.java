@@ -10,6 +10,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.network.SocketUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +68,11 @@ public class CompanionSocketUtils {
             try {
                 socketUtils.serverSetup();
                 while (true) {
+                    if (socketUtils.serverThread.isInterrupted()) {
+                        Log.d(logTag, "interrupted");
+                        Looper.myLooper().quit();
+                        return;
+                    }
                     InputStream socketInput = socketUtils.socketSetup();
                     if (socketInput != null) {
                         String jsonStr = socketUtils.streamSetup(socketInput);
@@ -75,10 +81,9 @@ public class CompanionSocketUtils {
                         }
                     }
                 }
-            } catch (IOException e) {
-                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
-                    RfcxLog.logExc(logTag, e);
-                }
+            } catch (IOException | NullPointerException e) {
+                RfcxLog.logExc(logTag, e);
+                Looper.myLooper().quit();
             }
             Looper.loop();
         });

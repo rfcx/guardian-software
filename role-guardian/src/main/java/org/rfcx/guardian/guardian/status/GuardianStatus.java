@@ -27,10 +27,10 @@ public class GuardianStatus extends RfcxStatus {
             if (isGroup(Group.AUDIO_CAPTURE, group)) {
 
                 if (isStatusType(Type.ALLOWED, statusType)) {
-                    statusValues[statusType] = app.audioCaptureUtils.isAudioCaptureAllowed(true, printFeedbackInLog);
+                    statusValues[statusType] = app.audioCaptureUtils.isAudioCaptureAllowed(true, printFeedbackInLog).first;
 
                 } else if (isStatusType(Type.ENABLED, statusType)) {
-                    statusValues[statusType] = !app.audioCaptureUtils.isAudioCaptureDisabled(printFeedbackInLog);
+                    statusValues[statusType] = !app.audioCaptureUtils.isAudioCaptureDisabled(printFeedbackInLog).first;
                 }
 
             } else if (isGroup(Group.API_CHECKIN, group)) {

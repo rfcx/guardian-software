@@ -9,6 +9,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -103,7 +104,8 @@ public class SwmDispatchCycleService extends Service {
         private void trigger() throws InterruptedException {
             // Check if Swarm should be OFF due to prefs
             if (!DateTimeUtils.isCurrentTimeBefore2022()) {
-                if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+                // If socket connected then no need to off swarm tile
+                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS)) && !app.companionSocketUtils.socketUtils.isConnectingWithCompanion) {
                     Log.d(logTag, "Swarm is OFF at this time");
                     app.swmUtils.getPower().setOn(false);
                     return;
@@ -127,6 +129,11 @@ public class SwmDispatchCycleService extends Service {
             String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
             if (latestMessageForQueue[4] == null) return;
 
+            long day = (24 * 60 * 60 * 1000);
+            Date date = new Date(Long.parseLong(latestMessageForQueue[0]) - day);
+            List<String> groupIds = app.swmMessageDb.dbSwmQueued.getGroupIdsBefore(date);
+            app.swmMessageDb.dbSwmQueued.clearRowsByGroupIds(groupIds);
+
             for (String[] swmForDispatch : app.swmMessageDb.dbSwmQueued.getUnsentMessagesInOrderOfTimestampAndWithinGroupId(latestMessageForQueue[4])) {
                 // only proceed with dispatch process if there is a valid queued swm message in the database
                 if (swmForDispatch[0] != null) {
@@ -136,9 +143,9 @@ public class SwmDispatchCycleService extends Service {
 
                     if (sendAtOrAfter <= rightNow) {
 
-                        String msgId = swmForDispatch[4];
+                        String msgId = swmForDispatch[5];
                         String msgBody = swmForDispatch[3];
-                        int priority = Integer.parseInt(swmForDispatch[5]);
+                        int priority = Integer.parseInt(swmForDispatch[7]);
 
                         // send message
                         String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"", priority);
@@ -149,8 +156,8 @@ public class SwmDispatchCycleService extends Service {
                                     msgBody,
                                     swmForDispatch[4],
                                     msgId,
-                                    priority,
-                                    swmMessageId
+                                    swmMessageId,
+                                    priority
                             );
                             app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
 
@@ -165,10 +172,6 @@ public class SwmDispatchCycleService extends Service {
                     }
                 }
             }
-            long day = (24 * 60 * 60 * 1000);
-            Date date = new Date(Long.parseLong(latestMessageForQueue[0]) - day);
-            List<String> groupIds = app.swmMessageDb.dbSwmQueued.getGroupIdsBefore(date);
-            app.swmMessageDb.dbSwmQueued.clearRowsByIds(groupIds);
         }
 
         private void getDiagnostics() {

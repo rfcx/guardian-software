@@ -36,7 +36,7 @@ public class RfcxPrefs {
                 put(Pref.ENABLE_AUDIO_STREAM, "true");
                 put(Pref.ENABLE_AUDIO_VAULT, "false");
                 put(Pref.ENABLE_AUDIO_CLASSIFY, "false");
-                put(Pref.ENABLE_AUDIO_CAST, "false");
+                put(Pref.ENABLE_AUDIO_CAST, "true");
 
                 put(Pref.ENABLE_CHECKIN_PUBLISH, "true");
                 put(Pref.ENABLE_CHECKIN_ARCHIVE, "true");
@@ -60,7 +60,7 @@ public class RfcxPrefs {
                 put(Pref.ENABLE_REBOOT_FORCED_DAILY, "false");
                 put(Pref.REBOOT_FORCED_DAILY_AT, "23:55:00");
 
-                put(Pref.AUDIO_CYCLE_DURATION, "90");
+                put(Pref.AUDIO_CYCLE_DURATION, "60");
 
                 put(Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS, "true");
                 put(Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
@@ -69,6 +69,7 @@ public class RfcxPrefs {
                 put(Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
                 put(Pref.API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS, "00:01-10:00,14:00-23:59");
                 put(Pref.API_SATELLITE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+                put(Pref.ADMIN_DIAGNOSTIC_OFF_HOURS, "23:55-23:56,23:57-23:59");
 
                 put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
                 put(Pref.AUDIO_SAMPLING_RATIO, "1:2");
@@ -94,6 +95,9 @@ public class RfcxPrefs {
 
                 put(Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM, "12000");
 
+                put(Pref.AUDIO_CLASSIFY_CLASS, "chainsaw");
+                put(Pref.AUDIO_CLASSIFY_MINIMUM_DETECTION, "4");
+
                 put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
                 put(Pref.CHECKIN_FAILURE_LIMIT, "3");
 
@@ -102,6 +106,7 @@ public class RfcxPrefs {
                 put(Pref.CHECKIN_STASH_FILESIZE_BUFFER, "160");
                 put(Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET, "32");
 
+                put(Pref.PING_META_SEND_BUNDLE_LIMIT, "4");
                 put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
                 put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
@@ -138,6 +143,7 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
                 put(Pref.ADMIN_VERBOSE_CPU, "false");
                 put(Pref.ADMIN_VERBOSE_NETWORK, "false");
+                put(Pref.ADMIN_VERBOSE_CLASSIFY, "false");
 
                 put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
                 put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
@@ -146,8 +152,11 @@ public class RfcxPrefs {
                 put(Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS, "[ssid]:[password]");
                 put(Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS, "[ssid]:rfcxrfcx");
                 put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
-                put(Pref.ENABLE_FILE_SOCKET, "false");
+                put(Pref.ENABLE_FILE_SOCKET, "true");
 
+                put(Pref.ENABLE_SENSOR_BME688, "false");
+                put(Pref.ENABLE_SENSOR_INFINEON, "false");
+                put(Pref.INFINEON_PRESSURE_CALIB, "1013");
             }}
     );
     private final String logTag;
@@ -570,6 +579,7 @@ public class RfcxPrefs {
         public static final String API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS = "api_checkin_publish_schedule_off_hours";
         public static final String API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS = "api_checkin_requeue_schedule_off_hours";
         public static final String API_SATELLITE_OFF_HOURS = "api_satellite_off_hours";
+        public static final String ADMIN_DIAGNOSTIC_OFF_HOURS = "admin_diagnostic_off_hours";
 
         public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
         public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";
@@ -593,6 +603,9 @@ public class RfcxPrefs {
         public static final String AUDIO_VAULT_CODEC = "audio_vault_codec";
         public static final String AUDIO_VAULT_BITRATE = "audio_vault_bitrate";
 
+        public static final String AUDIO_CLASSIFY_CLASS = "audio_classify_class";
+        public static final String AUDIO_CLASSIFY_MINIMUM_DETECTION = "audio_classify_minimum_detection";
+
         public static final String AUDIO_CAST_SAMPLE_RATE_MINIMUM = "audio_cast_sample_rate_minimum";
 
         public static final String CHECKIN_FAILURE_THRESHOLDS = "checkin_failure_thresholds";
@@ -603,6 +616,7 @@ public class RfcxPrefs {
         public static final String CHECKIN_STASH_FILESIZE_BUFFER = "checkin_stash_filesize_buffer";
         public static final String CHECKIN_ARCHIVE_FILESIZE_TARGET = "checkin_archive_filesize_target";
 
+        public static final String PING_META_SEND_BUNDLE_LIMIT = "ping_meta_send_bundle_limit";
         public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
         public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
@@ -637,6 +651,7 @@ public class RfcxPrefs {
         public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
         public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
         public static final String ADMIN_VERBOSE_NETWORK = "admin_verbose_network";
+        public static final String ADMIN_VERBOSE_CLASSIFY = "admin_verbose_classify";
 
         public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
         public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
@@ -651,6 +666,11 @@ public class RfcxPrefs {
         public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
 
         public static final String ENABLE_FILE_SOCKET = "enable_file_socket";
+
+        public static final String ENABLE_SENSOR_BME688 = "enable_sensor_bme688";
+        public static final String ENABLE_SENSOR_INFINEON = "enable_sensor_infineon";
+        public static final String INFINEON_PRESSURE_CALIB = "infineon_pressure_calibrate_number";
+        public static final String PING_SENSOR_VALUES = "ping_sensor_values";
     }
 
 

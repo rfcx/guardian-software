@@ -81,7 +81,7 @@ public class FileSocketService extends Service {
                         if (currFailureThreshold >= maxSendFailureThreshold) {
                             app.fileSocketUtils.socketUtils.stopServer();
                             app.fileSocketUtils.startServer();
-                            app.fileSocketUtils.resetPingObject();
+                            app.fileSocketUtils.resetObject();
                             currFailureThreshold = 0;
                             pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
                             Thread.sleep(pingPushCycleDurationMs);
@@ -101,12 +101,12 @@ public class FileSocketService extends Service {
                     }
                 }
             } else {
-                app.fileSocketUtils.resetPingObject();
+                app.fileSocketUtils.resetObject();
                 app.fileSocketUtils.socketUtils.stopServer();
             }
             app.rfcxSvc.setRunState(SERVICE_NAME, false);
             fileSocketServiceInstance.runFlag = false;
-            app.fileSocketUtils.resetPingObject();
+            app.fileSocketUtils.resetObject();
             Log.v(logTag, "Stopping service: " + logTag);
         }
     }

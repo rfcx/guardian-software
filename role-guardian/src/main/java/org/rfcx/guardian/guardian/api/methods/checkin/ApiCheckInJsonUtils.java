@@ -34,7 +34,7 @@ public class ApiCheckInJsonUtils {
         JSONObject jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(null, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
 
         // bundle and add detections
-        jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
+        jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false, false);
 
         // Adding Audio JSON fields from checkin table
         JSONObject checkInJsonObj = new JSONObject(checkInJsonString);

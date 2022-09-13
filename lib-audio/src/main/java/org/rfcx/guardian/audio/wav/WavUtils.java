@@ -15,7 +15,7 @@ import be.tarsos.dsp.writer.WriterProcessor;
 
 public class WavUtils {
 
-    private static final int READ_BUFFER = 1024;
+    private static final int READ_BUFFER = 4000;
 
     public static void copyWavFile(String inputFilePath, String outputFilePath, int sampleRate) throws IOException {
 

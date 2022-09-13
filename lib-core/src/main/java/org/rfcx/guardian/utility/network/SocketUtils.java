@@ -24,6 +24,8 @@ public class SocketUtils {
     private DataOutputStream streamOutput = null;
     private int socketServerPort;
 
+    public boolean isConnectingWithCompanion = false;
+
     public void setSocketPort(int socketServerPort) {
         this.socketServerPort = socketServerPort;
     }
@@ -122,10 +124,12 @@ public class SocketUtils {
 
                 publishText(jsonStr);
                 isSent = true;
+                isConnectingWithCompanion = true;
 
             } catch (Exception e) {
 
                 handleSocketJsonPublicationExceptions(e);
+                isConnectingWithCompanion = false;
             }
         }
 

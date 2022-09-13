@@ -7,10 +7,17 @@ import java.util.*
 
 class SwmApi(private val connection: SwmConnection) {
 
-    enum class Command { TD, MT, SL, RT, DT, PO, CS, GS }
+    enum class Command { TD, MT, SL, RT, DT, PO, CS, GS, RS }
 
     private val datetimeCompactFormatter =
         SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
+
+    private fun resetDb() {
+        /*
+         * There is not response back from this command
+         */
+        connection.execute(Command.RS.name, "dbinit")
+    }
 
     fun transmitData(msgStr: String, priority: Int = 2): String? {
         val fullMsg = if (priority == 1) {
@@ -19,6 +26,14 @@ class SwmApi(private val connection: SwmConnection) {
             "HD=10800,$msgStr" // plus 3 hours
         }
         val results = connection.execute(Command.TD.name, fullMsg)
+        /*
+         * DBXTOHIVEFULL is the case when the queued database is full
+         * The possible case is the expired messages not being removed from the database
+         * It happens if the Tile cannot communicate with the satellite
+         */
+        if (results.contains("DBXTOHIVEFULL")) {
+            resetDb()
+        }
         val regex = "OK,(-?[0-9]+)".toRegex()
         val firstMatchResult = results.mapNotNull { regex.find(it) }.firstOrNull()
         return firstMatchResult?.let { match ->

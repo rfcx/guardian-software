@@ -25,6 +25,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -628,6 +629,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
             app = (RfcxGuardian) getApplication();
 
             while (deviceSystemService.runFlag) {
+
+                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {
+                    continue;
+                }
 
                 try {
 

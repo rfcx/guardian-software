@@ -25,6 +25,7 @@ import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;

@@ -77,7 +77,6 @@ public class CompanionSocketService extends Service {
                 while (companionSocketInstance.runFlag) {
 
                     try {
-
                         app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
                         if (currFailureThreshold >= maxSendFailureThreshold) {

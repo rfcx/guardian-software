@@ -30,6 +30,7 @@ public class FileSocketUtils {
     public SocketUtils socketUtils;
     private boolean isReading = false;
     private JSONObject pingObj;
+
     public FileSocketUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
@@ -45,8 +46,9 @@ public class FileSocketUtils {
         return this.socketUtils.sendJson(getPingObject().toString(), areSocketInteractionsAllowed());
     }
 
-    public void resetPingObject() {
+    public void resetObject() {
         this.pingObj = new JSONObject();
+        isReading = false;
     }
 
     public JSONObject getPingObject() {
@@ -86,12 +88,18 @@ public class FileSocketUtils {
             try {
                 socketUtils.serverSetup();
                 while (true) {
+                    if (socketUtils.serverThread.isInterrupted()) {
+                        Log.d(logTag, "interrupted");
+                        Looper.myLooper().quit();
+                        return;
+                    }
                     InputStream socketInput = socketUtils.socketSetup();
                     if (socketInput != null) {
                         InputStream fileInput = socketUtils.streamFileSetup(socketInput);
                         StringBuilder fileName = new StringBuilder();
 
                         //read until reach '|'
+                        Log.d(logTag, "Receiving file transfer from Companion");
                         if (!isReading) {
                             isReading = true;
 
@@ -107,6 +115,7 @@ public class FileSocketUtils {
                                 String forthChr = Character.toString((char) (buffer[3] & 0xFF));
                                 String exit = firstChr + secondChr + thirdChr + forthChr;
                                 if (exit.equals("****")) {
+                                    Log.d(logTag, "Received file transfer from Companion");
                                     break;
                                 }
                                 byteOut.write(buffer, 0, bRead);
@@ -116,9 +125,12 @@ public class FileSocketUtils {
 
                             int derimeter = -1;
                             int count = 0;
+
+                            // Get File name if needed
                             while (true) {
                                 char chr = (char) (fullRead[count] & 0xFF);
                                 if (Character.toString(chr).equals("|")) {
+                                    Log.d(logTag, "Received file name: " + fileName);
                                     break;
                                 }
                                 count++;
@@ -126,51 +138,95 @@ public class FileSocketUtils {
                                 fileName.append(chr);
                             }
 
+                            // Get Meta file if needed
+                            count++;
+                            StringBuilder fileMeta = new StringBuilder();
+                            while (true) {
+                                char chr = (char) (fullRead[count] & 0xFF);
+                                if (Character.toString(chr).equals("|")) {
+                                    Log.d(logTag, "Received file meta: " + fileMeta);
+                                    break;
+                                }
+                                count++;
+                                derimeter = count;
+                                fileMeta.append(chr);
+                            }
+
                             if (derimeter != -1) {
                                 Log.d(logTag, "Writing: " + fileName);
+                                FileType type = FileType.APK;
+                                if (fileName.toString().endsWith(".tflite.gz")) {
+                                    type = FileType.MODEL;
+                                }
                                 InputStream fullInput = new ByteArrayInputStream(Arrays.copyOfRange(fullRead, count + 1, fullRead.length));
-                                boolean result = writeStreamToDisk(fullInput, fileName.toString());
+                                // Write file to disk with extension
+                                boolean result = writeStreamToDisk(fullInput, fileName.toString(), type);
                                 Log.d(logTag, "Writing: " + fileName + " " + result);
                                 isReading = false;
                                 if (result) {
-                                    String role = fileName.toString().split("-")[0];
-                                    String versionWithExtension = fileName.toString().split("-")[1];
-                                    if (versionWithExtension.endsWith(".apk.gz")) {
-                                        String version = versionWithExtension.substring(0, versionWithExtension.length() - ".apk.gz".length());
-                                        app.installUtils.setInstallConfig(role, version);
+                                    if (type == FileType.APK) {
+                                        String role = fileName.toString().split("-")[0];
+                                        String versionWithExtension = fileName.toString().split("-")[1];
+                                        if (versionWithExtension.endsWith(".apk.gz")) {
+                                            String version = versionWithExtension.substring(0, versionWithExtension.length() - ".apk.gz".length());
+                                            app.installUtils.setInstallConfig(role, version);
 
-                                        FileUtils.gUnZipFile(app.installUtils.apkPathDownload, app.installUtils.apkPathPostDownload);
-                                        Log.d(logTag, "APK Uncompresssed. Moving APK file to external storage...");
-                                        FileUtils.delete(app.installUtils.apkPathDownload);
-                                        FileUtils.chmod(app.installUtils.apkPathPostDownload, "rw", "rw");
+                                            FileUtils.gUnZipFile(app.installUtils.apkPathDownload, app.installUtils.apkPathPostDownload);
+                                            Log.d(logTag, "APK Uncompresssed. Moving APK file to external storage...");
+                                            FileUtils.delete(app.installUtils.apkPathDownload);
+                                            FileUtils.chmod(app.installUtils.apkPathPostDownload, "rw", "rw");
 
-                                        JSONObject installInfo = new JSONObject();
-                                        installInfo.put("role", role);
-                                        installInfo.put("version", version);
-                                        JSONArray installResult = RfcxComm.getQuery(
-                                                "updater",
-                                                "software_install_companion",
-                                                installInfo.toString(),
-                                                app.getContentResolver());
+                                            JSONObject installInfo = new JSONObject();
+                                            installInfo.put("role", role);
+                                            installInfo.put("version", version);
+                                            JSONArray installResult = RfcxComm.getQuery(
+                                                    "updater",
+                                                    "software_install_companion",
+                                                    installInfo.toString(),
+                                                    app.getContentResolver());
 
-                                        JSONObject resultJson = new JSONObject();
-                                        resultJson.put(role, false);
-                                        if (installResult.length() > 0) {
-                                            resultJson = installResult.getJSONObject(0);
+                                            JSONObject resultJson = new JSONObject();
+                                            resultJson.put(role, false);
+                                            if (installResult.length() > 0) {
+                                                resultJson = installResult.getJSONObject(0);
+                                            }
+                                            sendDownloadResult(resultJson.toString());
                                         }
-                                        sendDownloadResult(resultJson.toString());
+                                    } else {
+                                        String modelTimestamp = fileName.toString().split("\\.")[0];
+                                        String modelSrcPath = Environment.getExternalStorageDirectory().toString() + "/rfcx/classifier/" + fileName;
+                                        String unzippedPath = Environment.getExternalStorageDirectory().toString() + "/rfcx/classifier/" + "unzipped-" + fileName;
+                                        FileUtils.gUnZipFile(modelSrcPath, unzippedPath);
+
+                                        // Move file to classifier library
+                                        String libDstPath = app.assetLibraryUtils.getLibraryAssetFilePath("classifier", modelTimestamp, null);
+                                        FileUtils.initializeDirectoryRecursively(libDstPath.substring(0, libDstPath.lastIndexOf("/")), false);
+                                        FileUtils.delete(libDstPath);
+                                        FileUtils.copy(unzippedPath, libDstPath);
+
+                                        Log.d(logTag, fileMeta.toString() + "meta");
+                                        if (!fileMeta.toString().equals("")) {
+                                            JSONObject obj = new JSONObject(fileMeta.toString());
+                                            String assetId = obj.getString("asset_id");
+                                            String fileType = obj.getString("file_type");
+                                            String checksum = obj.getString("checksum");
+                                            String metaJsonBlob = obj.getString("meta_json_blob");
+
+                                            app.assetLibraryDb.dbClassifier.insert(assetId, fileType, checksum, libDstPath,
+                                                    FileUtils.getFileSizeInBytes(libDstPath), metaJsonBlob, 0, 0);
+                                            app.audioClassifyUtils.activateClassifier(assetId);
+                                        }
                                     }
+
                                 }
                             }
                         }
                     }
                 }
-            } catch (IOException e) {
-                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
-                    RfcxLog.logExc(logTag, e);
-                }
-            } catch (JSONException e) {
+            } catch (IOException | JSONException | NullPointerException e) {
                 RfcxLog.logExc(logTag, e);
+                Looper.myLooper().quit();
+                isReading = false;
             }
             Looper.loop();
         });
@@ -178,14 +234,22 @@ public class FileSocketUtils {
         socketUtils.isServerRunning = true;
     }
 
-    private boolean writeStreamToDisk(InputStream body, String fullFileName) {
+    private boolean writeStreamToDisk(InputStream body, String fullFileName, FileType type) {
         try {
+            Log.d(logTag, type.name());
             File dir = new File(Environment.getExternalStorageDirectory().toString() + "/rfcx", "apk");
+            if (type == FileType.MODEL) {
+                dir = new File(Environment.getExternalStorageDirectory().toString() + "/rfcx", "classifier");
+            }
             if (!dir.exists()) {
                 dir.mkdir();
             }
             FileOutputStream output = null;
             File file = new File(dir, fullFileName);
+
+            if (file.exists()) {
+                file.delete();
+            }
 
             try {
                 output = new FileOutputStream(file);

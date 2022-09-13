@@ -49,6 +49,12 @@ public class ApiPingJsonUtils {
             }
         }
 
+        if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "active-classifier")) {
+            if (app.audioClassifierUtils.getActiveClassifierCount() > 0) {
+                jsonObj.put("active-classifier", app.audioClassifierUtils.getActiveClassifierInfoAsJson());
+            }
+        }
+
         if (ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs_full")) {
             jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(true, true));
         } else if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
@@ -129,8 +135,13 @@ public class ApiPingJsonUtils {
         }
 
         if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "detections")) {
-            jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, Math.max(includeAssetBundleCount, 1), false);
-            includePurgedAssetList = true;
+            if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).equalsIgnoreCase("sat")) {
+                jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, Math.max(includeAssetBundleCount, 1), false, true);
+                includePurgedAssetList = false;
+            } else {
+                jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, Math.max(includeAssetBundleCount, 1), false, false);
+                includePurgedAssetList = true;
+            }
         }
 
         if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {

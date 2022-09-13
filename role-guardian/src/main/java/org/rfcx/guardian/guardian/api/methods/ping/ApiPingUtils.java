@@ -101,7 +101,8 @@ public class ApiPingUtils {
     }
 
     private int getPriority(String pingJson) {
-        if (pingJson.contains("detections")) return 1;
+        if (pingJson.contains("\"dtt\"")) return 1;
+        if (pingJson.contains("\"s\"")) return 1;
         return 2;
     }
 

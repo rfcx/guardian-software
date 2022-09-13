@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.asset.detections;
 import android.content.ContentValues;
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.DbUtils;
@@ -27,9 +28,10 @@ public class AudioDetectionDb {
     static final String C_WINDOW_SIZE = "window_size";
     static final String C_STEP_SIZE = "step_size";
     static final String C_CONFIDENCE_JSON = "confidence_json";
+    static final String C_THRESHOLD = "threshold";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_CLASSIFICATION_TAG, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FILTER_ID, C_AUDIO_ID, C_BEGINS_AT, C_WINDOW_SIZE, C_STEP_SIZE, C_CONFIDENCE_JSON, C_LAST_ACCESSED_AT};
+    private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_CLASSIFICATION_TAG, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FILTER_ID, C_AUDIO_ID, C_BEGINS_AT, C_WINDOW_SIZE, C_STEP_SIZE, C_CONFIDENCE_JSON, C_THRESHOLD, C_LAST_ACCESSED_AT};
     public final DbUnfiltered dbUnfiltered;
     public final DbFiltered dbFiltered;
     private int VERSION = 1;
@@ -56,6 +58,7 @@ public class AudioDetectionDb {
                 .append(", ").append(C_WINDOW_SIZE).append(" TEXT")
                 .append(", ").append(C_STEP_SIZE).append(" TEXT")
                 .append(", ").append(C_CONFIDENCE_JSON).append(" TEXT")
+                .append(", ").append(C_THRESHOLD).append(" TEXT")
                 .append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
                 .append(")");
         return sbOut.toString();
@@ -73,7 +76,7 @@ public class AudioDetectionDb {
             FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
         }
 
-        public int insert(String classificationTag, String classifierId, String classifierName, String classifierVersion, String filterId, String audioId, String beginsAt, String windowSize, String stepSize, String confidenceJson) {
+        public int insert(String classificationTag, String classifierId, String classifierName, String classifierVersion, String filterId, String audioId, String beginsAt, String windowSize, String stepSize, String confidenceJson, String threshold) {
 
             ContentValues values = new ContentValues();
             values.put(C_CREATED_AT, (new Date()).getTime());
@@ -87,6 +90,7 @@ public class AudioDetectionDb {
             values.put(C_WINDOW_SIZE, windowSize);
             values.put(C_STEP_SIZE, stepSize);
             values.put(C_CONFIDENCE_JSON, confidenceJson);
+            values.put(C_THRESHOLD, threshold);
             values.put(C_LAST_ACCESSED_AT, 0);
 
             return this.dbUtils.insertRow(TABLE, values);
@@ -118,7 +122,7 @@ public class AudioDetectionDb {
             FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
         }
 
-        public int insert(String classificationTag, String classifierId, String classifierName, String classifierVersion, String filterId, String audioId, long beginsAt, long windowSize, long stepSize, String confidenceJson) {
+        public int insert(String classificationTag, String classifierId, String classifierName, String classifierVersion, String filterId, String audioId, long beginsAt, long windowSize, long stepSize, String confidenceJson, String threshold) {
 
             ContentValues values = new ContentValues();
             values.put(C_CREATED_AT, (new Date()).getTime());
@@ -132,6 +136,7 @@ public class AudioDetectionDb {
             values.put(C_WINDOW_SIZE, windowSize);
             values.put(C_STEP_SIZE, stepSize);
             values.put(C_CONFIDENCE_JSON, confidenceJson);
+            values.put(C_THRESHOLD, threshold);
             values.put(C_LAST_ACCESSED_AT, 0);
 
             return this.dbUtils.insertRow(TABLE, values);
@@ -149,6 +154,10 @@ public class AudioDetectionDb {
             return this.dbUtils.getRowsWithNumericColumnHigherOrLowerThan(TABLE, ALL_COLUMNS, C_LAST_ACCESSED_AT, notAccessedSince, true, C_CREATED_AT, maxRows);
         }
 
+        public List<String[]> getLatestRowsNotAccessedWithLimit(int maxRows) {
+            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, C_LAST_ACCESSED_AT + " = ?", new String[]{"0"}, C_CREATED_AT, 0, maxRows);
+        }
+
         public List<String[]> getLatestRowsWithLimit(int maxRows) {
             return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
         }
@@ -159,8 +168,16 @@ public class AudioDetectionDb {
             return rightNow;
         }
 
+        public void deleteSingleRowByClassificationTagAndAudioId(String classificationTag, String audioId) {
+            this.dbUtils.deleteRowsWithinQueryByTwoColumns( TABLE, C_CLASSIFICATION_TAG, classificationTag, C_AUDIO_ID, audioId);
+        }
+
         public void deleteSingleRow(String classificationTag, String audioId) {
             this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_CLASSIFICATION_TAG, classificationTag, C_AUDIO_ID, audioId);
+        }
+
+        public void deleteSingleRow(String detectionId) {
+            this.dbUtils.deleteRowsWithinQueryByOneColumn( TABLE, C_CREATED_AT, detectionId);
         }
 
         public String getSimplifiedConcatRows() {

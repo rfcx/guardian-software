@@ -24,7 +24,7 @@ public class SwmMessageDb {
     static final String C_SWM_MESSAGE_ID = "swm_message_id";
     static final String C_PRIORITY = "priority";
     static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{"0.9.1", "0.9.2", "0.9.3"}; // "0.6.43"
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{"0.9.1", "0.9.2", "0.9.3", "0.9.6"}; // "0.6.43"
     private static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_GROUP_ID, C_MESSAGE_ID, C_SWM_MESSAGE_ID, C_PRIORITY, C_LAST_ACCESSED_AT};
     public final DbSwmSent dbSwmSent;
     public final DbSwmQueued dbSwmQueued;
@@ -33,7 +33,7 @@ public class SwmMessageDb {
 
     public SwmMessageDb(Context context, String appVersion) {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+//        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
         this.dbSwmSent = new DbSwmSent(context);
         this.dbSwmQueued = new DbSwmQueued(context);
     }
@@ -64,7 +64,7 @@ public class SwmMessageDb {
             this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
         }
 
-        public int insert(long timestamp, String address, String body, String groupId, String message_id, int priority, String swmMessageId) {
+        public int insert(long timestamp, String address, String body, String groupId, String message_id, String swmMessageId, int priority) {
 
             ContentValues values = new ContentValues();
             values.put(C_CREATED_AT, (new Date()).getTime());
@@ -160,8 +160,8 @@ public class SwmMessageDb {
             this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
         }
 
-        public void clearRowsByIds(List<String> ids) {
-            this.dbUtils.deleteRowsWithinValuesByOneColumn(TABLE, C_MESSAGE_ID, ids.toArray(new String[0]));
+        public void clearRowsByGroupIds(List<String> ids) {
+            this.dbUtils.deleteRowsWithinValuesByOneColumn(TABLE, C_GROUP_ID, ids.toArray(new String[0]));
         }
 
         public int deleteSingleRowByMessageId(String message_id) {

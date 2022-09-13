@@ -30,7 +30,7 @@ public class AudioCastUtils {
     public void updatePingJson(boolean printJsonToLogs) {
         try {
             pingJson = app.audioCastPingUtils.buildPingJson(printJsonToLogs);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             RfcxLog.logExc(logTag, e, "updatePingJson");
         }
     }
@@ -67,6 +67,11 @@ public class AudioCastUtils {
             try {
                 socketUtils.serverSetup();
                 while (true) {
+                    if (socketUtils.serverThread.isInterrupted()) {
+                        Log.d(logTag, "interrupted");
+                        Looper.myLooper().quit();
+                        return;
+                    }
                     InputStream socketInput = socketUtils.socketSetup();
                     if (socketInput != null) {
                         String jsonStr = socketUtils.streamSetup(socketInput);
@@ -75,10 +80,9 @@ public class AudioCastUtils {
                         }
                     }
                 }
-            } catch (IOException e) {
-                if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+            } catch (IOException | NullPointerException e) {
                     RfcxLog.logExc(logTag, e);
-                }
+                    Looper.myLooper().quit();
             }
             Looper.loop();
         });

@@ -101,6 +101,7 @@ public class AudioDetectionFilterJobService extends Service {
                         long windowSizeMs = Math.round(Float.parseFloat(latestUnfilteredRow[8]) * 1000);
                         long stepSizeMs = Math.round(Float.parseFloat(latestUnfilteredRow[9]) * 1000);
                         JSONArray confidences = new JSONArray(latestUnfilteredRow[10]);
+                        String threshold = latestUnfilteredRow[11];
 
                         String[] clsfrProfile = app.assetLibraryDb.dbClassifier.getSingleRowById(clsfrId);
                         JSONObject clsfrProfileJson = new JSONObject(clsfrProfile[7]);
@@ -111,9 +112,9 @@ public class AudioDetectionFilterJobService extends Service {
 //						}
 //						filterRow = filters.get(filterId);
 
-                        String[] allowedClassifications = new String[]{"chainsaw"};
-                        double filterConfidenceMinThreshold = 0.95;
-                        double filterConfidenceMinCountPerMinute = 4;
+                        String[] allowedClassifications = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
+                        double filterConfidenceMinThreshold = Double.parseDouble(threshold);
+                        double filterConfidenceMinCountPerMinute = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CLASSIFY_MINIMUM_DETECTION);
                         int detectionSigFigs = 2;
 
 
@@ -140,8 +141,12 @@ public class AudioDetectionFilterJobService extends Service {
                             if (eligibleDetectionsCount >= (filterConfidenceMinCountPerMinute * app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 60)) {
                                 app.audioDetectionDb.dbFiltered.insert(
                                         classTag, clsfrId, clsfrName, clsfrVersion, filterId,
-                                        audioId, beginsAtMs, windowSizeMs, stepSizeMs, TextUtils.join(",", filteredConfidences));
+                                        audioId, beginsAtMs, windowSizeMs, stepSizeMs, TextUtils.join(",", filteredConfidences), threshold);
                                 Log.v(logTag, eligibleDetectionsCount + " detection windows (" + Math.round((Double.parseDouble("" + eligibleDetectionsCount) / Double.parseDouble("" + confidences.length())) * 100) + "%) for classification '" + classTag + "' are above the " + filterConfidenceMinThreshold + " confidence threshold and have been preserved (required per minute: " + Math.round(filterConfidenceMinCountPerMinute) + ").");
+                                // only allow sms guardian to force send detection
+                                if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).contains("sms")) {
+                                    app.apiPingUtils.sendPing(false, new String[] { "detections" }, true);
+                                }
                             } else {
                                 Log.w(logTag, eligibleDetectionsCount + " detection windows (" + Math.round((Double.parseDouble("" + eligibleDetectionsCount) / Double.parseDouble("" + confidences.length())) * 100) + "%) for classification '" + classTag + "' are above the " + filterConfidenceMinThreshold + " confidence threshold (required per minute: " + Math.round(filterConfidenceMinCountPerMinute) + "). None will be preserved.");
                             }

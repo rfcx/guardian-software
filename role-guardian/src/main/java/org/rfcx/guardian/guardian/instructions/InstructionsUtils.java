@@ -1,18 +1,22 @@
 package org.rfcx.guardian.guardian.instructions;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.audio.cast.AudioCastSocketService;
+import org.rfcx.guardian.guardian.file.FileSocketService;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -154,7 +158,17 @@ public class InstructionsUtils {
                     }
                 }
 
-                // Execute Control Command
+            } else if (instrType.equalsIgnoreCase("ctrl") && instrCmd.equalsIgnoreCase("restart")) {
+                if (instrMeta.has("service")) {
+                    if (instrMeta.getString("service").equalsIgnoreCase("file-socket")) {
+                        app.rfcxSvc.stopService(FileSocketService.SERVICE_NAME);
+                        app.rfcxSvc.triggerService(FileSocketService.SERVICE_NAME, true);
+                    } else if (instrMeta.getString("service").equalsIgnoreCase("audio-cast-socket")) {
+                        app.rfcxSvc.stopService(AudioCastSocketService.SERVICE_NAME);
+                        app.rfcxSvc.triggerService(AudioCastSocketService.SERVICE_NAME, true);
+                    }
+                }
+
             } else if (instrType.equalsIgnoreCase("ctrl")) {
 
                 String commandValue = null;
@@ -204,6 +218,18 @@ public class InstructionsUtils {
 
 
 				}*/
+            } else if (instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("classifier")) {
+
+                if (!instrMeta.toString().equalsIgnoreCase("{}")) {
+                    JSONObject classifierObj = instrMeta;
+                    String type = classifierObj.getString("type");
+                    String classifierId = classifierObj.getString("id");
+                    if (type.equalsIgnoreCase("activate")) {
+                        app.audioClassifyUtils.activateClassifier(classifierId);
+                    } else {
+                        app.audioClassifyUtils.deActivateClassifier(classifierId);
+                    }
+                }
             }
 
         } catch (Exception e) {

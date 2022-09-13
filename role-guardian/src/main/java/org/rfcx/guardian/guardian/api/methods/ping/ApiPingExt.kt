@@ -17,7 +17,6 @@ object ApiPingExt {
                 "instructions" -> shortenJson.put("instructions", ping.get("instructions"))
                 "library" -> shortenJson.put("lib", ping.get("library"))
                 "messages" -> shortenJson.put("msg", ping.get("messages"))
-                "sentinel_sensor" -> shortenJson.put("ss", ping.get("sentinel_sensor"))
                 "swm" -> shortenJson.put("swm", ping.get("swm"))
                 "purged" -> shortenJson.put("p", ping.get("purged"))
                 "prefs" -> {
@@ -181,39 +180,70 @@ object ApiPingExt {
                     val detectionsAsList = detections.split("|")
                         .map { detection -> detection.split("*").toMutableList() }.toMutableList()
                     detectionsAsList.forEachIndexed { indexOfDetection, dt ->
-                        val shortenConfidence = arrayListOf<String>()
-                        val confidence = dt[4].split(",")
-                        var emptyCount = 0
-                        for (index in confidence.indices) {
-                            if (index == confidence.size - 1) {
-                                if (confidence[index] == "") {
-                                    emptyCount++
-                                    shortenConfidence.add("n$emptyCount")
-                                } else {
-                                    shortenConfidence.add(confidence[index])
-                                }
-                                break
-                            }
-
-                            if (confidence[index] == "" && confidence[index] == confidence[index + 1]) {
-                                emptyCount++
-                            } else if (confidence[index] == "" && confidence[index] != confidence[index + 1]) {
-                                emptyCount++
-                                shortenConfidence.add("n$emptyCount")
-                                emptyCount = 0
-                            } else {
-                                shortenConfidence.add(confidence[index])
-                            }
-                        }
-                        detectionsAsList[indexOfDetection][4] = shortenConfidence.joinToString(",")
+                        detectionsAsList[indexOfDetection][0] = shortenDetectionType(dt[0])
+                        detectionsAsList[indexOfDetection][4] = shortenDetectionConfidence(dt[4])
                     }
                     val removedCommaDetectionsString =
                         detectionsAsList.joinToString("|") { it.joinToString("*") }
                     shortenJson.put("dtt", removedCommaDetectionsString)
                 }
+                "sentinel_sensor" -> {
+                    val sentinelSensor = ping.getString("sentinel_sensor")
+                    val shortenSentinelSensor = sentinelSensor.let {
+                        it.replace("bme688", "bm")
+                            .replace("infineon", "ifn")
+                    }
+                    shortenJson.put("s", shortenSentinelSensor)
+                }
                 else -> shortenJson.put(it, ping.get(it))
             }
         }
         return shortenJson
+    }
+
+    fun shortenDetectionType(type: String): String {
+        return when(type) {
+            DetectionType.CHAINSAW.fullName -> DetectionType.CHAINSAW.shortenName
+            else -> type
+        }
+    }
+
+    fun shortenDetectionConfidence(confidences: String): String {
+        val shortenConfidence = arrayListOf<String>()
+        val confidence = confidences.split(",")
+        var emptyCount = 0
+        for (index in confidence.indices) {
+            // Last index
+            if (index == confidence.size - 1) {
+                // No need null at the end of detections
+                if (confidence[index] != "") {
+                    shortenConfidence.add(confidence[index])
+                }
+                break
+            }
+
+            // Check if next index is null then increase empty sum and go next iteration
+            if (confidence[index] == "" && confidence[index] == confidence[index + 1]) {
+                emptyCount++
+            // Check if next index is not null then increase and add n{x} to list
+            } else if (confidence[index] == "" && confidence[index] != confidence[index + 1]) {
+                emptyCount++
+                if (emptyCount > 3) {
+                    shortenConfidence.add("n$emptyCount")
+                } else {
+                    for (c in 0 until emptyCount) {
+                        shortenConfidence.add(confidence[index])
+                    }
+                }
+                emptyCount = 0
+            } else {
+                shortenConfidence.add(confidence[index])
+            }
+        }
+        return shortenConfidence.joinToString(",")
+    }
+
+    private enum class DetectionType(val fullName: String, val shortenName: String) {
+        CHAINSAW("chainsaw", "c")
     }
 }
