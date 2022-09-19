@@ -1,4 +1,5 @@
 adb-shell ~= 0.4.2
+adb-shell[usb] ~= 0.4.2
 click ~= 8.0.4
 typer ~= 0.4.0
 colorama ~= 0.4.4
