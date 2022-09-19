@@ -3,6 +3,7 @@ from commands.registration_ui import RemoveRegistrationPage
 from commands.software_ui import SoftwarePage
 from commands.classifier_ui import RemoveClassifierPage
 from commands.diagnostics_ui import Diagnostics
+from commands.internal_storage_ui import RemoveStoragePage
 
 class MenuPage(tk.Frame):
    def __init__(self, parent, controller):
@@ -23,3 +24,6 @@ class MenuPage(tk.Frame):
 
       remove_classifier_button = tk.Button(self, text = "Install Classifier", fg = 'white', bg = "green", width = 50, height = 2, anchor = 'center', command = lambda : controller.show_frame(RemoveClassifierPage))
       remove_classifier_button.grid(row = 4, column = 0, sticky = "nsew", columnspan = 5)
+
+      remove_classifier_button = tk.Button(self, text = "Remove Internal Storage", fg = 'white', bg = "green", width = 50, height = 2, anchor = 'center', command = lambda : controller.show_frame(RemoveStoragePage))
+      remove_classifier_button.grid(row = 5, column = 0, sticky = "nsew", columnspan = 5)

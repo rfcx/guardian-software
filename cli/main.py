@@ -4,6 +4,7 @@ from commands.i2c import app as i2c
 from commands.registration import app as registration
 from commands.classifier import app as classifier
 from commands.software import app as software
+from commands.internal_storage import app as storage
 
 app = typer.Typer()
 app.add_typer(swarm, name="swarm")
@@ -11,6 +12,7 @@ app.add_typer(i2c, name="i2c")
 app.add_typer(registration, name="registration")
 app.add_typer(classifier, name="classifier")
 app.add_typer(software, name="software")
+app.add_typer(storage, name="storage")
 
 @app.callback(invoke_without_command=True)
 def default(ctx: typer.Context) -> None:
