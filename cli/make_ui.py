@@ -28,6 +28,9 @@ class Application(tk.Tk):
       menuFrame.tkraise()
 
     def show_frame(self, cont):
+        for fme in self.frames:
+            if fme != menu_ui.MenuPage:
+              self.frames[fme].grid_remove()
         frame = self.frames[cont]
         frame.grid(row = 0, column = 1, sticky ="nsew")
         frame.tkraise()

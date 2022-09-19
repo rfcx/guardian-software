@@ -42,7 +42,7 @@ class RemoveClassifierPage(tk.Frame):
          if classifiers.get(key) == self.downloadVersions[key]:
             self.buttons[key].config(state = "disabled", text = "up to date")
          else:
-            self.buttons[key].config(state = "normal", text = f"Install {self.downloadVersions[key]}")
+            self.buttons[key].config(state = "normal", text = f"Install v{self.downloadVersions[key]}")
 
    def install(self, classifierName):
       downloadClassifier(self.device, classifierName)

@@ -7,7 +7,7 @@ class SoftwarePage(tk.Frame):
       tk.Frame.__init__(self, parent)
       self.device = controller.getDevice()
 
-      self.columnconfigure([0, 1, 2, 3, 4, 5], weight = 1)
+      self.columnconfigure([0, 1, 2, 3, 4, 5, 6], weight = 1)
       label = tk.Label(self, text = "Install Software", font = ("Courier", 14), anchor = 'center')
       label.grid(row = 0, column = 0, sticky = "nsew", columnspan = 5)
 
@@ -20,19 +20,38 @@ class SoftwarePage(tk.Frame):
       self.updater = tk.Label(self, text = "Current updater version: ", font = ("Courier", 14), anchor = 'center')
       self.updater.grid(row = 4, column = 0, sticky = "w", columnspan = 4)
 
-      self.guardianButton = tk.Button(self, text = "Install 1.1.5", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center')
-      self.guardianButton.grid(row = 1, column = 5, sticky = "nsew", columnspan = 5)
-      self.adminButton = tk.Button(self, text = "Install 1.1.4", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center')
-      self.adminButton.grid(row = 2, column = 5, sticky = "nsew", columnspan = 5)
-      self.classifyButton = tk.Button(self, text = "Install 1.1.3", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center')
-      self.classifyButton.grid(row = 3, column = 5, sticky = "nsew", columnspan = 5)
-      self.updaterButton = tk.Button(self, text = "Install 1.0.0", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center')
-      self.updaterButton.grid(row = 4, column = 5, sticky = "nsew", columnspan = 5)
+      self.guardianButton = tk.Button(self, text = "Install 1.1.5", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("guardian"))
+      self.guardianButton.grid(row = 1, column = 5, sticky = "nsew")
+      self.adminButton = tk.Button(self, text = "Install 1.1.4", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("admin"))
+      self.adminButton.grid(row = 2, column = 5, sticky = "nsew")
+      self.classifyButton = tk.Button(self, text = "Install 1.1.3", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("classify"))
+      self.classifyButton.grid(row = 3, column = 5, sticky = "nsew")
+      self.updaterButton = tk.Button(self, text = "Install 1.0.0", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("updater"))
+      self.updaterButton.grid(row = 4, column = 5, sticky = "nsew")
+
+      self.guardianDButton = tk.Button(self, text = "Downgrade to 1.1.4", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("guardian"))
+      self.guardianDButton.grid(row = 1, column = 6, sticky = "nsew")
+      self.adminDButton = tk.Button(self, text = "Downgrade to 1.1.3", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("admin"))
+      self.adminDButton.grid(row = 2, column = 6, sticky = "nsew")
+      self.classifyDButton = tk.Button(self, text = "Downgrade to 1.0.0", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("classify"))
+      self.classifyDButton.grid(row = 3, column = 6, sticky = "nsew")
+      self.updaterDButton = tk.Button(self, text = "Downgrade to 0.9.0", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("updater"))
+      self.updaterDButton.grid(row = 4, column = 6, sticky = "nsew")
 
       self.labels = { "guardian": self.guardian, "admin": self.admin, "classify": self.classify, "updater": self.updater }
-      self.buttons = { "guardian": self.guardianButton, "admin": self.adminButton, "classify": self.classifyButton, "updater": self.updaterButton }
+      self.downloadButtons = { "guardian": self.guardianButton, "admin": self.adminButton, "classify": self.classifyButton, "updater": self.updaterButton }
+      self.downgradeButtons = { "guardian": self.guardianDButton, "admin": self.adminDButton, "classify": self.classifyDButton, "updater": self.updaterDButton }
       self.downloadVersions = { "guardian": "1.1.5", "admin": "1.1.4", "classify": "1.1.3", "updater": "1.0.0" }
+      self.downgradeVersions = { "guardian": "1.1.4", "admin": "1.1.3", "classify": "1.0.0", "updater": "0.9.0" }
 
+      self.refresh()
+
+   def install(self, role):
+      downloadSoftwares(self.device, role)
+      self.refresh()
+
+   def downgrade(self, role):
+      downgradeSoftwares(self.device, role)
       self.refresh()
 
    def refresh(self):
@@ -45,8 +64,14 @@ class SoftwarePage(tk.Frame):
       for key in self.labels:
          self.labels[key].config(text = f"Current {key} version: {softwares[key]}")
 
-      for key in self.buttons:
+      for key in self.downloadButtons:
          if softwares[key] == self.downloadVersions[key]:
-            self.buttons[key].config(state = "disabled", text = "up to date")
+            self.downloadButtons[key].config(state = "disabled", text = "Up to date")
          else:
-            self.buttons[key].config(state = "normal", text = f"Install {self.downloadVersions[key]}")
+            self.downloadButtons[key].config(state = "normal", text = f"Install {self.downloadVersions[key]}")
+
+      for key in self.downgradeButtons:
+         if softwares[key] == self.downgradeVersions[key]:
+            self.downgradeButtons[key].config(state = "disabled", text = "Lowest version available")
+         else:
+            self.downgradeButtons[key].config(state = "normal", text = f"Downgrade to {self.downgradeVersions[key]}")
