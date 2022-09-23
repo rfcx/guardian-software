@@ -20,9 +20,9 @@ def getClassifiers(device):
       classifiers = {}
       for item in filtered:
         meta = item.split("|")[7]
-        classifierNameIndex = meta.index("classifier_name:") + len("classifier_name:")
+        classifierNameIndex = meta.index("classifier_name\":") + len("classifier_name\":")
         classifierName = meta[classifierNameIndex:(classifierNameIndex + meta[classifierNameIndex:].index(","))]
-        classifierVersionIndex = meta.index("classifier_version:") + len("classifier_version:")
+        classifierVersionIndex = meta.index("classifier_version\":") + len("classifier_version\":")
         classifierVersion = meta[classifierVersionIndex:(classifierVersionIndex + meta[classifierVersionIndex:].index(","))]
         classifiers[classifierName] = classifierVersion
       return classifiers
