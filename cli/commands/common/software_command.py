@@ -4,6 +4,7 @@ import urllib.request
 import shutil
 import gzip
 import os
+import os.path
 import logging
 
 dirPath = os.path.abspath(os.getcwd())
@@ -34,14 +35,20 @@ def downloadSoftwares(device, role):
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.0.0.apk.gz'
         fileName = f'{role}-1.0.0.apk'
 
-    with urllib.request.urlopen(url) as response:
-        with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
-            shutil.copyfileobj(uncompressed, out_file)
-            filePath = f'{dirPath}/{fileName}'
-            devicePath = f'/sdcard/{fileName}'
-            device.push(devicePath, filePath, callback)
-            response = device.shell(f'pm install -r {devicePath}')
-            device.shell(f'monkey -p org.rfcx.guardian.{role} 1')
+    if (os.path.exists(fileName)):
+        return installSoftware(device, fileName, role)
+    else:
+        with urllib.request.urlopen(url) as response:
+            with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
+                shutil.copyfileobj(uncompressed, out_file)
+                return installSoftware(device, fileName, role)
+
+def installSoftware(device, fileName, role):
+    filePath = f'{dirPath}/{fileName}'
+    devicePath = f'/sdcard/{fileName}'
+    device.push(devicePath, filePath, callback)
+    response = device.shell(f'pm install -r {devicePath}')
+    device.shell(f'monkey -p org.rfcx.guardian.{role} 1')
     return getSoftwares(device)
 
 def downgradeSoftwares(device, role):
@@ -60,16 +67,15 @@ def downgradeSoftwares(device, role):
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-0.9.0.apk.gz'
         fileName = f'{role}-0.9.0.apk'
 
-    with urllib.request.urlopen(url) as response:
-        with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
-            shutil.copyfileobj(uncompressed, out_file)
-            filePath = f'{dirPath}/{fileName}'
-            devicePath = f'/sdcard/{fileName}'
-            device.push(devicePath, filePath, callback)
-            device.shell(f'pm uninstall org.rfcx.guardian.{role}')
-            response = device.shell(f'pm install -r {devicePath}')
-            device.shell(f'monkey -p org.rfcx.guardian.{role} 1')
-    return getSoftwares(device)
+    if (os.path.exists(fileName)):
+        device.shell(f'pm uninstall org.rfcx.guardian.{role}')
+        return installSoftware(device, fileName, role)
+    else:
+        with urllib.request.urlopen(url) as response:
+            with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
+                shutil.copyfileobj(uncompressed, out_file)
+                device.shell(f'pm uninstall org.rfcx.guardian.{role}')
+                return installSoftware(device, fileName, role)
 
 def callback(device_path, bytes_written, total_bytes):
     logging.info(f"Progress: {device_path} written:{bytes_written} total:{total_bytes}")

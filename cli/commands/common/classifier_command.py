@@ -4,8 +4,10 @@ import urllib.request
 import shutil
 import gzip
 import os
+import os.path
 import logging
 import time
+import json
 
 dirPath = os.path.abspath(os.getcwd())
 
@@ -13,17 +15,16 @@ logging.basicConfig(level=logging.INFO)
 
 def getClassifiers(device):
     classifier = device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db \"SELECT * FROM classifier;\"')
+    logging.info(classifier)
     if classifier == '':
       return {}
     else:
       filtered = list(filter(lambda item: item != '', classifier.split("\r\n")))
       classifiers = {}
       for item in filtered:
-        meta = item.split("|")[7]
-        classifierNameIndex = meta.index("classifier_name\":") + len("classifier_name\":")
-        classifierName = meta[classifierNameIndex:(classifierNameIndex + meta[classifierNameIndex:].index(","))]
-        classifierVersionIndex = meta.index("classifier_version\":") + len("classifier_version\":")
-        classifierVersion = meta[classifierVersionIndex:(classifierVersionIndex + meta[classifierVersionIndex:].index(","))]
+        meta = json.loads(item.split("|")[7])
+        classifierName = meta["classifier_name"]
+        classifierVersion = meta["classifier_version"]
         classifiers[classifierName] = classifierVersion
       return classifiers
 
@@ -73,13 +74,20 @@ def downloadClassifier(device, classifier):
       clrsStepSize = '1'
       clrsClassifications = 'chainsaw,environment'
       clrsFilterThreshold = '0.95,1.00'
-    with urllib.request.urlopen(url) as response:
-        with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
-            filePath = f'{dirPath}/{fileName}'
-            device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', filePath, callback)
-            device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db \"INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(filePath)}\',\'{{\"classifier_name\":\"{clrsName}\",\"classifier_version\":\"{clrsVersion}\",\"sample_rate\":\"{clrsSampleRate}\",\"input_gain\":\"{clrsInputGain}\",\"window_size\":\"{clrsWindowSize}\",\"step_size\":\"{clrsStepSize}\",\"classifications\":\"{clrsClassifications}\",\"classifications_filter_threshold\":\"{clrsFilterThreshold}\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');\"')
-    return getClassifiers(device)
+
+    if (os.path.exists(fileName)):
+      filePath = f'{dirPath}/{fileName}'
+      device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', filePath, callback)
+      device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(filePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
+      return getClassifiers(device)
+    else:
+      with urllib.request.urlopen(url) as response:
+          with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
+              shutil.copyfileobj(response, out_file)
+              filePath = f'{dirPath}/{fileName}'
+              device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', filePath, callback)
+              device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(filePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
+      return getClassifiers(device)
 
 def callback(device_path, bytes_written, total_bytes):
     logging.info(f"Progress: {device_path} written:{bytes_written} total:{total_bytes}")
