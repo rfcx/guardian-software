@@ -35,16 +35,20 @@ def downloadSoftwares(device, role):
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.0.0.apk.gz'
         fileName = f'{role}-1.0.0.apk'
 
-    if (os.path.exists(fileName)):
+    localFileDir = f'temp'
+    if (os.path.exists(localFileDir) == False):
+        os.makedirs(localFileDir)
+    localFilePath = f'temp/{fileName}'
+    if (os.path.exists(localFilePath)):
         return installSoftware(device, fileName, role)
     else:
         with urllib.request.urlopen(url) as response:
-            with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
+            with gzip.GzipFile(fileobj=response) as uncompressed, open(localFilePath, 'wb') as out_file:
                 shutil.copyfileobj(uncompressed, out_file)
                 return installSoftware(device, fileName, role)
 
 def installSoftware(device, fileName, role):
-    filePath = f'{dirPath}/{fileName}'
+    filePath = f'temp/{fileName}'
     devicePath = f'/sdcard/{fileName}'
     device.push(devicePath, filePath, callback)
     response = device.shell(f'pm install -r {devicePath}')
@@ -66,13 +70,17 @@ def downgradeSoftwares(device, role):
     elif role == 'updater':
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-0.9.0.apk.gz'
         fileName = f'{role}-0.9.0.apk'
-
-    if (os.path.exists(fileName)):
+    
+    localFileDir = f'temp'
+    if (os.path.exists(localFileDir) == False):
+        os.makedirs(localFileDir)
+    localFilePath = f'temp/{fileName}'
+    if (os.path.exists(localFilePath)):
         device.shell(f'pm uninstall org.rfcx.guardian.{role}')
         return installSoftware(device, fileName, role)
     else:
         with urllib.request.urlopen(url) as response:
-            with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
+            with gzip.GzipFile(fileobj=response) as uncompressed, open(localFilePath, 'wb') as out_file:
                 shutil.copyfileobj(uncompressed, out_file)
                 device.shell(f'pm uninstall org.rfcx.guardian.{role}')
                 return installSoftware(device, fileName, role)

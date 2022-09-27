@@ -75,18 +75,20 @@ def downloadClassifier(device, classifier):
       clrsClassifications = 'chainsaw,environment'
       clrsFilterThreshold = '0.95,1.00'
 
-    if (os.path.exists(fileName)):
-      filePath = f'{dirPath}/{fileName}'
-      device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', filePath, callback)
-      device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(filePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
+    localFileDir = f'temp'
+    if (os.path.exists(localFileDir) == False):
+      os.makedirs(localFileDir)
+    localFilePath = f'temp/{fileName}'
+    if (os.path.exists(localFilePath)):
+      device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', localFilePath, callback)
+      device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(localFilePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
       return getClassifiers(device)
     else:
       with urllib.request.urlopen(url) as response:
-          with gzip.GzipFile(fileobj=response) as uncompressed, open(fileName, 'wb') as out_file:
+          with gzip.GzipFile(fileobj=response) as uncompressed, open(localFilePath, 'wb') as out_file:
               shutil.copyfileobj(response, out_file)
-              filePath = f'{dirPath}/{fileName}'
-              device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', filePath, callback)
-              device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(filePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
+              device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', localFilePath, callback)
+              device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(localFilePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
       return getClassifiers(device)
 
 def callback(device_path, bytes_written, total_bytes):
