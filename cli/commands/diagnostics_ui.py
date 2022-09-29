@@ -27,9 +27,9 @@ class Diagnostics(tk.Frame):
         sw_dt = swarm_datetime(self.device) # Get Swarm datetime
     
         # Call function to show value on ui
-        show_i2c_status(i2c)
-        sentnel_info(input_v, input_c, sys_v, bat_v, bat_c, bat_p, None)
-        swarm_info(sw_status, sw_id, sw_gps, sw_fw, sw_dt)
+        self.show_i2c_status(i2c)
+        self.sentnel_info(input_v, input_c, sys_v, bat_v, bat_c, bat_p, None)
+        self.swarm_info(sw_status, sw_id, sw_gps, sw_fw, sw_dt)
 
     def show_i2c_status(self, val): # Show i2c_status
         color = 'blue'
@@ -79,40 +79,35 @@ class Diagnostics(tk.Frame):
         elif sw_status == False:
             color = 'red'
             sw_status = "Swarm is OFF"
-        self.sw_status_val = tk.Label(self, text=str(sw_status), font=("Courier", 14), fg=color, relief=tk.SUNKEN, width=35)
-        self.sw_status_val.grid(row=11, column=1, sticky="w")
+        self.sw_status_val.config(text = str(sw_status))
 
         # swarm id
         if sw_id != None:
             color = 'green'
         elif sw_id == None:
             color = 'blue'
-        self.swarm_id_val = tk.Label(self, text=str(sw_id), font=("Courier", 14), fg=color, relief=tk.SUNKEN, width=35)
-        self.swarm_id_val.grid(row=12, column=1, sticky="w")
+        self.swarm_id_val.config(text = str(sw_id))
 
         # swarm GPS
         if sw_gps != None:
             color = 'green'
         elif sw_gps == None:
             color = 'blue'
-        self.swarm_gps_val = tk.Label(self, text=str(sw_gps), font=("Courier", 14), fg=color, relief=tk.SUNKEN, width=35)
-        self.swarm_gps_val.grid(row=13, column=1, sticky="w")
+        self.swarm_gps_val.config(text = str(sw_gps))
 
         # swarm firmware
         if sw_fw != None:
             color = 'green'
         elif sw_fw == None:
             color = 'blue'
-        self.swarm_fw_val = tk.Label(self, text=str(sw_fw), font=("Courier", 14), fg=color, relief=tk.SUNKEN, width=35)
-        self.swarm_fw_val.grid(row=14, column=1, sticky="w")
+        self.swarm_fw_val.config(text = str(sw_fw))
 
         # swarm datetime
         if sw_dt != None:
             color = 'green' 
         elif sw_dt == None:
             color = 'blue'  
-        self.swarm_dt_val = tk.Label(self, text=str(sw_dt), font=("Courier", 14), fg=color, relief=tk.SUNKEN, width=35)
-        self.swarm_dt_val.grid(row=15, column=1, sticky="w")
+        self.swarm_dt_val.config(text = str(sw_dt))
 
     def reset(self):
         show_i2c_status(None)
