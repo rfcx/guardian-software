@@ -65,6 +65,8 @@ import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
 import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.infineon.SentryInfineonUtils;
+import org.rfcx.guardian.admin.device.led.LedSequenceService;
+import org.rfcx.guardian.admin.device.led.LedSequenceUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.admin.status.AdminStatus;
@@ -144,6 +146,7 @@ public class RfcxGuardian extends Application {
     public SbdUtils sbdUtils = null;
     public SwmUtils swmUtils = null;
     public SpeedTest speedTest = null;
+    public LedSequenceUtils ledSequenceUtils = null;
     public String[] RfcxCoreServices =
             new String[]{
                     DeviceSystemService.SERVICE_NAME,
@@ -153,6 +156,7 @@ public class RfcxGuardian extends Application {
                     SbdDispatchCycleService.SERVICE_NAME,
                     SwmDispatchCycleService.SERVICE_NAME,
                     CompanionSocketService.SERVICE_NAME,
+                    LedSequenceService.SERVICE_NAME
             };
 
     @Override
@@ -185,6 +189,7 @@ public class RfcxGuardian extends Application {
         this.sbdUtils = new SbdUtils(this);
         this.swmUtils = new SwmUtils(this);
         this.speedTest = new SpeedTest();
+        this.ledSequenceUtils = new LedSequenceUtils();
 
         DeviceI2CUtils.setSentinelLoggingVerbosity(this);
         DeviceUtils.setSystemLoggingVerbosity(this);
@@ -363,6 +368,8 @@ public class RfcxGuardian extends Application {
         this.rfcxSvc.addService(ScheduledCameraCaptureService.SERVICE_NAME, ScheduledCameraCaptureService.class);
 
         this.rfcxSvc.addService(CompanionSocketService.SERVICE_NAME, CompanionSocketService.class);
+
+        this.rfcxSvc.addService(LedSequenceService.SERVICE_NAME, LedSequenceService.class);
 
     }
 

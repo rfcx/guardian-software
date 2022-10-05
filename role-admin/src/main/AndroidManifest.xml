@@ -106,6 +106,7 @@
         <service android:name=".comms.sbd.SbdDispatchTimeoutService" />
         <service android:name=".comms.swm.SwmDispatchCycleService" />
         <service android:name=".companion.CompanionSocketService" />
+        <service android:name=".device.led.LedSequenceService"/>
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />
