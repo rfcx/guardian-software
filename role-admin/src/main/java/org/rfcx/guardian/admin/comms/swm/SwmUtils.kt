@@ -22,6 +22,7 @@ class SwmUtils(private val context: Context) {
 
     private var swmId: String? = null
     private var isGPSConnected: Boolean? = null
+    var sleepFlag = false
 
     fun setupSwmUtils() {
         power = SwmPower(context)
