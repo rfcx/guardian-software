@@ -101,19 +101,5 @@ class SwmUtils(private val context: Context) {
             }
             return isQueued
         }
-
-        @kotlin.jvm.JvmStatic
-        fun getSwmMetaValuesAsJsonArray(context: Context): JSONArray {
-            val app = context.applicationContext as RfcxGuardian
-            val metaJsonArray = JSONArray()
-            try {
-                val metaJson = JSONObject()
-                metaJson.put("swm", app.swmUtils.getDiagnostic())
-                metaJsonArray.put(metaJson)
-            } catch (e: Exception) {
-                RfcxLog.logExc(logTag, e)
-            }
-            return metaJsonArray
-        }
     }
 }

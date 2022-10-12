@@ -311,9 +311,6 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
-                } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"swm_diagnostic", SwmUtils.getSwmMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
-
                 } else {
                     return null;
                 }
