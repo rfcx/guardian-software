@@ -9,10 +9,8 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.Date;
 import java.util.List;
@@ -99,21 +97,22 @@ public class SwmDispatchCycleService extends Service {
             Log.d(logTag, "Swarm is ON");
             app.swmUtils.getPower().setOn(true);
 
-            setDateTime();
-
             // Get latest message
             String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
             if (latestMessageForQueue[4] == null) {
                 Log.d(logTag, "There is no message in queue...");
                 if (app.swmUtils.getSleepFlag()) return;
 
+                setDateTime();
                 int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
                 if (unsentMessageNumbers != 0) return;
 
-                //TODO sleep here
+                app.swmUtils.api.sleep();
+                app.swmUtils.setSleepFlag(true);
             } else {
                 Log.d(logTag, "Found latest message in queue...");
                 sendQueuedMessages(latestMessageForQueue);
+                app.swmUtils.setSleepFlag(false);
             }
         }
 
@@ -161,10 +160,6 @@ public class SwmDispatchCycleService extends Service {
                     }
                 }
             }
-        }
-
-        private void getDiagnostics() {
-            app.swmUtils.saveDiagnostic();
         }
 
         private void setDateTime() {
