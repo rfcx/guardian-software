@@ -128,7 +128,7 @@ class SwmApi(private val connection: SwmConnection) {
     }
 
     fun sleep(): Boolean {
-        return connection.execute(Command.SL.name, "").firstOrNull()?.let { payload ->
+        return connection.execute(Command.SL.name, "S=10800").firstOrNull()?.let { payload ->
             return payload.contains("OK")
         } ?: false
     }
