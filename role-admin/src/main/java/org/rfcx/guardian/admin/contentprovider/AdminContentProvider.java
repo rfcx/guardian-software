@@ -381,9 +381,6 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
-                } else if (pathSegTable.equalsIgnoreCase("swm_diagnostic")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SwmUtils.deleteSwmMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
-
                 }
 
             } else if (RfcxComm.uriMatch(uri, appRole, "database_set_last_accessed_at", "*")) {

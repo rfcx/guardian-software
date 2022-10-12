@@ -142,8 +142,6 @@ public class MetaJsonUtils {
 
             RfcxComm.deleteQuery("admin", "database_delete_rows_before", "sentinel_sensor|" + deleteBefore.getTime(), app.getResolver());
 
-            RfcxComm.deleteQuery("admin", "database_delete_rows_before", "swm_diagnostic|" + deleteBefore.getTime(), app.getResolver());
-
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }

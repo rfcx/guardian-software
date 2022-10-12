@@ -1,7 +1,6 @@
 package org.rfcx.guardian.admin.comms.swm
 
 import android.content.Context
-import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
@@ -10,9 +9,7 @@ import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import org.rfcx.guardian.admin.comms.swm.api.SwmUartShell
 import org.rfcx.guardian.admin.comms.swm.control.SwmPower
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
-import org.rfcx.guardian.utility.misc.DateTimeUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import java.util.*
 
 class SwmUtils(private val context: Context) {
@@ -30,87 +27,45 @@ class SwmUtils(private val context: Context) {
     }
 
     fun getMomentaryConcatDiagnosticValuesAsJsonArray(): JSONArray {
-        saveBackgroundSignal()
+        val diagnostic = getDiagnostic()
         val swmDiagnosticJSONarr = JSONArray()
-        val rssi = app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull
-        if (rssi.isNotEmpty()) {
+        if (diagnostic.isNotEmpty()) {
             val diagnosticJson = JSONObject()
-            diagnosticJson.put("swm", rssi)
+            diagnosticJson.put("swm", diagnostic)
             swmDiagnosticJSONarr.put(diagnosticJson)
         }
         return swmDiagnosticJSONarr
     }
 
-    fun saveDiagnostic() {
+    fun getDiagnostic(): String {
         val rtBackground = api.getRTBackground()
         val rtSatellite = api.getRTSatellite()
         val unsentMessageNumbers = api.getNumberOfUnsentMessages()
+        sleepFlag = false
+        var swmBlob = ""
 
-        var rssiBackground: Int? = null
         if (rtBackground != null) {
-            rssiBackground = rtBackground.rssi
-        }
-
-        var rssiSat: Int? = null
-        var snr: Int? = null
-        var fdev: Int? = null
-        var time: String? = null
-        var satId: String? = null
-        if (rtSatellite != null) {
-            Log.d(logTag, "Saving Satellite Packet")
-            if (rtSatellite.packetTimestamp != "1970-01-01 00:00:00") time =
-                rtSatellite.packetTimestamp
-            if (time != null) {
-                if (rtSatellite.rssi != 0) rssiSat = rtSatellite.rssi
-                if (rtSatellite.signalToNoiseRatio != 0) snr = rtSatellite.signalToNoiseRatio
-                if (rtSatellite.frequencyDeviation != 0) fdev = rtSatellite.frequencyDeviation
-                if (rtSatellite.satelliteId != "0x000000") satId = rtSatellite.satelliteId
+            // Same style as query from db
+            swmBlob += "${Date().time}*${rtBackground.rssi}"
+            if (rtSatellite != null && rtSatellite.packetTimestamp != "1970-01-01 00:00:00") {
+                swmBlob += "*${rtSatellite.rssi}*${rtSatellite.signalToNoiseRatio}*${rtSatellite.frequencyDeviation}*${rtSatellite.packetTimestamp}*${rtSatellite.satelliteId}"
             }
+            swmBlob += "*$unsentMessageNumbers"
         }
-
-        if (rtBackground != null || rtSatellite != null) {
-            app.swmMetaDb.dbSwmDiagnostic.insert(
-                rssiBackground,
-                rssiSat,
-                snr,
-                fdev,
-                time,
-                satId,
-                unsentMessageNumbers
-            )
-        }
-    }
-
-    private fun saveBackgroundSignal() {
-        if (!::api.isInitialized) return
-        val rtBackground = api.getRTBackground()
-        var rssiBackground: Int? = null
-        if (rtBackground != null) {
-            rssiBackground = rtBackground.rssi
-        }
-
-        if (rtBackground != null) {
-            app.swmMetaDb.dbSwmDiagnostic.insert(
-                rssiBackground,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
-        }
+        return swmBlob
     }
 
     fun getSwmId(): String? {
         if (swmId != null || !::api.isInitialized) return swmId
         swmId = api.getSwarmDeviceId()
+        sleepFlag = false
         return swmId
     }
 
     fun getGPSConnection(): Boolean? {
         if (isGPSConnected != null || !::api.isInitialized) return isGPSConnected
         api.getGPSConnection() ?: return null
+        sleepFlag = false
         isGPSConnected = true
         return isGPSConnected
     }
@@ -153,20 +108,12 @@ class SwmUtils(private val context: Context) {
             val metaJsonArray = JSONArray()
             try {
                 val metaJson = JSONObject()
-                metaJson.put("swm", app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull)
+                metaJson.put("swm", app.swmUtils.getDiagnostic())
                 metaJsonArray.put(metaJson)
             } catch (e: Exception) {
                 RfcxLog.logExc(logTag, e)
             }
             return metaJsonArray
-        }
-
-        @kotlin.jvm.JvmStatic
-        fun deleteSwmMetaValuesBeforeTimestamp(timeStamp: String, context: Context): Int {
-            val app = context.applicationContext as RfcxGuardian
-            val clearBefore = Date(timeStamp.toLong())
-            app.swmMetaDb.dbSwmDiagnostic.clearRowsBefore(clearBefore)
-            return 1
         }
     }
 }
