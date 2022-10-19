@@ -29,10 +29,12 @@ def getClassifiers(device):
       return classifiers
 
 def removeClassifiers(device):
+    device.shell(f'sqlite3 /data/data/org.rfcx.guardian.classify/databases/audio-classify-queued.db \"DELETE FROM queued;\"')
     device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db \"DELETE FROM classifier;\"')
     device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/audio-classifier-active.db \"DELETE FROM active;\"')
     device.shell(f'rm -f /data/data/org.rfcx.guardian.guardian/files/classifiers/active/*')
     device.shell(f'rm -f /data/data/org.rfcx.guardian.guardian/files/classifiers/library/*')
+    device.shell(f'rm -f /data/user/0/org.rfcx.guardian.classify/files/classifiers/active/*')
     return getClassifiers(device)
 
 def downloadClassifier(device, classifier):
@@ -74,6 +76,61 @@ def downloadClassifier(device, classifier):
       clrsStepSize = '1'
       clrsClassifications = 'chainsaw,environment'
       clrsFilterThreshold = '0.95,1.00'
+    elif classifier == 'pr':
+      url = 'https://rfcx-install.s3.eu-west-1.amazonaws.com/rfcx-guardian/guardian-asset-classifier/1665998134000.tflite.gz'
+      fileName = 'pr.tflite'
+      clrsId = '1665998134000'
+      clrsName = 'pr'
+      clrsVersion = '1'
+      clrsSha1 = 'accfb018701e52696835c9d1c02600a67a228db1'
+      clrsSampleRate = '48000'
+      clrsInputGain = '1.0'
+      clrsWindowSize = '3.1'
+      clrsStepSize = '3'
+      clrsClassifications = ','.join(['Coereba flaveola',
+ 'Melanerpes portoricensis',
+ 'Icterus icterus',
+ 'Eleutherodactylus cochranae',
+ 'Eleutherodactylus brittoni',
+ 'Setophaga adelaidae',
+ 'Melopyrrha portoricensis',
+ 'Megascops nudipes',
+ 'Vireo altiloquus',
+ 'Eleutherodactylus portoricensis',
+ 'Eleutherodactylus coqui',
+ 'Eleutherodactylus antillensis',
+ 'Vireo latimeri',
+ 'Myiarchus antillarum',
+ 'Antrostomus noctitherus',
+ 'Amazona vittata',
+ 'Coccyzus vieilloti',
+ 'Setophaga petechia',
+ 'Patagioenas squamosa',
+ 'Eleutherodactylus wightmanae',
+ 'Chordeiles gundlachii',
+ 'Patagioenas leucocephala',
+ 'Margarops fuscatus',
+ 'Todus mexicanus',
+ 'Setophaga angelae',
+ 'Eleutherodactylus unicolor',
+ 'Leptodactylus albilabris',
+ 'Lithobates catesbeianus',
+ 'Rhinella marina',
+ 'Spindalis portoricensis',
+ 'Nesospingus speculiferus',
+ 'Crotophaga ani',
+ 'Turdus plumbeus',
+ 'Eleutherodactylus cooki',
+ 'Molothrus bonariensis',
+ 'Margarops fuscatus',
+ 'Osteopilus septentrionalis',
+ 'Geotrygon montana',
+ 'Eleutherodactylus gryllus',
+ 'Turdus plumbeus',
+ 'Spindalis portoricensis',
+ 'Buteo jamaicensis',
+ 'Buteo platypterus'])
+      clrsFilterThreshold = '0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95'
 
     localFileDir = f'temp'
     if (os.path.exists(localFileDir) == False):
@@ -87,8 +144,8 @@ def downloadClassifier(device, classifier):
       with urllib.request.urlopen(url) as response:
           with gzip.GzipFile(fileobj=response) as uncompressed, open(localFilePath, 'wb') as out_file:
               shutil.copyfileobj(response, out_file)
-              device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', localFilePath, callback)
-              device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(localFilePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
+      device.push(f'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}', localFilePath, callback)
+      device.shell(f'sqlite3 /data/data/org.rfcx.guardian.guardian/databases/library-classifier.db "INSERT INTO classifier VALUES (\'{int(time.time())}\',\'{clrsId}\',\'classifier\',\'tflite\',\'{clrsSha1}\',\'/data/data/org.rfcx.guardian.guardian/files/classifiers/library/{fileName}\',\'{os.path.getsize(localFilePath)}\',\'{{\\\"classifier_name\\\":\\\"{clrsName}\\\",\\\"classifier_version\\\":\\\"{clrsVersion}\\\",\\\"sample_rate\\\":\\\"{clrsSampleRate}\\\",\\\"input_gain\\\":\\\"{clrsInputGain}\\\",\\\"window_size\\\":\\\"{clrsWindowSize}\\\",\\\"step_size\\\":\\\"{clrsStepSize}\\\",\\\"classifications\\\":\\\"{clrsClassifications}\\\",\\\"classifications_filter_threshold\\\":\\\"{clrsFilterThreshold}\\\"}}\',\'0\',\'0\',\'0\',\'{int(time.time())}\');"')
       return getClassifiers(device)
 
 def callback(device_path, bytes_written, total_bytes):
