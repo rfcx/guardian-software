@@ -87,7 +87,6 @@ public class CompanionSocketService extends Service {
                             currFailureThreshold = 0;
                             pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
                             Thread.sleep(pingPushCycleDurationMs);
-//                            app.companionSocketUtils.updatePingJson(false);
                         }
 
                         if (app.companionSocketUtils.socketUtils.isReceivingMessageFromClient && app.companionSocketUtils.sendSocketPing()) {
