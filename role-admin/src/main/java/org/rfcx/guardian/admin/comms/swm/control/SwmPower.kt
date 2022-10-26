@@ -18,7 +18,6 @@ class SwmPower(context: Context) {
             if (value == getStatus()) return
             if (!value) {
                 Log.d(logTag, "POWER OFF MODEM")
-                app.swmManager.api.powerOff()
             } else {
                 Log.d(logTag, "POWER ON MODEM")
             }
