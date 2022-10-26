@@ -7,7 +7,7 @@ import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse
 class SwmDevice(private val api: SwmApi, private val power: SwmPower) {
 
     private var id: String? = null
-    private var isGPSConnected: Boolean? = null
+    private var isGPSConnected: Boolean = false
     private var isSleeping = false
 
     fun getId(): String? {
@@ -19,7 +19,7 @@ class SwmDevice(private val api: SwmApi, private val power: SwmPower) {
     }
 
     fun getGPSConnection(): Boolean? {
-        if (isGPSConnected == null) {
+        if (!isGPSConnected) {
             isGPSConnected = api.getGPSConnection() != null
         }
         awake()
