@@ -122,10 +122,10 @@ public class CompanionPingJsonUtils {
             if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                 JSONObject satInfo = new JSONObject();
 
-                String swarmId = app.swmManager.getSwmId();
+                String swarmId = app.swmDevice.getId();
                 satInfo.put("sat_id", swarmId);
 
-                Boolean gpsConnection = app.swmManager.getGPSConnection();
+                Boolean gpsConnection = app.swmDevice.getGPSConnection();
                 satInfo.put("is_gps_connected", gpsConnection);
 
                 companionJsonObj.put("sat_info", satInfo);

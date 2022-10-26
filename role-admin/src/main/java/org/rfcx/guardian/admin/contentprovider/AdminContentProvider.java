@@ -15,7 +15,6 @@ import org.json.JSONArray;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.admin.comms.sms.SmsUtils;
-import org.rfcx.guardian.admin.comms.swm.SwmManager;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
@@ -234,7 +233,7 @@ public class AdminContentProvider extends ContentProvider {
                 String swmGroupId = swmQueue[1];
                 String swmPayload = swmQueue[2];
                 int swmPriority = Integer.parseInt(swmQueue[3]);
-                SwmManager.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, swmPriority, app.getApplicationContext(), false);
+                app.swmMessage.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, swmPriority, false);
                 return RfcxComm.getProjectionCursor(appRole, "swm_queue", new Object[]{swmSendAt + "|" + swmPayload, null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_latest", null)) {
@@ -281,7 +280,7 @@ public class AdminContentProvider extends ContentProvider {
 
                     } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
                         if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
-                            momentaryValueArr = app.swmManager.getMomentaryConcatDiagnosticValuesAsJsonArray();
+                            momentaryValueArr = app.swmDiagnostic.getMomentaryConcatDiagnosticValuesAsJsonArray();
                         }
                     }
 

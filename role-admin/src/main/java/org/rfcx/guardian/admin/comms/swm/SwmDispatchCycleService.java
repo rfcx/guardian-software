@@ -73,8 +73,6 @@ public class SwmDispatchCycleService extends Service {
             app = (RfcxGuardian) getApplication();
 
             app.rfcxSvc.reportAsActive(SERVICE_NAME);
-            Log.i(logTag, "Setting up Swarm");
-            app.swmManager.setupSwmUtils();
 
             while (swmDispatchCycleInstance.runFlag) {
                 app.rfcxSvc.reportAsActive(SERVICE_NAME);
@@ -95,24 +93,22 @@ public class SwmDispatchCycleService extends Service {
         private void trigger() throws InterruptedException {
             // Make sure it is on and dispatching
             Log.d(logTag, "Swarm is ON");
-            app.swmManager.getPower().setOn(true);
+            app.swmDevice.powerOn();
 
             // Get latest message
             String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
             if (latestMessageForQueue[4] == null) {
                 Log.d(logTag, "There is no message in queue...");
-                if (app.swmManager.isSleeping()) return;
+                if (app.swmDevice.isSleeping()) return;
 
                 setDateTime();
-                int unsentMessageNumbers = app.swmManager.getApi().getNumberOfUnsentMessages();
+                int unsentMessageNumbers = app.swmMessage.getUnsentMessagesCount();
                 if (unsentMessageNumbers != 0) return;
 
-                app.swmManager.api.sleep();
-                app.swmManager.setSleeping(true);
+                app.swmDevice.sleep();
             } else {
                 Log.d(logTag, "Found latest message in queue...");
                 sendQueuedMessages(latestMessageForQueue);
-                app.swmManager.setSleeping(false);
             }
         }
 
@@ -136,7 +132,7 @@ public class SwmDispatchCycleService extends Service {
                         int priority = Integer.parseInt(swmForDispatch[7]);
 
                         // send message
-                        String swmMessageId = app.swmManager.getApi().transmitData("\"" + msgBody + "\"", priority);
+                        String swmMessageId = app.swmMessage.queueMessageToSwarm("\"" + msgBody + "\"", priority);
                         if (swmMessageId != null) {
                             app.swmMessageDb.dbSwmSent.insert(
                                     Long.parseLong(swmForDispatch[1]),
@@ -163,7 +159,7 @@ public class SwmDispatchCycleService extends Service {
         }
 
         private void setDateTime() {
-            SwmDTResponse dateTime = app.swmManager.api.getDateTime();
+            SwmDTResponse dateTime = app.swmDevice.getSystemTime();
             if (dateTime == null) return;
             SystemClock.setCurrentTimeMillis(dateTime.getEpochMs());
         }
