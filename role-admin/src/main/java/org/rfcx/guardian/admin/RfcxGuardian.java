@@ -21,7 +21,7 @@ import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
 import org.rfcx.guardian.admin.comms.swm.SwmMessageDb;
-import org.rfcx.guardian.admin.comms.swm.SwmUtils;
+import org.rfcx.guardian.admin.comms.swm.SwmManager;
 import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
 import org.rfcx.guardian.admin.companion.CompanionSocketService;
 import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
@@ -140,7 +140,7 @@ public class RfcxGuardian extends Application {
     public SentryBME688Utils sentryBME688Utils = null;
     public SentryInfineonUtils sentryInfineonUtils = null;
     public SbdUtils sbdUtils = null;
-    public SwmUtils swmUtils = null;
+    public SwmManager swmManager = null;
     public SpeedTest speedTest = null;
     public String[] RfcxCoreServices =
             new String[]{
@@ -181,7 +181,7 @@ public class RfcxGuardian extends Application {
         this.companionSocketUtils = new CompanionSocketUtils(this);
         this.companionPingJsonUtils = new CompanionPingJsonUtils(this);
         this.sbdUtils = new SbdUtils(this);
-        this.swmUtils = new SwmUtils(this);
+        this.swmManager = new SwmManager(this);
         this.speedTest = new SpeedTest();
 
         DeviceI2CUtils.setSentinelLoggingVerbosity(this);

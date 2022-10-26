@@ -12,14 +12,14 @@ import org.rfcx.guardian.utility.device.DeviceSmsUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.util.*
 
-class SwmUtils(private val context: Context) {
+class SwmManager(private val context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
     lateinit var power: SwmPower
     lateinit var api: SwmApi
 
     private var swmId: String? = null
     private var isGPSConnected: Boolean? = null
-    var sleepFlag = false
+    var isSleeping = false
 
     fun setupSwmUtils() {
         power = SwmPower(context)
@@ -41,7 +41,7 @@ class SwmUtils(private val context: Context) {
         val rtBackground = api.getRTBackground()
         val rtSatellite = api.getRTSatellite()
         val unsentMessageNumbers = api.getNumberOfUnsentMessages()
-        sleepFlag = false
+        isSleeping = false
         var swmBlob = ""
 
         if (rtBackground != null) {
@@ -58,14 +58,14 @@ class SwmUtils(private val context: Context) {
     fun getSwmId(): String? {
         if (swmId != null || !::api.isInitialized) return swmId
         swmId = api.getSwarmDeviceId()
-        sleepFlag = false
+        isSleeping = false
         return swmId
     }
 
     fun getGPSConnection(): Boolean? {
         if (isGPSConnected != null || !::api.isInitialized) return isGPSConnected
         api.getGPSConnection() ?: return null
-        sleepFlag = false
+        isSleeping = false
         isGPSConnected = true
         return isGPSConnected
     }
