@@ -4,7 +4,7 @@ import re
 
 def getStorage(device):
     storage = device.shell(f'df /data')
-    filteredStorage = re.findall('[\d,]+\.\d+[G,M]', storage.split("\r\n")[1])
+    filteredStorage = re.findall('[\d,]+\.\d+[G,M,K]', storage.split("\r\n")[1])
     return { "free": filteredStorage[1], "all": filteredStorage[2]}
 
 def removeStorage(device):
