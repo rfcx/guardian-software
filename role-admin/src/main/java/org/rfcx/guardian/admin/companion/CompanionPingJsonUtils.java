@@ -102,14 +102,6 @@ public class CompanionPingJsonUtils {
             includeMeasuredAt = true;
         }
 
-        if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm_network")) {
-            String swmRssi = getConcatMetaField(app.swmMetaDb.dbSwmDiagnostic.getLatestRowAsJsonArray());
-            if (swmRssi.length() > 0) {
-                jsonObj.put("swm_network", swmRssi);
-            }
-            includeMeasuredAt = true;
-        }
-
         if (includeMeasuredAt) {
             jsonObj.put("measured_at", System.currentTimeMillis());
         }
@@ -130,10 +122,10 @@ public class CompanionPingJsonUtils {
             if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                 JSONObject satInfo = new JSONObject();
 
-                String swarmId = app.swmUtils.getSwmId();
+                String swarmId = app.swmDevice.getId();
                 satInfo.put("sat_id", swarmId);
 
-                Boolean gpsConnection = app.swmUtils.getGPSConnection();
+                Boolean gpsConnection = app.swmDevice.getGPSConnection();
                 satInfo.put("is_gps_connected", gpsConnection);
 
                 companionJsonObj.put("sat_info", satInfo);

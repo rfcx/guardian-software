@@ -15,7 +15,6 @@ import org.json.JSONArray;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.admin.comms.sms.SmsUtils;
-import org.rfcx.guardian.admin.comms.swm.SwmUtils;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
@@ -25,7 +24,6 @@ import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
-import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
@@ -235,7 +233,7 @@ public class AdminContentProvider extends ContentProvider {
                 String swmGroupId = swmQueue[1];
                 String swmPayload = swmQueue[2];
                 int swmPriority = Integer.parseInt(swmQueue[3]);
-                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, swmPriority, app.getApplicationContext(), false);
+                app.swmMessage.addScheduledSwmToQueue(swmSendAt, swmGroupId, swmPayload, swmPriority, false);
                 return RfcxComm.getProjectionCursor(appRole, "swm_queue", new Object[]{swmSendAt + "|" + swmPayload, null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_latest", null)) {
@@ -282,7 +280,7 @@ public class AdminContentProvider extends ContentProvider {
 
                     } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
                         if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
-                            momentaryValueArr = app.swmUtils.getMomentaryConcatDiagnosticValuesAsJsonArray();
+                            momentaryValueArr = app.swmDiagnostic.getMomentaryConcatDiagnosticValuesAsJsonArray();
                         }
                     }
 
@@ -310,9 +308,6 @@ public class AdminContentProvider extends ContentProvider {
 
                 } else if (pathSeg.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
-
-                } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"swm_diagnostic", SwmUtils.getSwmMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
                 } else {
                     return null;
@@ -380,9 +375,6 @@ public class AdminContentProvider extends ContentProvider {
 
                 } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
-
-                } else if (pathSegTable.equalsIgnoreCase("swm_diagnostic")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SwmUtils.deleteSwmMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 }
 

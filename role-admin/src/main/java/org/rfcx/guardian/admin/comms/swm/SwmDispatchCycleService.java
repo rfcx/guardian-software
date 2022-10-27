@@ -9,10 +9,8 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.TimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.Date;
 import java.util.List;
@@ -74,21 +72,12 @@ public class SwmDispatchCycleService extends Service {
             SwmDispatchCycleService swmDispatchCycleInstance = SwmDispatchCycleService.this;
             app = (RfcxGuardian) getApplication();
 
-            if (!app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
-                Log.i(logTag, "Swarm is disabled");
-                return;
-            }
-
             app.rfcxSvc.reportAsActive(SERVICE_NAME);
-            Log.i(logTag, "Setting up Swarm");
-            app.swmUtils.setupSwmUtils();
 
             while (swmDispatchCycleInstance.runFlag) {
                 app.rfcxSvc.reportAsActive(SERVICE_NAME);
                 try {
-                    Log.d(logTag, "Trigger");
                     trigger();
-                    Log.d(logTag, "Sleep");
                     Thread.sleep(swmDispatchCycleDuration);
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e);
@@ -102,39 +91,34 @@ public class SwmDispatchCycleService extends Service {
         }
 
         private void trigger() throws InterruptedException {
-            // Check if Swarm should be OFF due to prefs
-            if (!DateTimeUtils.isCurrentTimeBefore2022()) {
-                // If socket connected then no need to off swarm tile
-                if (!TimeUtils.INSTANCE.isNowOutsideTimeRange(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS)) && !app.companionSocketUtils.socketUtils.isConnectingWithCompanion) {
-                    Log.d(logTag, "Swarm is OFF at this time");
-                    app.swmUtils.getPower().setOn(false);
-                    return;
-                }
-            }
-
             // Make sure it is on and dispatching
             Log.d(logTag, "Swarm is ON");
-            app.swmUtils.getPower().setOn(true);
+            app.swmDevice.powerOn();
 
-            setDateTime();
-            getDiagnostics();
-            sendQueuedMessages();
+            // Get latest message
+            String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
+            if (latestMessageForQueue[4] == null) {
+                Log.d(logTag, "There is no message in queue...");
+                if (app.swmDevice.isSleeping()) return;
+
+                setDateTime();
+                int unsentMessageNumbers = app.swmMessage.getUnsentMessagesCount();
+                if (unsentMessageNumbers != 0) return;
+
+                app.swmDevice.sleep();
+            } else {
+                Log.d(logTag, "Found latest message in queue...");
+                sendQueuedMessages(latestMessageForQueue);
+            }
         }
 
-        private void sendQueuedMessages() throws InterruptedException {
-
-            int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-            if (unsentMessageNumbers > 0) return;
-
-            String[] latestMessageForQueue = app.swmMessageDb.dbSwmQueued.getLatestRow();
-            if (latestMessageForQueue[4] == null) return;
-
+        private void sendQueuedMessages(String[] groupMessage) throws InterruptedException {
             long day = (24 * 60 * 60 * 1000);
-            Date date = new Date(Long.parseLong(latestMessageForQueue[0]) - day);
+            Date date = new Date(Long.parseLong(groupMessage[0]) - day);
             List<String> groupIds = app.swmMessageDb.dbSwmQueued.getGroupIdsBefore(date);
             app.swmMessageDb.dbSwmQueued.clearRowsByGroupIds(groupIds);
 
-            for (String[] swmForDispatch : app.swmMessageDb.dbSwmQueued.getUnsentMessagesInOrderOfTimestampAndWithinGroupId(latestMessageForQueue[4])) {
+            for (String[] swmForDispatch : app.swmMessageDb.dbSwmQueued.getUnsentMessagesInOrderOfTimestampAndWithinGroupId(groupMessage[4])) {
                 // only proceed with dispatch process if there is a valid queued swm message in the database
                 if (swmForDispatch[0] != null) {
 
@@ -148,7 +132,7 @@ public class SwmDispatchCycleService extends Service {
                         int priority = Integer.parseInt(swmForDispatch[7]);
 
                         // send message
-                        String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"", priority);
+                        String swmMessageId = app.swmMessage.queueMessageToSwarm("\"" + msgBody + "\"", priority);
                         if (swmMessageId != null) {
                             app.swmMessageDb.dbSwmSent.insert(
                                     Long.parseLong(swmForDispatch[1]),
@@ -174,12 +158,8 @@ public class SwmDispatchCycleService extends Service {
             }
         }
 
-        private void getDiagnostics() {
-            app.swmUtils.saveDiagnostic();
-        }
-
         private void setDateTime() {
-            SwmDTResponse dateTime = app.swmUtils.api.getDateTime();
+            SwmDTResponse dateTime = app.swmDevice.getSystemTime();
             if (dateTime == null) return;
             SystemClock.setCurrentTimeMillis(dateTime.getEpochMs());
         }

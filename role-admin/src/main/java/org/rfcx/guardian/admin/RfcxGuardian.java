@@ -19,10 +19,15 @@ import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
+import org.rfcx.guardian.admin.comms.swm.SwmDevice;
+import org.rfcx.guardian.admin.comms.swm.SwmDiagnostic;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
+import org.rfcx.guardian.admin.comms.swm.SwmMessage;
 import org.rfcx.guardian.admin.comms.swm.SwmMessageDb;
-import org.rfcx.guardian.admin.comms.swm.SwmMetaDb;
-import org.rfcx.guardian.admin.comms.swm.SwmUtils;
+import org.rfcx.guardian.admin.comms.swm.api.SwmApi;
+import org.rfcx.guardian.admin.comms.swm.api.SwmConnection;
+import org.rfcx.guardian.admin.comms.swm.api.SwmUartShell;
+import org.rfcx.guardian.admin.comms.swm.control.SwmPower;
 import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
 import org.rfcx.guardian.admin.companion.CompanionSocketService;
 import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
@@ -62,8 +67,8 @@ import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
-import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
+import org.rfcx.guardian.admin.device.i2c.sentry.bme.SentryBME688Utils;
 import org.rfcx.guardian.admin.device.i2c.sentry.infineon.SentryInfineonUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
@@ -120,7 +125,6 @@ public class RfcxGuardian extends Application {
     public SmsMessageDb smsMessageDb = null;
     public SbdMessageDb sbdMessageDb = null;
     public SwmMessageDb swmMessageDb = null;
-    public SwmMetaDb swmMetaDb = null;
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
     public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
     // Android Device Handlers
@@ -142,7 +146,9 @@ public class RfcxGuardian extends Application {
     public SentryBME688Utils sentryBME688Utils = null;
     public SentryInfineonUtils sentryInfineonUtils = null;
     public SbdUtils sbdUtils = null;
-    public SwmUtils swmUtils = null;
+    public SwmDevice swmDevice = null;
+    public SwmDiagnostic swmDiagnostic = null;
+    public SwmMessage swmMessage = null;
     public SpeedTest speedTest = null;
     public String[] RfcxCoreServices =
             new String[]{
@@ -183,7 +189,13 @@ public class RfcxGuardian extends Application {
         this.companionSocketUtils = new CompanionSocketUtils(this);
         this.companionPingJsonUtils = new CompanionPingJsonUtils(this);
         this.sbdUtils = new SbdUtils(this);
-        this.swmUtils = new SwmUtils(this);
+
+        SwmApi swmApi = new SwmApi(new SwmConnection(new SwmUartShell()));
+        SwmPower swmPower = new SwmPower(this);
+        this.swmDevice = new SwmDevice(swmApi, swmPower);
+        this.swmDiagnostic = new SwmDiagnostic(swmApi, swmDevice);
+        this.swmMessage = new SwmMessage(this, swmApi, swmDevice);
+
         this.speedTest = new SpeedTest();
 
         DeviceI2CUtils.setSentinelLoggingVerbosity(this);
@@ -312,7 +324,6 @@ public class RfcxGuardian extends Application {
         this.smsMessageDb = new SmsMessageDb(this, this.version);
         this.sbdMessageDb = new SbdMessageDb(this, this.version);
         this.swmMessageDb = new SwmMessageDb(this, this.version);
-        this.swmMetaDb = new SwmMetaDb(this, this.version);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
     }
 
