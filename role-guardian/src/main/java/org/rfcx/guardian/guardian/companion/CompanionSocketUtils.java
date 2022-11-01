@@ -40,6 +40,7 @@ public class CompanionSocketUtils {
             JSONObject guardianObj = new JSONObject();
             guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
             guardianObj.put("name", app.rfcxGuardianIdentity.getName());
+            guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
 
             companionObj.put("guardian", guardianObj);
 
