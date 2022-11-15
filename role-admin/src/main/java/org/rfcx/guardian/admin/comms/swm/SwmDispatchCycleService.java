@@ -11,6 +11,7 @@ import org.rfcx.guardian.admin.comms.swm.data.SwmDTResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.Date;
 import java.util.List;
@@ -74,14 +75,16 @@ public class SwmDispatchCycleService extends Service {
 
             app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-            while (swmDispatchCycleInstance.runFlag) {
-                app.rfcxSvc.reportAsActive(SERVICE_NAME);
-                try {
-                    trigger();
-                    Thread.sleep(swmDispatchCycleDuration);
-                } catch (Exception e) {
-                    RfcxLog.logExc(logTag, e);
-                    break;
+            if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+                while (swmDispatchCycleInstance.runFlag) {
+                    app.rfcxSvc.reportAsActive(SERVICE_NAME);
+                    try {
+                        trigger();
+                        Thread.sleep(swmDispatchCycleDuration);
+                    } catch (Exception e) {
+                        RfcxLog.logExc(logTag, e);
+                        break;
+                    }
                 }
             }
 
