@@ -2,6 +2,8 @@ package org.rfcx.guardian.utility.network;
 
 import android.util.Log;
 
+import org.json.JSONObject;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -121,7 +123,11 @@ public class SocketUtils {
 
         if (areSocketInteractionsAllowed) {
             try {
-
+                String gZipJson = StringUtils.stringToGZipBase64(jsonStr);
+                String sha1Json = StringUtils.getSha1HashOfString(gZipJson);
+                JSONObject messageObj = new JSONObject();
+                messageObj.put("json", gZipJson);
+                messageObj.put("sha1", sha1Json);
                 publishText(jsonStr);
                 isSent = true;
                 isConnectingWithCompanion = true;
