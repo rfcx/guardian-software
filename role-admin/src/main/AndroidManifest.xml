@@ -159,6 +159,14 @@
                 <data android:mimeType="application/vnd.wap.mms-message" />
             </intent-filter>
         </receiver>
+        <receiver
+                android:name=".receiver.HotspotReceiver"
+                android:enabled="true"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.wifi.WIFI_HOTSPOT_CLIENTS_CHANGED" />
+            </intent-filter>
+        </receiver>
 
 
         <activity android:name="org.rfcx.guardian.admin.comms.sms.ComposeSmsActivity">

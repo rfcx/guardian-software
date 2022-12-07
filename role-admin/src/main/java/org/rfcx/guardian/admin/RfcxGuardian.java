@@ -69,6 +69,7 @@ import org.rfcx.guardian.admin.device.led.LedSequenceService;
 import org.rfcx.guardian.admin.device.led.LedSequenceUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.admin.receiver.HotspotReceiver;
 import org.rfcx.guardian.admin.status.AdminStatus;
 import org.rfcx.guardian.admin.status.StatusCacheService;
 import org.rfcx.guardian.gpio.DeviceGpioUtils;
@@ -102,6 +103,7 @@ public class RfcxGuardian extends Application {
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
     private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
+    private final HotspotReceiver hotspotReceiver = new HotspotReceiver();
     private final ComponentName devAdminReceiver = null;
     public String version;
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
@@ -174,6 +176,7 @@ public class RfcxGuardian extends Application {
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
+        this.registerReceiver(hotspotReceiver, new IntentFilter("android.net.wifi.WIFI_HOTSPOT_CLIENTS_CHANGED"));
 
         setDbHandlers();
         setServiceHandlers();
@@ -220,6 +223,7 @@ public class RfcxGuardian extends Application {
 
         this.unregisterReceiver(connectivityReceiver);
         this.unregisterReceiver(airplaneModeReceiver);
+        this.unregisterReceiver(hotspotReceiver);
     }
 
     public void appResume() {
