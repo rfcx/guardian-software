@@ -124,11 +124,7 @@ public class SocketUtils {
         if (areSocketInteractionsAllowed) {
             try {
                 String gZipJson = StringUtils.stringToGZipBase64(jsonStr);
-                String sha1Json = StringUtils.getSha1HashOfString(gZipJson);
-                JSONObject messageObj = new JSONObject();
-                messageObj.put("json", gZipJson);
-                messageObj.put("sha1", sha1Json);
-                publishText(jsonStr);
+                publishText(gZipJson);
                 isSent = true;
                 isConnectingWithCompanion = true;
 
