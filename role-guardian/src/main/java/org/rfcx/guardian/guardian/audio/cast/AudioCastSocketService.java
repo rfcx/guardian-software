@@ -15,7 +15,7 @@ public class AudioCastSocketService extends Service {
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastSocketService");
     private static final long minPushCycleDurationMs = 100;
     private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
-    private static final int maxSendFailureThreshold = 24;
+    private static final int maxSendFailureThreshold = 24 * 6;
     private RfcxGuardian app;
     private boolean runFlag = false;
     private AudioCastSocketSvc audioCastSocketSvc;
@@ -82,13 +82,13 @@ public class AudioCastSocketService extends Service {
                         if (currFailureThreshold >= maxSendFailureThreshold) {
                             app.audioCastUtils.socketUtils.stopServer();
                             app.audioCastUtils.startServer();
+                            app.audioCastUtils.socketUtils.setupTimerForClientConnection();
                             currFailureThreshold = 0;
                             pingPushCycleDurationMs = minPushCycleDurationMs;
                             Thread.sleep(pingPushCycleDurationMs);
                             app.audioCastUtils.updatePingJson(false);
                         }
-
-                        if (app.audioCastUtils.sendSocketPing()) {
+                        if (app.audioCastUtils.socketUtils.isReceivingMessageFromClient && app.audioCastUtils.sendSocketPing()) {
                             Thread.sleep(pingPushCycleDurationMs);
                             currFailureThreshold = 0;
                             app.audioCastUtils.updatePingJson(false);

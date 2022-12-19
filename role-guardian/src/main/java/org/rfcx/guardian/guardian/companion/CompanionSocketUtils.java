@@ -149,6 +149,7 @@ public class CompanionSocketUtils {
 
     private void processReceivedJson(String jsonStr) {
         app.apiCommandUtils.processApiCommandJson(jsonStr, "socket");
+        socketUtils.isReceivingMessageFromClient = true;
     }
 
 
@@ -174,7 +175,7 @@ public class CompanionSocketUtils {
                     }
                 }
             } catch (IOException | NullPointerException e ) {
-                RfcxLog.logExc(logTag, e);
+                // Mostly on server socket get closed from its service to keep socket alive all time.
                 Looper.myLooper().quit();
             }
             Looper.loop();

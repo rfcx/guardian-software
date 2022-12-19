@@ -224,7 +224,7 @@ public class FileSocketUtils {
                     }
                 }
             } catch (IOException | JSONException | NullPointerException e) {
-                RfcxLog.logExc(logTag, e);
+                // Mostly on server socket get closed from its service to keep socket alive all time.
                 Looper.myLooper().quit();
                 isReading = false;
             }

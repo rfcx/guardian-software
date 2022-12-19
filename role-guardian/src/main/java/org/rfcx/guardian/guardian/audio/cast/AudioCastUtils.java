@@ -57,7 +57,7 @@ public class AudioCastUtils {
     }
 
     private void processReceivedJson(String jsonStr) {
-        // do nothing — we don't expect to receive anything
+        socketUtils.isReceivingMessageFromClient = true;
     }
 
     public void startServer() {
@@ -81,7 +81,7 @@ public class AudioCastUtils {
                     }
                 }
             } catch (IOException | NullPointerException e) {
-                    RfcxLog.logExc(logTag, e);
+                    // Mostly on server socket get closed from its service to keep socket alive all time.
                     Looper.myLooper().quit();
             }
             Looper.loop();
