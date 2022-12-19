@@ -83,13 +83,14 @@ public class CompanionSocketService extends Service {
                         if (currFailureThreshold >= maxSendFailureThreshold) {
                             app.companionSocketUtils.socketUtils.stopServer();
                             app.companionSocketUtils.startServer();
+                            app.companionSocketUtils.socketUtils.setupTimerForClientConnection();
                             currFailureThreshold = 0;
                             pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
                             Thread.sleep(pingPushCycleDurationMs);
                             app.companionSocketUtils.updatePingJson(false);
                         }
 
-                        if (app.companionSocketUtils.sendSocketPing()) {
+                        if (app.companionSocketUtils.socketUtils.isReceivingMessageFromClient && app.companionSocketUtils.sendSocketPing()) {
                             Thread.sleep(pingPushCycleDurationMs);
                             currFailureThreshold = 0;
                             app.companionSocketUtils.updatePingJson(true);

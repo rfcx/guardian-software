@@ -14,17 +14,22 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SocketUtils {
 
     private static final String logTag = RfcxLog.generateLogTag("Utils", "SocketUtils");
     public Thread serverThread = null;
     public boolean isServerRunning = false;
+    public boolean isReceivingMessageFromClient = false;
     private Socket socket = null;
     private ServerSocket serverSocket = null;
     private DataInputStream streamInput = null;
     private DataOutputStream streamOutput = null;
     private int socketServerPort;
+
+    private Timer timerThread = null;
 
     public boolean isConnectingWithCompanion = false;
 
@@ -82,6 +87,10 @@ public class SocketUtils {
                 serverSocket.close();
             }
 
+            if (timerThread != null) {
+                timerThread.cancel();
+            }
+
         } catch (IOException e) {
             if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
                 RfcxLog.logExc(logTag, e);
@@ -93,6 +102,8 @@ public class SocketUtils {
         streamOutput = null;
         socket = null;
         serverSocket = null;
+
+        timerThread = null;
 
         isServerRunning = false;
 //		}
@@ -171,5 +182,17 @@ public class SocketUtils {
         }
     }
 
-
+    public void setupTimerForClientConnection() {
+        timerThread = new Timer();
+        timerThread.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (isReceivingMessageFromClient) {
+                    // Check every minute that Server still receiving message from Client
+                    Log.d(logTag, "Set client state to disconnected");
+                    isReceivingMessageFromClient = false;
+                }
+            }
+        }, 0, 60 * 1000);
+    }
 }
