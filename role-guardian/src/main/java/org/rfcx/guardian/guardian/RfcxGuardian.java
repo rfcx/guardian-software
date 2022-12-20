@@ -74,7 +74,6 @@ import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
-import org.rfcx.guardian.guardian.receiver.HotspotReceiver;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -98,7 +97,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
-    private final HotspotReceiver hotspotReceiver = new HotspotReceiver();
     public String version;
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
@@ -187,7 +185,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         RfcxRole.writeVersionToFile(this, logTag, this.version);
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        this.registerReceiver(hotspotReceiver, new IntentFilter("android.net.wifi.WIFI_HOTSPOT_CLIENTS_CHANGED"));
 
         PreferenceManager.setDefaultValues(this, R.xml.prefs, true);
         this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -235,7 +232,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         super.onTerminate();
 
         this.unregisterReceiver(connectivityReceiver);
-        this.unregisterReceiver(hotspotReceiver);
     }
 
     public void appResume() {
