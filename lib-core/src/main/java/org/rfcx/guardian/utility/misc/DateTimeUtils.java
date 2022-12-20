@@ -184,7 +184,7 @@ public class DateTimeUtils {
         String[] endTimePieces = end_HH_MM_SS.split(":");
         int endHour = Integer.parseInt(endTimePieces[0]);
         int endMinute = Integer.parseInt(endTimePieces[1]);
-        int endSecond = 0;
+        int endSecond = 59;
         if (endTimePieces.length == 3) {
             endSecond = Integer.parseInt(endTimePieces[2]);
         }
