@@ -13,12 +13,14 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
+import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
+import java.io.File;
 import java.util.Objects;
 
 public class ClassifyContentProvider extends ContentProvider {
@@ -128,7 +130,20 @@ public class ClassifyContentProvider extends ContentProvider {
 
                 return RfcxComm.getProjectionCursor(appRole, "classify_queue", new Object[]{audioId + "|" + clsfrId, null, System.currentTimeMillis()});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "classifier_remove", "*")) {
+                logFuncVal = "classifier_remove";
+                String pathSeg = uri.getLastPathSegment();
+                String clsfrFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(getContext(), Long.parseLong(pathSeg));
+                File classifier = new File(clsfrFilePath);
+                boolean result = false;
+                if (classifier.exists()) {
+                    result = classifier.delete();
+                }
+                return RfcxComm.getProjectionCursor(appRole, "classifier", new Object[]{"remove|" + result, null, System.currentTimeMillis()});
+
+
             }
+
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e, "ClassifyContentProvider - " + logFuncVal);

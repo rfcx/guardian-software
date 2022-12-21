@@ -111,6 +111,7 @@ public class SwmDispatchCycleService extends Service {
                 app.swmDevice.sleep();
             } else {
                 Log.d(logTag, "Found latest message in queue...");
+                setDateTime();
                 sendQueuedMessages(latestMessageForQueue);
             }
         }
