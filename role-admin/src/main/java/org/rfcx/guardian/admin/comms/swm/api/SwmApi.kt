@@ -31,7 +31,7 @@ class SwmApi(private val connection: SwmConnection) {
          * The possible case is the expired messages not being removed from the database
          * It happens if the Tile cannot communicate with the satellite
          */
-        if (results.contains("DBXTOHIVEFULL")) {
+        if (results.contains("ERR,DBXTOHIVEFULL")) {
             resetDb()
         }
         val regex = "OK,(-?[0-9]+)".toRegex()
@@ -125,5 +125,11 @@ class SwmApi(private val connection: SwmConnection) {
                 val (hdop, vdop, gnss, unused, type) = match.destructured
                 return SwmGSResponse(hdop.toInt(), vdop.toInt(), gnss.toInt(), type)
             } ?: return null
+    }
+
+    fun sleep(): Boolean {
+        return connection.execute(Command.SL.name, "S=10800").firstOrNull()?.let { payload ->
+            return payload.contains("OK")
+        } ?: false
     }
 }

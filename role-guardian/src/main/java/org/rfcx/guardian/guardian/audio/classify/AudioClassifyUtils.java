@@ -192,6 +192,7 @@ public class AudioClassifyUtils {
                     app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrInputGain, clsfrWindowSize, clsfrStepSize, clsfrClassifications, clsfrThreshold);
 
                     FileUtils.delete(clsfrActiveFilePath);
+                    removeClassifierFromClassifyRole(clsfrId);
                     FileUtils.copy(clsfrLibraryFilePath, clsfrActiveFilePath);
 
                     boolean result = FileUtils.sha1Hash(clsfrActiveFilePath).equalsIgnoreCase(clsfrDigest);
@@ -252,6 +253,7 @@ public class AudioClassifyUtils {
 
         String clsfrActiveFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), Long.parseLong(clsfrId));
         FileUtils.delete(clsfrActiveFilePath);
+        removeClassifierFromClassifyRole(clsfrId);
 
         removeClassificationFromPrefs(clsfrId);
         app.audioClassifierDb.dbActive.deleteSingleRow(clsfrId);
@@ -270,4 +272,13 @@ public class AudioClassifyUtils {
         return true;
     }
 
+    private void removeClassifierFromClassifyRole(String classifierId) {
+        Cursor classifyQueueResponse = app.getResolver().query(
+                RfcxComm.getUri("classify", "classifier_remove", classifierId),
+                RfcxComm.getProjection("classify", "classifier_remove"),
+                null, null, null);
+        if (classifyQueueResponse != null) {
+            classifyQueueResponse.close();
+        }
+    }
 }
