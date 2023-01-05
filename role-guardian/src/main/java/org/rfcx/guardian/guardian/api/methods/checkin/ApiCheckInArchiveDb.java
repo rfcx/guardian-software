@@ -77,6 +77,10 @@ public class ApiCheckInArchiveDb {
             return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
         }
 
+        public String getAllRowsForCompanion() {
+            return DbUtils.getConcatRows(this.dbUtils.getRows(TABLE, new String[]{ C_ARCHIVE_BEGINS_AT, C_ARCHIVE_ENDS_AT, C_RECORD_COUNT, C_DURATION_SETTING, C_SKIP_SETTING }, null, null, null));
+        }
+
         public void clearRowsBefore(Date date) {
             this.dbUtils.deleteRowsOlderThan(TABLE, C_ARCHIVED_AT, date);
         }

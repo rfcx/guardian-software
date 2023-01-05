@@ -27,6 +27,7 @@ public class CompanionSocketUtils {
     public SocketUtils socketUtils;
     private final RfcxGuardian app;
     private String pingJson = (new JSONObject()).toString();
+
     public CompanionSocketUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
@@ -52,10 +53,12 @@ public class CompanionSocketUtils {
 
             companionObj.put("system_timezone", TimeZone.getDefault().getID());
 
-            Pair<Boolean, String> isCapturing =  isAudioCapturing();
+            Pair<Boolean, String> isCapturing = isAudioCapturing();
             companionObj.put("is_audio_capturing", isCapturing.first);
             companionObj.put("audio_capturing_message", isCapturing.second);
 
+            String archivedAudios = app.apiCheckInArchiveDb.dbArchive.getAllRowsForCompanion();
+            companionObj.put("archived-audio", archivedAudios);
         } catch (JSONException e) {
             RfcxLog.logExc(logTag, e);
         }
