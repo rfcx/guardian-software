@@ -178,6 +178,7 @@
             </intent-filter>
         </receiver>
 
+
         <!-- ContentProviders -->
         <provider
                 android:name=".contentprovider.GuardianContentProvider"

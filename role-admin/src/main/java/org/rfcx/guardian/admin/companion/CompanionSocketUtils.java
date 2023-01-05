@@ -7,6 +7,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.network.SocketUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -56,7 +57,7 @@ public class CompanionSocketUtils {
     }
 
     private void processReceivedJson(String jsonStr) {
-        // do nothing — we don't expect to receive anything
+        socketUtils.isReceivingMessageFromClient = true;
     }
 
 
@@ -82,7 +83,7 @@ public class CompanionSocketUtils {
                     }
                 }
             } catch (IOException | NullPointerException e) {
-                RfcxLog.logExc(logTag, e);
+                // Mostly on server socket get closed from its service to keep socket alive all time.
                 Looper.myLooper().quit();
             }
             Looper.loop();

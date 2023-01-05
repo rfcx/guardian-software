@@ -481,7 +481,8 @@ public class RfcxGuardian extends Application {
                         "rm -f /data/log_temp/boot/*",
                         "rm -f /data/data/org.rfcx.guardian.guardian/files/audio/encode/*",
                         "rm -rf /storage/sdcard0/mtklog",
-                        "rm -rf /storage/sdcard1/mtklog"
+                        "rm -rf /storage/sdcard1/mtklog",
+                        "rm -rf /data/aee_exp/"
                 });
     }
 
