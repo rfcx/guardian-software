@@ -52,6 +52,7 @@ import org.rfcx.guardian.guardian.asset.stats.LatencyStatsDb;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureService;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.capture.AudioQueuePostProcessingService;
+import org.rfcx.guardian.guardian.audio.capture.AudioScheduleService;
 import org.rfcx.guardian.guardian.audio.cast.AudioCastPingUtils;
 import org.rfcx.guardian.guardian.audio.cast.AudioCastSocketService;
 import org.rfcx.guardian.guardian.audio.cast.AudioCastUtils;
@@ -158,7 +159,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public String[] RfcxCoreServices =
             new String[]{
-                    AudioCaptureService.SERVICE_NAME,
+//                    AudioCaptureService.SERVICE_NAME,
                     ApiCheckInJobService.SERVICE_NAME,
                     AudioEncodeJobService.SERVICE_NAME,
                     AudioClassifyPrepareService.SERVICE_NAME,
@@ -167,7 +168,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     ApiPingCycleService.SERVICE_NAME,
                     CompanionSocketService.SERVICE_NAME,
                     AudioCastSocketService.SERVICE_NAME,
-                    FileSocketService.SERVICE_NAME
+                    FileSocketService.SERVICE_NAME,
+                    AudioScheduleService.SERVICE_NAME
             };
 
     @Override
@@ -366,6 +368,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService(CompanionSocketService.SERVICE_NAME, CompanionSocketService.class);
 
         this.rfcxSvc.addService(FileSocketService.SERVICE_NAME, FileSocketService.class);
+
+        this.rfcxSvc.addService(AudioScheduleService.SERVICE_NAME, AudioScheduleService.class);
     }
 
     @Override
