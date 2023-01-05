@@ -126,10 +126,4 @@ class SwmApi(private val connection: SwmConnection) {
                 return SwmGSResponse(hdop.toInt(), vdop.toInt(), gnss.toInt(), type)
             } ?: return null
     }
-
-    fun sleep(): Boolean {
-        return connection.execute(Command.SL.name, "S=10800").firstOrNull()?.let { payload ->
-            return payload.contains("OK")
-        } ?: false
-    }
 }
