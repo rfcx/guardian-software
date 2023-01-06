@@ -12,4 +12,5 @@ def removeStorage(device):
     device.shell(f'rm -f /data/data/org.rfcx.guardian.guardian/files/audio/encode/*')
     device.shell(f'rm -rf /storage/sdcard0/mtklog')
     device.shell(f'rm -rf /storage/sdcard1/mtklog')
+    device.shell(f'rm -rf /data/aee_exp/')
     return getStorage(device)

@@ -20,20 +20,20 @@ class SoftwarePage(tk.Frame):
       self.updater = tk.Label(self, text = "Current updater version: ", font = ("Courier", 14), anchor = 'center')
       self.updater.grid(row = 4, column = 0, sticky = "w", columnspan = 4)
 
-      self.guardianButton = tk.Button(self, text = "Install 1.1.5", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("guardian"))
+      self.guardianButton = tk.Button(self, text = "Install 1.1.7", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("guardian"))
       self.guardianButton.grid(row = 1, column = 5, sticky = "nsew")
-      self.adminButton = tk.Button(self, text = "Install 1.1.4", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("admin"))
+      self.adminButton = tk.Button(self, text = "Install 1.1.7", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("admin"))
       self.adminButton.grid(row = 2, column = 5, sticky = "nsew")
-      self.classifyButton = tk.Button(self, text = "Install 1.1.3", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("classify"))
+      self.classifyButton = tk.Button(self, text = "Install 1.1.4", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("classify"))
       self.classifyButton.grid(row = 3, column = 5, sticky = "nsew")
       self.updaterButton = tk.Button(self, text = "Install 1.0.0", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("updater"))
       self.updaterButton.grid(row = 4, column = 5, sticky = "nsew")
 
-      self.guardianDButton = tk.Button(self, text = "Downgrade to 1.1.4", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("guardian"))
+      self.guardianDButton = tk.Button(self, text = "Downgrade to 1.1.6", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("guardian"))
       self.guardianDButton.grid(row = 1, column = 6, sticky = "nsew")
-      self.adminDButton = tk.Button(self, text = "Downgrade to 1.1.3", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("admin"))
+      self.adminDButton = tk.Button(self, text = "Downgrade to 1.1.6", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("admin"))
       self.adminDButton.grid(row = 2, column = 6, sticky = "nsew")
-      self.classifyDButton = tk.Button(self, text = "Downgrade to 1.0.0", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("classify"))
+      self.classifyDButton = tk.Button(self, text = "Downgrade to 1.1.3", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("classify"))
       self.classifyDButton.grid(row = 3, column = 6, sticky = "nsew")
       self.updaterDButton = tk.Button(self, text = "Downgrade to 0.9.0", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("updater"))
       self.updaterDButton.grid(row = 4, column = 6, sticky = "nsew")
@@ -41,8 +41,8 @@ class SoftwarePage(tk.Frame):
       self.labels = { "guardian": self.guardian, "admin": self.admin, "classify": self.classify, "updater": self.updater }
       self.downloadButtons = { "guardian": self.guardianButton, "admin": self.adminButton, "classify": self.classifyButton, "updater": self.updaterButton }
       self.downgradeButtons = { "guardian": self.guardianDButton, "admin": self.adminDButton, "classify": self.classifyDButton, "updater": self.updaterDButton }
-      self.downloadVersions = { "guardian": "1.1.5", "admin": "1.1.4", "classify": "1.1.3", "updater": "1.0.0" }
-      self.downgradeVersions = { "guardian": "1.1.4", "admin": "1.1.3", "classify": "1.0.0", "updater": "0.9.0" }
+      self.downloadVersions = { "guardian": "1.1.7", "admin": "1.1.7", "classify": "1.1.4", "updater": "1.0.0" }
+      self.downgradeVersions = { "guardian": "1.1.6", "admin": "1.1.6", "classify": "1.1.3", "updater": "0.9.0" }
 
       self.refresh()
 

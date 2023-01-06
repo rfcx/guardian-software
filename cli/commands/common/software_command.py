@@ -23,14 +23,14 @@ def downloadSoftwares(device, role):
     url = ''
     fileName = ''
     if role == 'guardian':
-        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.5.apk.gz'
-        fileName = f'{role}-1.1.5.apk'
+        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.7.apk.gz'
+        fileName = f'{role}-1.1.7.apk'
     elif role == 'admin':
+        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.7.apk.gz'
+        fileName = f'{role}-1.1.7.apk'
+    elif role == 'classify':
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.4.apk.gz'
         fileName = f'{role}-1.1.4.apk'
-    elif role == 'classify':
-        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.3.apk.gz'
-        fileName = f'{role}-1.1.3.apk'
     elif role == 'updater':
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.0.0.apk.gz'
         fileName = f'{role}-1.0.0.apk'
@@ -53,19 +53,20 @@ def installSoftware(device, fileName, role):
     device.push(devicePath, filePath, callback)
     response = device.shell(f'pm install -r {devicePath}')
     device.shell(f'monkey -p org.rfcx.guardian.{role} 1')
+    device.shell(f'content query --uri content://org.rfcx.guardian.guardian/prefs_set/enable_file_socket%7Ctrue')
     return getSoftwares(device)
 
 def downgradeSoftwares(device, role):
     url = ''
     fileName = ''
     if role == 'guardian':
-        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.4.apk.gz'
+        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.7.apk.gz'
         fileName = f'{role}-1.1.4.apk'
     elif role == 'admin':
-        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.3.apk.gz'
+        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.7.apk.gz'
         fileName = f'{role}-1.1.3.apk'
     elif role == 'classify':
-        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.0.0.apk.gz'
+        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.3.apk.gz'
         fileName = f'{role}-1.0.0.apk'
     elif role == 'updater':
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-0.9.0.apk.gz'
