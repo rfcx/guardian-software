@@ -20,22 +20,22 @@ class SoftwarePage(tk.Frame):
       self.updater = tk.Label(self, text = "Current updater version: ", font = ("Courier", 14), anchor = 'center')
       self.updater.grid(row = 4, column = 0, sticky = "w", columnspan = 4)
 
-      self.guardianButton = tk.Button(self, text = "Install 1.1.7", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("guardian"))
+      self.guardianButton = tk.Button(self, text = "Install 1.1.7", fg = 'black', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("guardian"))
       self.guardianButton.grid(row = 1, column = 5, sticky = "nsew")
-      self.adminButton = tk.Button(self, text = "Install 1.1.7", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("admin"))
+      self.adminButton = tk.Button(self, text = "Install 1.1.7", fg = 'black', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("admin"))
       self.adminButton.grid(row = 2, column = 5, sticky = "nsew")
-      self.classifyButton = tk.Button(self, text = "Install 1.1.4", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("classify"))
+      self.classifyButton = tk.Button(self, text = "Install 1.1.4", fg = 'black', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("classify"))
       self.classifyButton.grid(row = 3, column = 5, sticky = "nsew")
-      self.updaterButton = tk.Button(self, text = "Install 1.0.0", fg = 'white', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("updater"))
+      self.updaterButton = tk.Button(self, text = "Install 1.0.0", fg = 'black', bg = "blue", width = 20, height = 2, anchor = 'center', command = lambda: self.install("updater"))
       self.updaterButton.grid(row = 4, column = 5, sticky = "nsew")
 
-      self.guardianDButton = tk.Button(self, text = "Downgrade to 1.1.6", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("guardian"))
+      self.guardianDButton = tk.Button(self, text = "Downgrade to 1.1.6", fg = 'black', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("guardian"))
       self.guardianDButton.grid(row = 1, column = 6, sticky = "nsew")
-      self.adminDButton = tk.Button(self, text = "Downgrade to 1.1.6", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("admin"))
+      self.adminDButton = tk.Button(self, text = "Downgrade to 1.1.6", fg = 'black', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("admin"))
       self.adminDButton.grid(row = 2, column = 6, sticky = "nsew")
-      self.classifyDButton = tk.Button(self, text = "Downgrade to 1.1.3", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("classify"))
+      self.classifyDButton = tk.Button(self, text = "Downgrade to 1.1.3", fg = 'black', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("classify"))
       self.classifyDButton.grid(row = 3, column = 6, sticky = "nsew")
-      self.updaterDButton = tk.Button(self, text = "Downgrade to 0.9.0", fg = 'white', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("updater"))
+      self.updaterDButton = tk.Button(self, text = "Downgrade to 0.9.0", fg = 'black', bg = "red", width = 20, height = 2, anchor = 'center', command = lambda: self.downgrade("updater"))
       self.updaterDButton.grid(row = 4, column = 6, sticky = "nsew")
 
       self.labels = { "guardian": self.guardian, "admin": self.admin, "classify": self.classify, "updater": self.updater }
@@ -65,7 +65,7 @@ class SoftwarePage(tk.Frame):
          self.labels[key].config(text = f"Current {key} version: {softwares[key]}")
 
       for key in self.downloadButtons:
-         if softwares[key] == self.downloadVersions[key]:
+         if softwares[key] >= self.downloadVersions[key]:
             self.downloadButtons[key].config(state = "disabled", text = "Up to date")
          else:
             self.downloadButtons[key].config(state = "normal", text = f"Install {self.downloadVersions[key]}")

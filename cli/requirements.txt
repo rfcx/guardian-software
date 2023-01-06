@@ -3,4 +3,5 @@ click ~= 8.0.4
 typer ~= 0.4.0
 colorama ~= 0.4.4
 tk ~= 0.1.0
+tkmacosx ~= 1.0.5
 pyinstaller ~= 4.10

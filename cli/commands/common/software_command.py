@@ -6,8 +6,11 @@ import gzip
 import os
 import os.path
 import logging
+import glob
+import pathlib
+import sys
 
-dirPath = os.path.abspath(os.getcwd())
+dirPath = os.path.dirname(sys.executable)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,10 +38,10 @@ def downloadSoftwares(device, role):
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.0.0.apk.gz'
         fileName = f'{role}-1.0.0.apk'
 
-    localFileDir = f'temp'
+    localFileDir = dirPath + f'/temp'
     if (os.path.exists(localFileDir) == False):
         os.makedirs(localFileDir)
-    localFilePath = f'temp/{fileName}'
+    localFilePath = dirPath + f'/temp/{fileName}'
     if (os.path.exists(localFilePath)):
         return installSoftware(device, fileName, role)
     else:
@@ -48,7 +51,7 @@ def downloadSoftwares(device, role):
                 return installSoftware(device, fileName, role)
 
 def installSoftware(device, fileName, role):
-    filePath = f'temp/{fileName}'
+    filePath = dirPath + f'/temp/{fileName}'
     devicePath = f'/sdcard/{fileName}'
     device.push(devicePath, filePath, callback)
     response = device.shell(f'pm install -r {devicePath}')
@@ -60,22 +63,22 @@ def downgradeSoftwares(device, role):
     url = ''
     fileName = ''
     if role == 'guardian':
-        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.7.apk.gz'
-        fileName = f'{role}-1.1.4.apk'
+        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.6.apk.gz'
+        fileName = f'{role}-1.1.6.apk'
     elif role == 'admin':
-        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.7.apk.gz'
-        fileName = f'{role}-1.1.3.apk'
+        url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.6.apk.gz'
+        fileName = f'{role}-1.1.6.apk'
     elif role == 'classify':
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-1.1.3.apk.gz'
-        fileName = f'{role}-1.0.0.apk'
+        fileName = f'{role}-1.1.3.apk'
     elif role == 'updater':
         url = f'http://install.rfcx.org/rfcx-guardian/guardian-android-{role}/production/{role}-0.9.0.apk.gz'
         fileName = f'{role}-0.9.0.apk'
     
-    localFileDir = f'temp'
+    localFileDir = dirPath + f'/temp'
     if (os.path.exists(localFileDir) == False):
         os.makedirs(localFileDir)
-    localFilePath = f'temp/{fileName}'
+    localFilePath = dirPath + f'/temp/{fileName}'
     if (os.path.exists(localFilePath)):
         device.shell(f'pm uninstall org.rfcx.guardian.{role}')
         return installSoftware(device, fileName, role)

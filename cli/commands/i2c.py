@@ -1,4 +1,3 @@
-from ctypes.wintypes import PINT
 from commands.common.i2c_command import *
 import typer
 from .adb import Device
