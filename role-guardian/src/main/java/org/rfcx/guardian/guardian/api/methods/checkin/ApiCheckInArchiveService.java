@@ -50,7 +50,7 @@ public class ApiCheckInArchiveService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
+        Log.v(logTag, "Starting service: "+logTag);
         this.archiveAll = intent.getBooleanExtra(EXTRA_ARCHIVE_ALL, false);
         this.runFlag = true;
         app.rfcxSvc.setRunState(SERVICE_NAME, true);
