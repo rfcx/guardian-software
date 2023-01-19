@@ -29,7 +29,6 @@ public class DeviceUtils {
     public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
     public static final long geoPositionMinDistanceChangeBetweenUpdatesInMeters = 1;
-    public static final int accelSensorSnapshotsPerCaptureCycle = 2;
     public static final int minTelemetryCaptureCycleMs = 667;
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
     private final List<double[]> recentValuesAccelSensor = new ArrayList<>();
@@ -121,8 +120,6 @@ public class DeviceUtils {
             metaJson.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
             metaJson.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
             metaJson.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
-            metaJson.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
-            metaJson.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
             metaJson.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
             metaJson.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
             metaJson.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
@@ -149,8 +146,6 @@ public class DeviceUtils {
         app.deviceSystemDb.dbBattery.clearRowsBefore(clearBefore);
         app.deviceSystemDb.dbCPU.clearRowsBefore(clearBefore);
         app.deviceSystemDb.dbTelephony.clearRowsBefore(clearBefore);
-        app.deviceSensorDb.dbLightMeter.clearRowsBefore(clearBefore);
-        app.deviceSensorDb.dbAccelerometer.clearRowsBefore(clearBefore);
         app.deviceDataTransferDb.dbTransferred.clearRowsBefore(clearBefore);
         app.rebootDb.dbRebootComplete.clearRowsBefore(clearBefore);
         app.deviceSensorDb.dbGeoPosition.clearRowsBefore(clearBefore);
@@ -162,11 +157,7 @@ public class DeviceUtils {
     }
 
     public boolean isSensorListenerAllowed(String sensorAbbrev) {
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-            return this.allowListenerRegistration_accel;
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-            return this.allowListenerRegistration_light;
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+        if (sensorAbbrev.equalsIgnoreCase("telephony")) {
             return this.allowListenerRegistration_telephony;
         } else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
             return this.allowListenerRegistration_geoposition && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE);
@@ -180,11 +171,7 @@ public class DeviceUtils {
     }
 
     public void allowOrDisableSensorListener(String sensorAbbrev, boolean allowOrDisable) {
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-            this.allowListenerRegistration_accel = allowOrDisable;
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-            this.allowListenerRegistration_light = allowOrDisable;
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+        if (sensorAbbrev.equalsIgnoreCase("telephony")) {
             this.allowListenerRegistration_telephony = allowOrDisable;
         } else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
             this.allowListenerRegistration_geoposition = allowOrDisable;

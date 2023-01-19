@@ -59,34 +59,18 @@ public class DeviceSystemService extends Service implements SensorEventListener,
     private SignalStrengthListener signalStrengthListener;
 
     private LocationManager locationManager;
-    private SensorManager sensorManager;
-
-    private Sensor lightSensor;
-    private Sensor accelSensor;
-
     private String geoPositionProviderInfo;
-
-    private double lightSensorLastValue = Float.MAX_VALUE;
-
     private List<String[]> telephonyValues = new ArrayList<>();
-    private List<long[]> lightSensorValues = new ArrayList<>();
     private List<long[]> dataTransferValues = new ArrayList<>();
     private List<int[]> batteryLevelValues = new ArrayList<>();
     private List<long[]> storageValues = new ArrayList<>();
     private List<long[]> memoryValues = new ArrayList<>();
     private List<int[]> cpuUsageValues = new ArrayList<>();
-    private List<double[]> accelSensorValues = new ArrayList<>();
 
     private boolean isListenerRegistered_telephony = false;
     private boolean isListenerRegistered_light = false;
     private boolean isListenerRegistered_accel = false;
     private boolean isListenerRegistered_geoposition = false;
-
-    private void checkSetSensorManager() {
-        if (this.sensorManager == null) {
-            this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        }
-    }
 
     private boolean checkSetLocationManager() {
         boolean isGeoPositionAccessApproved = false;
@@ -126,7 +110,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         this.deviceSystemSvc = new DeviceSystemSvc();
         app = (RfcxGuardian) getApplication();
 
-        registerListener("light");
         registerListener("telephony");
         registerListener("geoposition");
     }
@@ -153,10 +136,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         this.deviceSystemSvc.interrupt();
         this.deviceSystemSvc = null;
 
-        unRegisterListener("light");
         unRegisterListener("telephony");
         unRegisterListener("geoposition");
-        unRegisterListener("accel");
     }
 
     private boolean confirmOrSetCaptureParameters() {
@@ -240,11 +221,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         // cache accelerometer sensor data
         saveSnapshotValuesToDatabase("accel");
 
-        // capture and cache light sensor data
-        cacheSnapshotValues("light", new double[]{lightSensorLastValue});
-        saveSnapshotValuesToDatabase("light");
-
-
         if (outerLoopIncrement == outerLoopCaptureCount) {
 
             // capture and cache battery level info
@@ -283,30 +259,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
     private void cacheSnapshotValues(String sensorAbbrev, double[] vals) {
 
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-
-            if (vals.length >= 3) {
-                double[] accelArray = new double[]{(double) System.currentTimeMillis(), vals[0], vals[1], vals[2], 0};
-
-                this.accelSensorValues.add(accelArray);
-                if (this.app != null) {
-                    this.app.deviceUtils.addAccelSensorSnapshotEntry(accelArray);
-                }
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-
-            this.lightSensorLastValue = vals[0];
-            long lightSensorLastValueAsLong = Math.round(this.lightSensorLastValue);
-            if ((this.lightSensorLastValue != Float.MAX_VALUE)
-                    && ((this.lightSensorValues.size() == 0)
-                    || (lightSensorLastValueAsLong != this.lightSensorValues.get(this.lightSensorValues.size() - 1)[1])
-            )
-            ) {
-                this.lightSensorValues.add(new long[]{System.currentTimeMillis(), lightSensorLastValueAsLong});
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+        if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 
             if (app.deviceMobileNetwork.isInitializedTelephonyManager() && app.deviceMobileNetwork.isInitializedSignalStrength()) {
 
@@ -330,37 +283,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
         try {
 
-            if (sensorAbbrev.equalsIgnoreCase("accel") && app.deviceUtils.isSensorListenerAllowed("accel")) {
-                if (!this.isListenerRegistered_accel) {
-                    checkSetSensorManager();
-                    if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-                        Log.v(logTag, "Registering listener for 'accelerometer'...");
-                        this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-                        this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                        this.isListenerRegistered_accel = true;
-                    } else {
-                        app.deviceUtils.disableSensorListener("accel");
-                        Log.d(logTag, "Disabling Listener Registration for Accelerometer because it doesn't seem to be present.");
-                    }
-                }
-
-            } else if (sensorAbbrev.equalsIgnoreCase("light")
-                    && app.deviceUtils.isSensorListenerAllowed("light")
-            ) {
-                if (!this.isListenerRegistered_light) {
-                    checkSetSensorManager();
-                    if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
-                        Log.v(logTag, "Registering listener for 'light'...");
-                        this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
-                        this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                        this.isListenerRegistered_light = true;
-                    } else {
-                        app.deviceUtils.disableSensorListener("light");
-                        Log.d(logTag, "Disabling Listener Registration for LightMeter because it doesn't seem to be present.");
-                    }
-                }
-
-            } else if (sensorAbbrev.equalsIgnoreCase("telephony") && app.deviceUtils.isSensorListenerAllowed("telephony")) {
+            if (sensorAbbrev.equalsIgnoreCase("telephony") && app.deviceUtils.isSensorListenerAllowed("telephony")) {
                 if (!this.isListenerRegistered_telephony) {
                     Log.v(logTag, "Registering listener for 'telephony'...");
                     this.signalStrengthListener = new SignalStrengthListener();
@@ -395,24 +318,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
     private void unRegisterListener(String sensorAbbrev) {
 
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-            if (this.isListenerRegistered_accel && (this.accelSensor != null)) {
-                Log.v(logTag, "Unregistering sensor listener for 'accelerometer'...");
-                this.sensorManager.unregisterListener(this, this.accelSensor);
-                this.isListenerRegistered_accel = false;
-                if (this.app != null) {
-                    this.app.deviceUtils.processAccelSensorSnapshot();
-                }
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-            if (this.isListenerRegistered_light && (this.lightSensor != null)) {
-                Log.v(logTag, "Unregistering sensor listener for 'light'...");
-                this.sensorManager.unregisterListener(this, this.lightSensor);
-                this.isListenerRegistered_light = false;
-            }
-
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+        if (sensorAbbrev.equalsIgnoreCase("telephony")) {
             if (this.isListenerRegistered_telephony && app.deviceMobileNetwork.isInitializedTelephonyManager()) {
                 Log.v(logTag, "Unregistering sensor listener for 'telephony'...");
                 app.deviceMobileNetwork.setTelephonyListener(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE);
@@ -445,30 +351,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
                     if ((cpuVals[0] <= 100) && (cpuVals[0] >= 0)) {
                         app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1], cpuVals[2]);
                     }
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("light")) {
-
-                List<long[]> lightSensorValuesCache = this.lightSensorValues;
-                this.lightSensorValues = new ArrayList<>();
-
-                for (long[] lightVals : lightSensorValuesCache) {
-                    app.deviceSensorDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
-                }
-
-            } else if (statAbbrev.equalsIgnoreCase("accel")) {
-
-                List<double[]> accelSensorValuesCache = this.accelSensorValues;
-                this.accelSensorValues = new ArrayList<>();
-
-                double[] accelSensorAverages = DeviceUtils.generateAverageAccelValues(accelSensorValuesCache);
-
-                if (accelSensorAverages[4] > 0) {
-                    app.deviceSensorDb.dbAccelerometer.insert(
-                            new Date(Math.round(accelSensorAverages[0])),
-                            TextUtils.join(",", new String[]{accelSensorAverages[1] + "", accelSensorAverages[2] + "", accelSensorAverages[3] + ""}),
-                            (int) Math.round(accelSensorAverages[4])
-                    );
                 }
 
             } else if (statAbbrev.equalsIgnoreCase("telephony")) {
