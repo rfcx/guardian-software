@@ -430,11 +430,6 @@ public class RfcxGuardian extends Application {
     private void runHardwareSpecificModifications() {
 
         if (DeviceHardware_OrangePi_3G_IOT.isDevice_OrangePi_3G_IOT()) {
-
-            // Disable Sensor Listeners for sensors the don't exist on the OrangePi 3G-IoT
-            this.deviceUtils.disableSensorListener("accel"); // accelerometer
-            this.deviceUtils.disableSensorListener("light");  // light meter
-
             // Set Desktop Wallpaper to empty black
             DeviceWallpaper.setWallpaper(this, R.drawable.black);
 

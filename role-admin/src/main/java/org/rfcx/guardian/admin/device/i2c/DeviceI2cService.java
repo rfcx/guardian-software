@@ -30,7 +30,6 @@ public class DeviceI2cService extends Service {
     private long innerLoopDelayRemainderInMilliseconds = 0;
 
     private double innerLoopsPerCaptureCycle_Power = 0;
-    private double innerLoopsPerCaptureCycle_Accelerometer = 0;
 
     // Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
     // This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
@@ -43,8 +42,6 @@ public class DeviceI2cService extends Service {
     private int outerLoopCaptureCount = 0;
 
     private boolean isSentinelPowerCaptureAllowed = true;
-    private boolean isSentinelAccelCaptureAllowed = true;
-    private final boolean isSentinelCompassCaptureAllowed = true;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -110,14 +107,6 @@ public class DeviceI2cService extends Service {
             app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(true);
         }
 
-        // run these on specific outer loop iterations
-        if (outerLoopIncrement == outerLoopCaptureCount) {
-
-            if (this.isSentinelAccelCaptureAllowed) {
-                app.sentryAccelUtils.saveSentryAccelValuesToDatabase(true);
-            }
-        }
-
         return outerLoopIncrement;
     }
 
@@ -128,8 +117,6 @@ public class DeviceI2cService extends Service {
             this.captureCycleLastStartTime = System.currentTimeMillis();
 
             this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.checkSetChipConfigByI2c();
-
-            this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentryAccelUtils.isChipAccessibleByI2c();
 
             // when audio capture is disabled (for any number of reasons), we continue to capture system stats...
             // however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
@@ -149,7 +136,6 @@ public class DeviceI2cService extends Service {
                 this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration, prefsLoopDuration);
 
                 this.innerLoopsPerCaptureCycle_Power = 1;
-                this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentryAccelUtils.samplesTakenPerCaptureCycle);
 
                 Log.d(logTag, "SentinelStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
                         "Snapshots (all metrics) taken every " + Math.round((double) DeviceUtils.getCaptureCycleDuration(prefsCycleDuration) / 1000) + " seconds.");

@@ -31,8 +31,6 @@ public class DeviceUtils {
     public static final long geoPositionMinDistanceChangeBetweenUpdatesInMeters = 1;
     public static final int minTelemetryCaptureCycleMs = 667;
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
-    private final List<double[]> recentValuesAccelSensor = new ArrayList<>();
-    private final List<double[]> recentValuesGeoLocation = new ArrayList<>();
     public boolean allowMeasurement_battery_percentage = true;
     public boolean allowMeasurement_battery_temperature = true;
     public boolean allowMeasurement_battery_is_charging = true;
@@ -42,16 +40,13 @@ public class DeviceUtils {
     private final Context context;
     private final RfcxGuardian app;
     private boolean allowListenerRegistration_telephony = true;
-    private boolean allowListenerRegistration_light = true;
 
     //
     // Static constant values for adjusting and tuning the system service behavior
     //
-    private boolean allowListenerRegistration_accel = true;
     private boolean allowListenerRegistration_geoposition = true;
     private boolean allowListenerRegistration_geoposition_gps = true;
     private boolean allowListenerRegistration_geoposition_network = true;
-    private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
     public DeviceUtils(Context context) {
         this.context = context;
         this.app = (RfcxGuardian) context;
@@ -82,26 +77,6 @@ public class DeviceUtils {
     public static int getInnerLoopUponWhichToTriggerStatusCacheUpdate(int audioCycleDurationInSeconds, int innerLoopsPerCaptureCycle) {
         double fullCycleDuration = getCaptureCycleDuration(audioCycleDurationInSeconds);
         return (int) Math.ceil(innerLoopsPerCaptureCycle * ((fullCycleDuration - (0.9 * RfcxStatus.localCacheExpirationBounds[0])) / fullCycleDuration));
-    }
-
-    public static double[] generateAverageAccelValues(List<double[]> accelValues) {
-
-        // initialize array of averages
-        double[] avgs = new double[5];
-        Arrays.fill(avgs, 0);
-
-        if (accelValues.size() > 0) {
-            avgs = ArrayUtils.limitArrayValuesToSpecificDecimalPlaces(ArrayUtils.getAverageValuesAsArrayFromArrayList(accelValues), 6);
-            avgs[4] = accelValues.size();    // number of samples in average
-            // find the most recent sampled timestamp
-            avgs[0] = 0;
-            for (double[] accelVals : accelValues) {
-                if (accelVals[0] > avgs[0]) {
-                    avgs[0] = Math.round(accelVals[0]);
-                }
-            }
-        }
-        return avgs;
     }
 
     public static boolean isAppRoleApprovedForGeoPositionAccess(Context context) {
@@ -206,27 +181,6 @@ public class DeviceUtils {
 
     public boolean isReducedCaptureModeChanging(int audioCycleDurationInSeconds) {
         return (reducedCaptureModeLastChangedAt != 0) && (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(reducedCaptureModeLastChangedAt)) < getCaptureCycleDuration(audioCycleDurationInSeconds));
-    }
-
-    public void addAccelSensorSnapshotEntry(double[] accelSensorSnapshotEntry) {
-        this.accelSensorSnapshotValues.add(accelSensorSnapshotEntry);
-    }
-
-    public void processAccelSensorSnapshot() {
-
-        double[] accelSensorSnapshotAverages = generateAverageAccelValues(this.accelSensorSnapshotValues);
-        this.accelSensorSnapshotValues = new ArrayList<double[]>();
-
-        if ((accelSensorSnapshotAverages.length == 5) && (accelSensorSnapshotAverages[4] > 0)) {
-
-            Log.i(logTag, "Snapshot —— Accelerometer"
-                    + " —— x: " + accelSensorSnapshotAverages[1] + ", y: " + accelSensorSnapshotAverages[2] + ", z: " + accelSensorSnapshotAverages[3]
-                    + " —— " + Math.round(accelSensorSnapshotAverages[4]) + " sample(s)"
-                    + " —— " + DateTimeUtils.getDateTime(Math.round(accelSensorSnapshotAverages[0]))
-            );
-
-            // this is where we would report this interim accel value to something, somewhere that would determine if the phone is moving around...
-        }
     }
 
     public void processAndSaveGeoPosition(Location location) {

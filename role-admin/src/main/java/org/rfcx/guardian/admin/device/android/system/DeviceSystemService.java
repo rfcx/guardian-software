@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class DeviceSystemService extends Service implements SensorEventListener, LocationListener {
+public class DeviceSystemService extends Service implements LocationListener {
 
     public static final String SERVICE_NAME = "DeviceSystem";
 
@@ -68,8 +68,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
     private List<int[]> cpuUsageValues = new ArrayList<>();
 
     private boolean isListenerRegistered_telephony = false;
-    private boolean isListenerRegistered_light = false;
-    private boolean isListenerRegistered_accel = false;
     private boolean isListenerRegistered_geoposition = false;
 
     private boolean checkSetLocationManager() {
@@ -180,19 +178,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
             innerLoopIncrement = 1;
         }
 
-        if (app.deviceUtils.isSensorListenerAllowed("accel")) {
-            int halfLoopsBetweenAccelSensorToggle = Math.round(innerLoopsPerCaptureCycle / (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2));
-            for (int i = 0; i < (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2); i++) {
-                if (innerLoopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) {
-                    registerListener("accel");
-                    break;
-                } else if (innerLoopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
-                    unRegisterListener("accel");
-                    break;
-                }
-            }
-        }
-
         return innerLoopIncrement;
     }
 
@@ -217,9 +202,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
         // capture and cache data transfer info
         dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
         saveSnapshotValuesToDatabase("datatransfer");
-
-        // cache accelerometer sensor data
-        saveSnapshotValuesToDatabase("accel");
 
         if (outerLoopIncrement == outerLoopCaptureCount) {
 
@@ -427,38 +409,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
             RfcxLog.logExc(logTag, e);
         }
     }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // TODO Auto-generated method stub
-    }
-
-
-    /*
-     *  These are methods for PhoneStateListener
-     */
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-
-        int eventType = event.sensor.getType();
-
-        if (eventType == Sensor.TYPE_LIGHT) {
-
-            cacheSnapshotValues("light", ArrayUtils.castFloatArrayToDoubleArray(event.values));
-
-        } else if (eventType == Sensor.TYPE_ACCELEROMETER) {
-
-            cacheSnapshotValues("accel", ArrayUtils.castFloatArrayToDoubleArray(event.values));
-            if (this.isListenerRegistered_accel) {
-                unRegisterListener("accel");
-            }
-
-        }
-    }
-
-
-
 
     /*
      *  These are methods for SensorEventListener
