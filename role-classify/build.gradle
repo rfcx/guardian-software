@@ -9,12 +9,6 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
 android {
     compileSdkVersion 29
 
-    lintOptions {
-        checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
-        abortOnError false
-    }
 
     defaultConfig {
         applicationId "org.rfcx.guardian.classify"
@@ -40,9 +34,13 @@ android {
         }
     }
 
-    aaptOptions {
-        noCompress "tflite"
-        noCompress "lite"
+    namespace 'org.rfcx.guardian.classify'
+    androidResources {
+        noCompress 'lite'
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
     }
 }
 

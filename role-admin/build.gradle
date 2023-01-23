@@ -15,7 +15,7 @@ android {
         targetSdkVersion 29
         versionCode 19
         versionName "1.1.7"
-        resConfigs "en"
+        resConfigs 'en'
         setProperty("archivesBaseName", "admin-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -31,6 +31,7 @@ android {
             renderscriptDebuggable false
         }
     }
+    namespace 'org.rfcx.guardian.admin'
 }
 
 dependencies {

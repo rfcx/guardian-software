@@ -15,7 +15,7 @@ android {
         targetSdkVersion 29
         versionCode 22
         versionName "1.1.8"
-        resConfigs "en"
+        resConfigs 'en'
         setProperty("archivesBaseName", "guardian-$versionName")
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -35,6 +35,7 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    namespace 'org.rfcx.guardian.guardian'
 }
 
 dependencies {
