@@ -18,7 +18,6 @@ android {
             renderscriptDebuggable false
         }
     }
-    namespace 'org.rfcx.guardian.audio'
 }
 
 dependencies {

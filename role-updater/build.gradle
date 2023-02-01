@@ -9,6 +9,12 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
 android {
     compileSdkVersion 29
 
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 
     defaultConfig {
         applicationId "org.rfcx.guardian.updater"
@@ -16,7 +22,7 @@ android {
         targetSdkVersion 29
         versionCode 5
         versionName "1.0.0"
-        resConfigs 'en'
+        resConfigs "en"
         setProperty("archivesBaseName", "updater-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -33,11 +39,6 @@ android {
             renderscriptDebuggable false
         }
     }
-    lint {
-        abortOnError false
-        checkReleaseBuilds false
-    }
-    namespace 'org.rfcx.guardian.updater'
 }
 
 dependencies {

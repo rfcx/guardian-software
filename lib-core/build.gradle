@@ -22,7 +22,6 @@ android {
     }
 
     useLibrary 'org.apache.http.legacy'
-    namespace 'org.rfcx.guardian.utility'
 }
 
 dependencies {
