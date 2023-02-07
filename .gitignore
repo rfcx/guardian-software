@@ -31,3 +31,5 @@ local.properties
 /tmp
 /bin/_private
 
+/cli
+
