@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.instructions;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -8,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveService;
 import org.rfcx.guardian.guardian.audio.cast.AudioCastSocketService;
 import org.rfcx.guardian.guardian.file.FileSocketService;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -149,6 +151,21 @@ public class InstructionsUtils {
 
                 if (!instrMeta.toString().equalsIgnoreCase("{}")) {
                     JSONObject prefsKeysVals = instrMeta;
+                    if (prefsKeysVals.has(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)
+                            || prefsKeysVals.has(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)
+                            || prefsKeysVals.has(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)
+                            || prefsKeysVals.has(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE)
+                            || prefsKeysVals.has(RfcxPrefs.Pref.AUDIO_STREAM_CODEC)
+                            || prefsKeysVals.has(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
+                    ) {
+                        // force retrigger archive service
+                        Log.d(logTag, "Receive prefs change command on audio settings");
+                        Intent archiveSvc = new Intent(app.getApplicationContext(), ApiCheckInArchiveService.class);
+                        app.getApplicationContext().stopService(archiveSvc);
+
+                        archiveSvc.putExtra(ApiCheckInArchiveService.EXTRA_ARCHIVE_ALL, true);
+                        app.getApplicationContext().startService(archiveSvc);
+                    }
                     Iterator<String> prefsKeys = prefsKeysVals.keys();
                     while (prefsKeys.hasNext()) {
                         String prefKey = prefsKeys.next();
