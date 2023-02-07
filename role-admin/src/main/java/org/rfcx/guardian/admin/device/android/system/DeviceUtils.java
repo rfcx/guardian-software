@@ -29,11 +29,8 @@ public class DeviceUtils {
     public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
     public static final long geoPositionMinDistanceChangeBetweenUpdatesInMeters = 1;
-    public static final int accelSensorSnapshotsPerCaptureCycle = 2;
     public static final int minTelemetryCaptureCycleMs = 667;
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
-    private final List<double[]> recentValuesAccelSensor = new ArrayList<>();
-    private final List<double[]> recentValuesGeoLocation = new ArrayList<>();
     public boolean allowMeasurement_battery_percentage = true;
     public boolean allowMeasurement_battery_temperature = true;
     public boolean allowMeasurement_battery_is_charging = true;
@@ -43,16 +40,13 @@ public class DeviceUtils {
     private final Context context;
     private final RfcxGuardian app;
     private boolean allowListenerRegistration_telephony = true;
-    private boolean allowListenerRegistration_light = true;
 
     //
     // Static constant values for adjusting and tuning the system service behavior
     //
-    private boolean allowListenerRegistration_accel = true;
     private boolean allowListenerRegistration_geoposition = true;
     private boolean allowListenerRegistration_geoposition_gps = true;
     private boolean allowListenerRegistration_geoposition_network = true;
-    private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
     public DeviceUtils(Context context) {
         this.context = context;
         this.app = (RfcxGuardian) context;
@@ -85,26 +79,6 @@ public class DeviceUtils {
         return (int) Math.ceil(innerLoopsPerCaptureCycle * ((fullCycleDuration - (0.9 * RfcxStatus.localCacheExpirationBounds[0])) / fullCycleDuration));
     }
 
-    public static double[] generateAverageAccelValues(List<double[]> accelValues) {
-
-        // initialize array of averages
-        double[] avgs = new double[5];
-        Arrays.fill(avgs, 0);
-
-        if (accelValues.size() > 0) {
-            avgs = ArrayUtils.limitArrayValuesToSpecificDecimalPlaces(ArrayUtils.getAverageValuesAsArrayFromArrayList(accelValues), 6);
-            avgs[4] = accelValues.size();    // number of samples in average
-            // find the most recent sampled timestamp
-            avgs[0] = 0;
-            for (double[] accelVals : accelValues) {
-                if (accelVals[0] > avgs[0]) {
-                    avgs[0] = Math.round(accelVals[0]);
-                }
-            }
-        }
-        return avgs;
-    }
-
     public static boolean isAppRoleApprovedForGeoPositionAccess(Context context) {
         //	&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)
         return (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
@@ -121,8 +95,6 @@ public class DeviceUtils {
             metaJson.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
             metaJson.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
             metaJson.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
-            metaJson.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
-            metaJson.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
             metaJson.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
             metaJson.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
             metaJson.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
@@ -149,8 +121,6 @@ public class DeviceUtils {
         app.deviceSystemDb.dbBattery.clearRowsBefore(clearBefore);
         app.deviceSystemDb.dbCPU.clearRowsBefore(clearBefore);
         app.deviceSystemDb.dbTelephony.clearRowsBefore(clearBefore);
-        app.deviceSensorDb.dbLightMeter.clearRowsBefore(clearBefore);
-        app.deviceSensorDb.dbAccelerometer.clearRowsBefore(clearBefore);
         app.deviceDataTransferDb.dbTransferred.clearRowsBefore(clearBefore);
         app.rebootDb.dbRebootComplete.clearRowsBefore(clearBefore);
         app.deviceSensorDb.dbGeoPosition.clearRowsBefore(clearBefore);
@@ -162,11 +132,7 @@ public class DeviceUtils {
     }
 
     public boolean isSensorListenerAllowed(String sensorAbbrev) {
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-            return this.allowListenerRegistration_accel;
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-            return this.allowListenerRegistration_light;
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+        if (sensorAbbrev.equalsIgnoreCase("telephony")) {
             return this.allowListenerRegistration_telephony;
         } else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
             return this.allowListenerRegistration_geoposition && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE);
@@ -180,11 +146,7 @@ public class DeviceUtils {
     }
 
     public void allowOrDisableSensorListener(String sensorAbbrev, boolean allowOrDisable) {
-        if (sensorAbbrev.equalsIgnoreCase("accel")) {
-            this.allowListenerRegistration_accel = allowOrDisable;
-        } else if (sensorAbbrev.equalsIgnoreCase("light")) {
-            this.allowListenerRegistration_light = allowOrDisable;
-        } else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+        if (sensorAbbrev.equalsIgnoreCase("telephony")) {
             this.allowListenerRegistration_telephony = allowOrDisable;
         } else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
             this.allowListenerRegistration_geoposition = allowOrDisable;
@@ -219,27 +181,6 @@ public class DeviceUtils {
 
     public boolean isReducedCaptureModeChanging(int audioCycleDurationInSeconds) {
         return (reducedCaptureModeLastChangedAt != 0) && (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(reducedCaptureModeLastChangedAt)) < getCaptureCycleDuration(audioCycleDurationInSeconds));
-    }
-
-    public void addAccelSensorSnapshotEntry(double[] accelSensorSnapshotEntry) {
-        this.accelSensorSnapshotValues.add(accelSensorSnapshotEntry);
-    }
-
-    public void processAccelSensorSnapshot() {
-
-        double[] accelSensorSnapshotAverages = generateAverageAccelValues(this.accelSensorSnapshotValues);
-        this.accelSensorSnapshotValues = new ArrayList<double[]>();
-
-        if ((accelSensorSnapshotAverages.length == 5) && (accelSensorSnapshotAverages[4] > 0)) {
-
-            Log.i(logTag, "Snapshot —— Accelerometer"
-                    + " —— x: " + accelSensorSnapshotAverages[1] + ", y: " + accelSensorSnapshotAverages[2] + ", z: " + accelSensorSnapshotAverages[3]
-                    + " —— " + Math.round(accelSensorSnapshotAverages[4]) + " sample(s)"
-                    + " —— " + DateTimeUtils.getDateTime(Math.round(accelSensorSnapshotAverages[0]))
-            );
-
-            // this is where we would report this interim accel value to something, somewhere that would determine if the phone is moving around...
-        }
     }
 
     public void processAndSaveGeoPosition(Location location) {
