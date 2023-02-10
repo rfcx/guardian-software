@@ -11,6 +11,7 @@ import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxMode;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -86,18 +87,22 @@ public class ApiUpdateRequestUtils {
 
     private boolean isUpdateRequestAllowed(boolean printLoggingFeedbackIfNotAllowed) {
         if (app != null) {
-            if (app.deviceConnectivity.isConnected()) {
-                long timeElapsedSinceLastUpdateRequest = System.currentTimeMillis() - this.lastUpdateRequestTriggered;
-                if (timeElapsedSinceLastUpdateRequest > (minimumAllowedIntervalBetweenUpdateRequests * (60 * 1000))) {
-                    this.lastUpdateRequestTriggered = System.currentTimeMillis();
-                    return true;
-                } else if (printLoggingFeedbackIfNotAllowed) {
-                    Log.e(logTag, "Update Request blocked b/c minimum allowed interval has not yet elapsed"
-                            + " - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastUpdateRequest)
-                            + " - Required: " + minimumAllowedIntervalBetweenUpdateRequests + " minutes");
-                }
-            } else {
+            if (!app.deviceConnectivity.isConnected()) {
                 Log.e(logTag, "Update Request blocked b/c there is no internet connectivity.");
+                return false;
+            }
+            if (RfcxMode.isOfflineMode(app.rfcxPrefs)) {
+                Log.e(logTag, "Update Request blocked b/c guardian is in offline mode.");
+                return false;
+            }
+            long timeElapsedSinceLastUpdateRequest = System.currentTimeMillis() - this.lastUpdateRequestTriggered;
+            if (timeElapsedSinceLastUpdateRequest > (minimumAllowedIntervalBetweenUpdateRequests * (60 * 1000))) {
+                this.lastUpdateRequestTriggered = System.currentTimeMillis();
+                return true;
+            } else if (printLoggingFeedbackIfNotAllowed) {
+                Log.e(logTag, "Update Request blocked b/c minimum allowed interval has not yet elapsed"
+                        + " - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastUpdateRequest)
+                        + " - Required: " + minimumAllowedIntervalBetweenUpdateRequests + " minutes");
             }
         }
         return false;
