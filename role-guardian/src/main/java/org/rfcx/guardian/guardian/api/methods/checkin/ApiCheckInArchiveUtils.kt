@@ -110,27 +110,34 @@ class ApiCheckInArchiveUtils(private val context: Context) {
     }
 
     fun archiveAllQueueAndStash() {
-        try {
-            val queues = app!!.apiCheckInDb.dbQueued.allRows
-            val stashes = app!!.apiCheckInDb.dbStashed.allRows
-            archive(queues + stashes)
-            // Clean up and remove archived originals
-            for (checkIn in queues) {
-                FileUtils.delete(checkIn[4])
-                app!!.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkIn[1])
-            }
-            for (checkIn in stashes) {
-                FileUtils.delete(checkIn[4])
-                app!!.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkIn[1])
-            }
-            FileUtils.delete(archiveWorkDir)
-            FileUtils.delete(archiveTarFilePath)
-            Log.d(
+        if (!File(archiveSdCardDir).isDirectory) {
+            Log.e(
                 logTag,
-                (queues + stashes).size.toString() + " CheckIns have been deleted from stash."
+                "CheckIn Archive job cancelled because SD card directory could not be located: $archiveSdCardDir"
             )
-        } catch (e: Exception) {
-            RfcxLog.logExc(logTag, e)
+        } else {
+            try {
+                val queues = app!!.apiCheckInDb.dbQueued.allRows
+                val stashes = app!!.apiCheckInDb.dbStashed.allRows
+                archive(queues + stashes)
+                // Clean up and remove archived originals
+                for (checkIn in queues) {
+                    FileUtils.delete(checkIn[4])
+                    app!!.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkIn[1])
+                }
+                for (checkIn in stashes) {
+                    FileUtils.delete(checkIn[4])
+                    app!!.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkIn[1])
+                }
+                FileUtils.delete(archiveWorkDir)
+                FileUtils.delete(archiveTarFilePath)
+                Log.d(
+                    logTag,
+                    (queues + stashes).size.toString() + " CheckIns have been deleted from stash."
+                )
+            } catch (e: Exception) {
+                RfcxLog.logExc(logTag, e)
+            }
         }
     }
 
