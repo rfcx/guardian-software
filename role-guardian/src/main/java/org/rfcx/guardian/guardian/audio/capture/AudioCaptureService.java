@@ -140,12 +140,11 @@ public class AudioCaptureService extends Service {
                         // check if the most recent recording and the new one timestamp different is more than skipping duration (mean device is offline at some points)
                         captureTimestampFile = System.currentTimeMillis();
                         if (app.audioCaptureUtils.isArchiveNeeded(captureTimestampFile)) {
-                            // force retrigger archive service
-                            Intent archiveSvc = new Intent(app.getApplicationContext(), ApiCheckInArchiveService.class);
-                            app.getApplicationContext().stopService(archiveSvc);
-
-                            archiveSvc.putExtra(ApiCheckInArchiveService.EXTRA_ARCHIVE_ALL, true);
-                            app.getApplicationContext().startService(archiveSvc);
+                            if (!app.rfcxSvc.isRunning(ApiCheckInArchiveService.SERVICE_NAME)) {
+                                Intent archiveSvc = new Intent(app.getApplicationContext(), ApiCheckInArchiveService.class);
+                                archiveSvc.putExtra(ApiCheckInArchiveService.EXTRA_ARCHIVE_ALL, true);
+                                app.getApplicationContext().startService(archiveSvc);
+                            }
                         }
 
                         wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimestampFile, audioSampleRate);
