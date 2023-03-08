@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.device.i2c.sentinel;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -15,6 +16,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,6 +54,10 @@ public class SentinelPowerUtils {
 
     private String chipAccessibleFailMessage = null;
     private long chipConfigLastCheckedAt = 0;
+
+    private double previousBatteryVoltage = 0;
+    private double previousQCountValue = 0;
+    private boolean isCalibrationNeeded = false;
 
     public SentinelPowerUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
@@ -391,9 +400,16 @@ public class SentinelPowerUtils {
 
         } else if ((qCountVal + qCountCalibratedQuarterOfOnePercent) < qCountCalibratedMin) {
 
-            calibrationMsg = "Min Charge State Attained. Calibrating Coulomb Counter Minimum (0%) to " + Math.round(qCountCalibratedMin) + " (previously at " + Math.round(qCountVal) + ")";
-            qCountVal = qCountCalibratedMin;
-            doReCalibration = true;
+            Log.e(logTag, "Battery Voltage considered extremely low at " + Math.round(qCountVal) + " Coulomb Counter. Countdown to Coulomb Counter reset: " + this.qCountCalibrationDelayCounter + "/" + qCountCalibrationDelayCounterMax);
+
+            this.qCountCalibrationDelayCounter--;
+            commandToLog("low qCount", qCountVal + "", this.qCountCalibrationDelayCounter);
+            if (qCountCalibrationDelayCounter <= 0) {
+                calibrationMsg = "Min Charge State Attained. Calibrating Coulomb Counter Minimum (0%) to " + Math.round(qCountCalibratedMin) + " (previously at " + Math.round(qCountVal) + ")";
+                qCountVal = qCountCalibratedMin;
+                doReCalibration = true;
+                this.qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
+            }
 
         } else if ((voltageVal <= qCountCalibrationVoltageMin) && (voltageVal >= (qCountCalibrationVoltageMin) / 2)) {
 //            if (verboseLogging) {
@@ -401,7 +417,7 @@ public class SentinelPowerUtils {
             //  }
 
             this.qCountCalibrationDelayCounter--;
-
+            commandToLog("low battery voltage", voltageVal + "", this.qCountCalibrationDelayCounter);
             if (qCountCalibrationDelayCounter <= 0) {
                 calibrationMsg = "Battery is effectively fully discharged (Voltage: " + Math.round(voltageVal) + " mV). Setting Coulomb Counter to " + Math.round(qCountCalibratedMin) + " (0%)";
                 qCountVal = qCountCalibratedMin;
@@ -600,6 +616,25 @@ public class SentinelPowerUtils {
         }
 
         return isReduced;
+    }
+
+    private void commandToLog(String type, String value, int count) {
+        File logFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/I2CLog.txt");
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append(type).append(" : ").append(value).append(" count: ").append(String.valueOf(count)).append(" --- ").append(String.valueOf(new Date()));
+            buf.newLine();
+            buf.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
