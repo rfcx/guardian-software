@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService
 import org.rfcx.guardian.utility.misc.TimeUtils.isNowOutsideTimeRange
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
@@ -59,6 +60,8 @@ class DeviceSensorService : Service() {
             val deviceSensorService = this@DeviceSensorService
 
             app = application as RfcxGuardian
+
+            app!!.rfcxSvc.reportAsActive(SERVICE_NAME)
 
             while (deviceSensorService.runFlag) {
                 if (!isNowOutsideTimeRange(app!!.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_DIAGNOSTIC_OFF_HOURS))) {

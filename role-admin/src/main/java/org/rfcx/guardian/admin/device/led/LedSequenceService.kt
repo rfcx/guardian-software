@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 class LedSequenceService: Service() {
@@ -58,14 +59,20 @@ class LedSequenceService: Service() {
             val ledSequenceInstance: LedSequenceService = this@LedSequenceService
             app = application as RfcxGuardian
 
+            app!!.rfcxSvc.reportAsActive(SERVICE_NAME)
+
             while (ledSequenceInstance.runFlag) {
-                app?.ledSequenceUtils?.ledOff()
-                if (app?.isGuardianRegistered == true) {
-                    sleep(10000)
-                } else {
-                    sleep(1000)
+                try {
+                    app?.ledSequenceUtils?.ledOff()
+                    if (app?.isGuardianRegistered == true) {
+                        sleep(10000)
+                    } else {
+                        sleep(1000)
+                    }
+                    app?.ledSequenceUtils?.ledOn()
+                } catch (e: InterruptedException) {
+                    ledSequenceInstance.runFlag = false
                 }
-                app?.ledSequenceUtils?.ledOn()
             }
 
             app?.rfcxSvc?.setRunState(SERVICE_NAME, false)

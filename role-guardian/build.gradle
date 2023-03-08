@@ -13,7 +13,7 @@ android {
         applicationId "org.rfcx.guardian.guardian"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 22
+        versionCode 25
         versionName "1.1.8"
         resConfigs "en"
         setProperty("archivesBaseName", "guardian-$versionName")
@@ -23,8 +23,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable false
             jniDebuggable false
