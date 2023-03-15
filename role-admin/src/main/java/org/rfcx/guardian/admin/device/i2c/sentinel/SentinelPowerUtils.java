@@ -397,6 +397,7 @@ public class SentinelPowerUtils {
             calibrationMsg = "Max Charge State Attained. Calibrating Coulomb Counter Maximum (100%) to " + Math.round(qCountCalibratedMax) + " (previously at " + Math.round(qCountVal) + ")";
             qCountVal = qCountCalibratedMax;
             doReCalibration = true;
+            this.qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
 
         } else if ((qCountVal + qCountCalibratedQuarterOfOnePercent) < qCountCalibratedMin) {
 
@@ -417,13 +418,16 @@ public class SentinelPowerUtils {
             //  }
 
             this.qCountCalibrationDelayCounter--;
-            commandToLog("low battery voltage", voltageVal + "", this.qCountCalibrationDelayCounter);
+            commandToLog("low battery voltage", voltageVal + " / " + qCountVal, this.qCountCalibrationDelayCounter);
             if (qCountCalibrationDelayCounter <= 0) {
                 calibrationMsg = "Battery is effectively fully discharged (Voltage: " + Math.round(voltageVal) + " mV). Setting Coulomb Counter to " + Math.round(qCountCalibratedMin) + " (0%)";
                 qCountVal = qCountCalibratedMin;
                 doReCalibration = true;
                 this.qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
             }
+
+        } else {
+            this.qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
         }
 
         if (doReCalibration) {
