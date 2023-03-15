@@ -38,7 +38,7 @@ public class SpeedTest {
         try {
             isTesting = true;
             isFailed = false;
-            downloadSpeedKbps = downloadTest.getDownloadSpeedTest("http://ipv4.ikoula.testdebit.info/100k.iso"); // test url
+            downloadSpeedKbps = downloadTest.getDownloadSpeedTest("http://ipv4.appliwave.testdebit.info/100k.iso"); // test url
         } catch (IOException e) {
             isFailed = true;
             RfcxLog.logExc(logTag, e);
@@ -51,7 +51,7 @@ public class SpeedTest {
         try {
             isTesting = true;
             isFailed = false;
-            uploadSpeedKbps = uploadTest.getUploadSpeedTest("http://ipv4.ikoula.testdebit.info", 102400); // test url
+            uploadSpeedKbps = uploadTest.getUploadSpeedTest("http://ipv4.appliwave.testdebit.info", 102400); // test url
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             isFailed = true;
             RfcxLog.logExc(logTag, e);
