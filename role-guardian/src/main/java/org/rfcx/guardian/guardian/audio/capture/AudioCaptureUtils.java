@@ -362,7 +362,7 @@ public class AudioCaptureUtils {
         int durationMilli = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
 
         long timeDiff = newRecordingTimestamp - Long.parseLong(latestRecording[0]);
-        long requiredDiff = ((durationMilli * 2L) + ((long) durationMilli * (isSamplingOn ? skippingAmount : 0)));
+        long requiredDiff = ((durationMilli * 5L) + ((long) durationMilli * (isSamplingOn ? skippingAmount : 0)));
         if (timeDiff > requiredDiff) {
             Log.d(logTag, String.format(Locale.getDefault(), "New recording timestamp (%d) larger than the most recent recording in queue (%d) %d seconds (requirement %d seconds)", newRecordingTimestamp, Long.parseLong(latestRecording[0]), (timeDiff / 1000), (requiredDiff / 1000)));
             return true;
