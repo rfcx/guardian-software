@@ -166,7 +166,7 @@ class ApiCheckInArchiveUtils(private val context: Context) {
         var oldestCheckInTimestamp = System.currentTimeMillis()
         var newestCheckInTimestamp: Long = 0
         var latestCheckInTimestamp: Long = 0
-        val missingFilesTimestamp = arrayListOf<Long>()
+        val missingFilesTimestamp = arrayListOf<String>()
         val sortedFiles = files.sortedBy {
             val audioJson = JSONObject(it[2])
             val audioMeta = audioJson.getString("audio").split("*").toTypedArray()
@@ -214,10 +214,10 @@ class ApiCheckInArchiveUtils(private val context: Context) {
             }
 
             if (latestCheckInTimestamp != 0L) {
-                var tempLatestCheckInTimestamp = latestCheckInTimestamp
-                while ((tempLatestCheckInTimestamp + (duration + (duration * skipping)) < measuredAt)) {
-                    tempLatestCheckInTimestamp += (duration + (duration * skipping))
-                    missingFilesTimestamp.add(tempLatestCheckInTimestamp)
+                val tempDuration = duration * 1000
+                val tempLatestCheckInTimestamp = latestCheckInTimestamp
+                if (measuredAt - tempLatestCheckInTimestamp > (((tempDuration) + (tempDuration * skipping)) * 2)) {
+                    missingFilesTimestamp.add("${tempLatestCheckInTimestamp + tempDuration}-${measuredAt}")
                 }
             }
             latestCheckInTimestamp = measuredAt
