@@ -148,13 +148,31 @@ class ApiCheckInArchiveUtils(private val context: Context) {
             "Archiving " + files.size + " Stashed CheckIns."
         )
 
+        // Settings
+        val isSkipping =
+            app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)
+        var skipping = 0
+        if (isSkipping) {
+            val ratio =
+                app!!.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)
+            skipping = ratio.split(":").toTypedArray()[1].toInt()
+        }
+        val duration = app!!.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)
+
         // Create Archive File List
         val archiveFileList: MutableList<String> = ArrayList()
         val tsvRows = StringBuilder()
         tsvRows.append(TextUtils.join("\t", tsvMetaColumns)).append("\n")
         var oldestCheckInTimestamp = System.currentTimeMillis()
         var newestCheckInTimestamp: Long = 0
-        for (checkIn in files) {
+        var latestCheckInTimestamp: Long = 0
+        val missingFilesTimestamp = arrayListOf<Long>()
+        val sortedFiles = files.sortedBy {
+            val audioJson = JSONObject(it[2])
+            val audioMeta = audioJson.getString("audio").split("*").toTypedArray()
+            audioMeta[1].toLong()
+        }
+        for (checkIn in sortedFiles) {
 
             // Create TSV contents row
             val audioJson = JSONObject(checkIn[2])
@@ -194,6 +212,15 @@ class ApiCheckInArchiveUtils(private val context: Context) {
             if (measuredAt > newestCheckInTimestamp) {
                 newestCheckInTimestamp = measuredAt
             }
+
+            if (latestCheckInTimestamp != 0L) {
+                var tempLatestCheckInTimestamp = latestCheckInTimestamp
+                while ((tempLatestCheckInTimestamp + (duration + (duration * skipping)) < measuredAt)) {
+                    tempLatestCheckInTimestamp += (duration + (duration * skipping))
+                    missingFilesTimestamp.add(tempLatestCheckInTimestamp)
+                }
+            }
+            latestCheckInTimestamp = measuredAt
         }
         StringUtils.saveStringToFile(
             tsvRows.toString(),
@@ -217,23 +244,17 @@ class ApiCheckInArchiveUtils(private val context: Context) {
             )
             FileUtils.copy(archiveTarFilePath, archiveFinalFilePath)
             FileUtils.chmod(archiveFinalFilePath, "rw", "rw")
-            val isSkipping =
-                app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)
-            var skipping = 0
-            if (isSkipping) {
-                val ratio =
-                    app!!.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)
-                skipping = ratio.split(":").toTypedArray()[1].toInt()
-            }
+
             app!!.apiCheckInArchiveDb.dbArchive.insert(
                 Date(archiveTimestamp!!),  // archived_at
                 Date(oldestCheckInTimestamp),  // archive_begins_at
                 Date(newestCheckInTimestamp),  // archive_ends_at
                 files.size,  // record_count
-                app!!.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION),  // duration per file
+                duration,  // duration per file
                 skipping,  // skipping amount
                 archiveFileSize,  // filesize in bytes
-                archiveFinalFilePath // filepath
+                archiveFinalFilePath, // filepath
+                missingFilesTimestamp.joinToString("*")
             )
             Log.i(
                 logTag, "CheckIn Archive Job Complete: "
