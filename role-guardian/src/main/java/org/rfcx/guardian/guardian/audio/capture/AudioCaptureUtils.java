@@ -351,23 +351,4 @@ public class AudioCaptureUtils {
     public Boolean isAudioChanged() {
         return wavRecorderForCompanion.isAudioChanged();
     }
-
-    public boolean isArchiveNeeded(long newRecordingTimestamp) {
-
-        String[] latestRecording = app.apiCheckInDb.dbQueued.getLatestRow();
-        if (latestRecording[0] == null) return false;
-
-        boolean isSamplingOn = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO);
-        int skippingAmount = samplingRatioArr[1];
-        int durationMilli = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-
-        long timeDiff = newRecordingTimestamp - Long.parseLong(latestRecording[0]);
-        long requiredDiff = ((durationMilli * 5L) + ((long) durationMilli * (isSamplingOn ? skippingAmount : 0)));
-        if (timeDiff > requiredDiff) {
-            Log.d(logTag, String.format(Locale.getDefault(), "New recording timestamp (%d) larger than the most recent recording in queue (%d) %d seconds (requirement %d seconds)", newRecordingTimestamp, Long.parseLong(latestRecording[0]), (timeDiff / 1000), (requiredDiff / 1000)));
-            return true;
-        }
-        return false;
-    }
-
 }

@@ -139,13 +139,6 @@ public class AudioCaptureService extends Service {
                         // in this case, we are starting the audio capture from a stopped/pre-initialized state
                         // check if the most recent recording and the new one timestamp different is more than skipping duration (mean device is offline at some points)
                         captureTimestampFile = System.currentTimeMillis();
-                        if (app.audioCaptureUtils.isArchiveNeeded(captureTimestampFile)) {
-                            if (!app.rfcxSvc.isRunning(ApiCheckInArchiveService.SERVICE_NAME)) {
-                                Intent archiveSvc = new Intent(app.getApplicationContext(), ApiCheckInArchiveService.class);
-                                archiveSvc.putExtra(ApiCheckInArchiveService.EXTRA_ARCHIVE_ALL, true);
-                                app.getApplicationContext().startService(archiveSvc);
-                            }
-                        }
 
                         wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimestampFile, audioSampleRate);
                         wavRecorder.startRecorder();

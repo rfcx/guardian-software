@@ -13,7 +13,7 @@ android {
         applicationId "org.rfcx.guardian.admin"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 19
+        versionCode 23
         versionName "1.1.7"
         resConfigs "en"
         setProperty("archivesBaseName", "admin-$versionName")
