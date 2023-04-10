@@ -218,6 +218,8 @@ public class SentinelPowerUtils {
                 // 'en_lead_acid_temp_comp' (bit 1) disabled
                 // 'en_jeita' (bit 0) disabled
 
+                chipConfig.put("set_max_jeita_t6", new String[]{"0x24", "0x0eb4"}); // 65 C thermal resistor
+
                 chipConfig.put("max_cv_time", new String[]{"0x1d", "0x0000"});       // setting value (in seconds) to zero to disable charging timeout
                 chipConfig.put("max_charge_time", new String[]{"0x1e", "0x0000"});   // setting value (in seconds) to zero to disable charging timeout
                 chipConfig.put("max_absorb_time", new String[]{"0x2b", "0x0000"});   // setting value (in seconds) to zero to disable charging timeout
@@ -528,7 +530,7 @@ public class SentinelPowerUtils {
                 long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
                 long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
 
-                double measuredAtAvg = (sVals[4] + bVals[4] + iVals[4]) / 3;
+                double measuredAtAvg = (sVals[5] + bVals[5] + iVals[5]) / 3;
                 long measuredAt = Math.round(measuredAtAvg);
 
                 try {
