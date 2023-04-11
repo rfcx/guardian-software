@@ -467,7 +467,7 @@ public class SentinelPowerUtils {
             long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
             this.powerInputValues = new ArrayList<>();
 
-            double measuredAtAvg = (sysVals[4] + battVals[4] + inpVals[4]) / 3;
+            double measuredAtAvg = (sysVals[5] + battVals[5] + inpVals[5]) / 3;
             long measuredAt = Math.round(measuredAtAvg);
 
             long[] voltages = new long[]{_v("voltage", sysVals[0]), _v("voltage", battVals[0]), _v("voltage", inpVals[0])};
