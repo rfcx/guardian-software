@@ -17,10 +17,13 @@ public class ApiCheckInArchiveDb {
     static final String C_ARCHIVE_BEGINS_AT = "archive_begins_at";
     static final String C_ARCHIVE_ENDS_AT = "archive_ends_at";
     static final String C_RECORD_COUNT = "record_count";
+    static final String C_DURATION_SETTING = "duration_setting";
+    static final String C_SKIP_SETTING = "skip_setting";
     static final String C_FILESIZE = "filesize";
     static final String C_FILEPATH = "filepath";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
-    private static final String[] ALL_COLUMNS = new String[]{C_ARCHIVED_AT, C_ARCHIVE_BEGINS_AT, C_ARCHIVE_ENDS_AT, C_RECORD_COUNT, C_FILESIZE, C_FILEPATH};
+    static final String C_MISSING = "missing";
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{ "1.1.9" }; // "0.6.43"
+    private static final String[] ALL_COLUMNS = new String[]{C_ARCHIVED_AT, C_ARCHIVE_BEGINS_AT, C_ARCHIVE_ENDS_AT, C_RECORD_COUNT, C_DURATION_SETTING, C_SKIP_SETTING, C_FILESIZE, C_FILEPATH, C_MISSING};
     public final DbArchive dbArchive;
     private int VERSION = 1;
     private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -38,8 +41,11 @@ public class ApiCheckInArchiveDb {
                 .append(", ").append(C_ARCHIVE_BEGINS_AT).append(" INTEGER")
                 .append(", ").append(C_ARCHIVE_ENDS_AT).append(" INTEGER")
                 .append(", ").append(C_RECORD_COUNT).append(" INTEGER")
+                .append(", ").append(C_DURATION_SETTING).append(" INTEGER")
+                .append(", ").append(C_SKIP_SETTING).append(" INTEGER")
                 .append(", ").append(C_FILESIZE).append(" INTEGER")
                 .append(", ").append(C_FILEPATH).append(" TEXT")
+                .append(", ").append(C_MISSING).append(" TEXT")
                 .append(")");
         return sbOut.toString();
     }
@@ -54,21 +60,28 @@ public class ApiCheckInArchiveDb {
             this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
         }
 
-        public int insert(Date archived_at, Date archive_begins_at, Date archive_ends_at, int record_count, long filesize, String filepath) {
+        public int insert(Date archived_at, Date archive_begins_at, Date archive_ends_at, int record_count, int duration, int skip, long filesize, String filepath, String missing) {
 
             ContentValues values = new ContentValues();
             values.put(C_ARCHIVED_AT, archived_at.getTime());
             values.put(C_ARCHIVE_BEGINS_AT, archive_begins_at.getTime());
             values.put(C_ARCHIVE_ENDS_AT, archive_ends_at.getTime());
             values.put(C_RECORD_COUNT, record_count);
+            values.put(C_DURATION_SETTING, duration);
+            values.put(C_SKIP_SETTING, skip);
             values.put(C_FILESIZE, filesize);
             values.put(C_FILEPATH, filepath);
+            values.put(C_MISSING, missing);
 
             return this.dbUtils.insertRow(TABLE, values);
         }
 
         private List<String[]> getAllRows() {
             return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+        }
+
+        public String getAllRowsForCompanion() {
+            return DbUtils.getConcatRows(this.dbUtils.getRows(TABLE, new String[]{ C_ARCHIVE_BEGINS_AT, C_ARCHIVE_ENDS_AT, C_RECORD_COUNT, C_DURATION_SETTING, C_SKIP_SETTING, C_MISSING }, null, null, null));
         }
 
         public void clearRowsBefore(Date date) {
