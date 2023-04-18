@@ -41,27 +41,6 @@ class SwmConnection(private val shell: SwmShell) {
                 // Return only the body, removing the command and space
                 match.groupValues[1].substring(command.length + 1)
             }
-        commandToLog(command, responsesMatch)
         return responsesMatch
-    }
-
-
-    private fun commandToLog(command: String, result: List<String>) {
-        val logFile = File(Environment.getExternalStorageDirectory().absolutePath + "/SwarmLog.txt")
-        if (!logFile.exists()) {
-            try {
-                logFile.createNewFile()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        try {
-            val buf = BufferedWriter(FileWriter(logFile, true))
-            buf.append("${DateTimeUtils.getDateTime()}:$command ,,,$result")
-            buf.newLine()
-            buf.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
     }
 }

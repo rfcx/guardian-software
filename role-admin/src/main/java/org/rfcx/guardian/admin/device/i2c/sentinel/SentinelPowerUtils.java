@@ -318,7 +318,6 @@ public class SentinelPowerUtils {
                 logStr.append(" [ (").append(iVals[2]).append(") Charging: ").append(this.isBatteryCharging).append(", Charged: ").append(this.isBatteryCharged).append(" ]");
             }
         }
-        commandToLog(logStr.toString());
         if (verboseLogging) {
             Log.d(logTag, logStr.toString());
         }
@@ -648,29 +647,6 @@ public class SentinelPowerUtils {
             buf.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void commandToLog(String log) {
-        long now = System.currentTimeMillis();
-        if (now - lastSavingLog > 60000) {
-            File logFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/BatteryLog.txt");
-            if (!logFile.exists()) {
-                try {
-                    logFile.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
-                buf.append(String.valueOf(new Date())).append("-----").append(log);
-                buf.newLine();
-                buf.close();
-                lastSavingLog = now;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
