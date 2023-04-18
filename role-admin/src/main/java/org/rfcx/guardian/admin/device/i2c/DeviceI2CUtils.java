@@ -20,7 +20,6 @@ public class DeviceI2CUtils {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         boolean isVerbose = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL);
         app.sentinelPowerUtils.verboseLogging = isVerbose;
-        app.sentryAccelUtils.verboseLogging = isVerbose;
     }
 
     public static JSONArray getI2cSensorValuesAsJsonArray(Context context) {
@@ -64,11 +63,6 @@ public class DeviceI2CUtils {
         JSONArray sensorJsonArray = new JSONArray();
 
         if (forceUpdate) {
-            if (app.sentryAccelUtils.isChipAccessibleByI2c()) {
-                app.sentryAccelUtils.resetAccelValues();
-                app.sentryAccelUtils.updateSentryAccelValues();
-            }
-
             if (app.sentryBME688Utils.isChipAccessibleByI2c()) {
                 app.sentryBME688Utils.resetBMEValues();
                 app.sentryBME688Utils.saveBME688ValuesToDatabase(app.sentryBME688Utils.getBME688Values());
@@ -82,11 +76,6 @@ public class DeviceI2CUtils {
 
         try {
             JSONObject sensorJson = new JSONObject();
-
-            if (app.sentryAccelUtils.getAccelValues().size() > 0) {
-                long[] accelVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentryAccelUtils.getAccelValues()));
-                sensorJson.put("accelerometer", "accelerometer*" + accelVals[4] + "*" + accelVals[0] + "*" + accelVals[1] + "*" + accelVals[2] + "*" + accelVals[3]);
-            }
 
             if (app.sentryBME688Utils.getCurrentBMEValues() != null) {
                 sensorJson.put("bme688", app.sentrySensorDb.dbBME688.getConcatRowsIgnoreNull("bme688"));

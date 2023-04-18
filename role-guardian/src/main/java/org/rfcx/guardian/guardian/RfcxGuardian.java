@@ -13,6 +13,7 @@ import android.util.Log;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveDb;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveService;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInDb;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
@@ -152,6 +153,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public DeviceMobilePhone deviceMobilePhone = null;
     public FileSocketUtils fileSocketUtils = null;
     public InstallUtils installUtils = null;
+    public ApiCheckInArchiveUtils apiCheckInArchiveUtils = null;
 
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -222,6 +224,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.deviceMobilePhone = new DeviceMobilePhone(this);
         this.fileSocketUtils = new FileSocketUtils(this);
         this.installUtils = new InstallUtils(this, APP_ROLE);
+        this.apiCheckInArchiveUtils = new ApiCheckInArchiveUtils(this);
 
         //    reSyncIdentityAcrossRoles();
         reSyncPrefAcrossRoles("all");

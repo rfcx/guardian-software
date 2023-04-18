@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class AudioCaptureUtils {
 
@@ -350,5 +351,4 @@ public class AudioCaptureUtils {
     public Boolean isAudioChanged() {
         return wavRecorderForCompanion.isAudioChanged();
     }
-
 }

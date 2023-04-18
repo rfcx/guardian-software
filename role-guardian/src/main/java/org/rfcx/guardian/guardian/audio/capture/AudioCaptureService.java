@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveService;
 import org.rfcx.guardian.guardian.asset.meta.MetaSnapshotService;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
@@ -136,7 +137,9 @@ public class AudioCaptureService extends Service {
                     if (confirmOrSetAudioCaptureParameters() && isAudioCaptureEnabled && isAudioCaptureAllowed) {
 
                         // in this case, we are starting the audio capture from a stopped/pre-initialized state
+                        // check if the most recent recording and the new one timestamp different is more than skipping duration (mean device is offline at some points)
                         captureTimestampFile = System.currentTimeMillis();
+
                         wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimestampFile, audioSampleRate);
                         wavRecorder.startRecorder();
                         captureTimestampActual = System.currentTimeMillis();
