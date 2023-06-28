@@ -183,6 +183,10 @@ public class SocketUtils {
     }
 
     public void setupTimerForClientConnection() {
+        if (timerThread != null) {
+            timerThread.cancel();
+            timerThread = null;
+        }
         timerThread = new Timer();
         timerThread.schedule(new TimerTask() {
             @Override

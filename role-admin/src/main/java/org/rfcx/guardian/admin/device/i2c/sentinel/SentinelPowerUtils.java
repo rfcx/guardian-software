@@ -529,10 +529,10 @@ public class SentinelPowerUtils {
                 long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
                 long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
 
-                double measuredAtAvg = (sVals[5] + bVals[5] + iVals[5]) / 3;
-                long measuredAt = Math.round(measuredAtAvg);
-
                 try {
+                    double measuredAtAvg = (sVals[5] + bVals[5] + iVals[5]) / 3;
+                    long measuredAt = Math.round(measuredAtAvg);
+
                     JSONObject powerJson = new JSONObject();
 
                     powerJson.put("system", "system*" + measuredAt
@@ -554,7 +554,6 @@ public class SentinelPowerUtils {
 
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e);
-
                 }
             }
 
