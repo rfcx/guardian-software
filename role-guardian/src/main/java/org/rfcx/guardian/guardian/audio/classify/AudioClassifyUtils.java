@@ -225,9 +225,15 @@ public class AudioClassifyUtils {
         }
         String[] active = app.audioClassifierDb.dbActive.getSingleRowById(classifierId);
         if (active != null) {
-            String classification = active[11].split(",")[0];
-            if (!currentClassesList.contains(classification)) {
-                currentClassesList.add(classification);
+            String[] classification = active[11].split(",");
+            for (String clsf: classification) {
+                if (clsf.equalsIgnoreCase("environment")) {
+                    continue;
+                }
+
+                if (!currentClassesList.contains(clsf)) {
+                    currentClassesList.add(clsf);
+                }
             }
             app.setSharedPref(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS, TextUtils.join(",", currentClassesList));
         }
@@ -238,14 +244,16 @@ public class AudioClassifyUtils {
         String[] currentClasses = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS).split(",");
         ArrayList<String> currentClassesList = new ArrayList<>(Arrays.asList(currentClasses));
         if (active != null) {
-            String classification = active[11].split(",")[0];
-            if (currentClassesList.contains(classification)) {
-                int indexOfClass = currentClassesList.indexOf(classification);
-                if (indexOfClass != -1) {
-                    currentClassesList.remove(indexOfClass);
+            String[] classification = active[11].split(",");
+            for (String clsf: classification) {
+                if (currentClassesList.contains(clsf)) {
+                    int indexOfClass = currentClassesList.indexOf(clsf);
+                    if (indexOfClass != -1) {
+                        currentClassesList.remove(indexOfClass);
+                    }
                 }
-                app.setSharedPref(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS, TextUtils.join(",", currentClassesList));
             }
+            app.setSharedPref(RfcxPrefs.Pref.AUDIO_CLASSIFY_CLASS, TextUtils.join(",", currentClassesList));
         }
     }
 
