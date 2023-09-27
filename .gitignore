@@ -19,6 +19,7 @@ gradle/wrapper/*
 gradlew
 gradlew.bat
 local.properties
+secrets.properties
 
 /tmp
 /bin/_private

@@ -6,6 +6,12 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
     apply from: "../gradle/signing/platform_signing.gradle"
 }
 
+def secretsProp = new Properties()
+if (rootProject.file("secrets.properties").exists()) {
+    def secretsPropFile = rootProject.file("secrets.properties");
+    secretsProp.load(new FileInputStream(secretsPropFile))
+}
+
 android {
     compileSdkVersion 29
 
@@ -19,6 +25,8 @@ android {
         setProperty("archivesBaseName", "guardian-$versionName")
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "SSL_PASSPHRASE_STAGING", secretsProp['sslPassphraseStaging'])
+        buildConfigField("String", "SSL_PASSPHRASE_PROD", secretsProp['sslPassphraseProd'])
     }
 
     buildTypes {
