@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="org.rfcx.guardian.guardian">
+        xmlns:tools="http://schemas.android.com/tools">
 
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -70,7 +69,8 @@
         <activity
                 android:name=".activity.MainActivity"
                 android:label="@string/app_name"
-                android:theme="@style/AppTheme">
+                android:theme="@style/AppTheme"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -81,7 +81,8 @@
                 android:name=".activity.PrefsActivity"
                 android:label="@string/menu_prefs" />
 
-        <activity android:name=".activity.LoginWebViewActivity">
+        <activity android:name=".activity.LoginWebViewActivity"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -175,7 +176,8 @@
                 android:exported="false" />
 
         <!-- Receivers -->
-        <receiver android:name=".receiver.BootReceiver">
+        <receiver android:name=".receiver.BootReceiver"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

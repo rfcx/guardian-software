@@ -7,7 +7,7 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
 
     lintOptions {
         checkReleaseBuilds false
@@ -19,9 +19,9 @@ android {
     defaultConfig {
         applicationId "org.rfcx.guardian.classify"
         minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 10
-        versionName "1.1.4"
+        targetSdkVersion 31
+        versionCode 12
+        versionName "1.1.5"
         resConfigs "en"
         setProperty("archivesBaseName", "classify-$versionName")
 
@@ -44,6 +44,7 @@ android {
         noCompress "tflite"
         noCompress "lite"
     }
+    namespace 'org.rfcx.guardian.classify'
 }
 
 dependencies {

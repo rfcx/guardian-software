@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        package="org.rfcx.guardian.admin"
         android:sharedUserId="android.uid.system">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -80,7 +79,8 @@
         <activity
                 android:name=".activity.MainActivity"
                 android:label="@string/app_name"
-                android:theme="@style/AppTheme">
+                android:theme="@style/AppTheme"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -129,7 +129,8 @@
         <!--                     -->
         <service
                 android:name="org.rfcx.guardian.admin.comms.sms.SmsDispatchService"
-                android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
+                android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
 
@@ -144,7 +145,8 @@
 
         <receiver
                 android:name="org.rfcx.guardian.admin.comms.sms.SmsReceiver"
-                android:permission="android.permission.BROADCAST_SMS">
+                android:permission="android.permission.BROADCAST_SMS"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_DELIVER" />
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
@@ -152,7 +154,8 @@
         </receiver>
         <receiver
                 android:name="org.rfcx.guardian.admin.comms.sms.MmsReceiver"
-                android:permission="android.permission.BROADCAST_WAP_PUSH">
+                android:permission="android.permission.BROADCAST_WAP_PUSH"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
 
@@ -161,7 +164,8 @@
         </receiver>
 
 
-        <activity android:name="org.rfcx.guardian.admin.comms.sms.ComposeSmsActivity">
+        <activity android:name="org.rfcx.guardian.admin.comms.sms.ComposeSmsActivity"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SENDTO" />
@@ -181,7 +185,8 @@
         <!--                    -->
 
         <!-- Receivers -->
-        <receiver android:name=".receiver.BootReceiver">
+        <receiver android:name=".receiver.BootReceiver"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

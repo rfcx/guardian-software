@@ -29,3 +29,4 @@
 -keep class org.eclipse.paho.client.mqttv3.** {*;}
 -keep class org.eclipse.paho.android.service.** { *; }
 -keepclasseswithmembers class org.eclipse.paho.** {*;}
+-dontwarn com.google.gson.annotations.SerializedName

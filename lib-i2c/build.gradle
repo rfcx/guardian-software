@@ -18,6 +18,7 @@ android {
             renderscriptDebuggable false
         }
     }
+    namespace 'org.rfcx.guardian.i2c'
 
 }
 

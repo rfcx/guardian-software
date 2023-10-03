@@ -22,7 +22,7 @@ class MLPredictor(private val tfLiteFilePath: String, private val outputSize: In
         try {
             interpreter = Interpreter(File(tfLiteFilePath))
         } catch (e: Exception) {
-            Log.e(logTag, e.message)
+            Log.e(logTag, e.message.toString())
         }
     }
 
@@ -35,7 +35,7 @@ class MLPredictor(private val tfLiteFilePath: String, private val outputSize: In
         try {
             interpreter?.run(arrayOf(input), outputShape)
         } catch (e: Exception) {
-            Log.e(logTag, e.message)
+            Log.e(logTag, e.message.toString())
         }
 
         return outputShape[0]

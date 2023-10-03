@@ -13,14 +13,14 @@ if (rootProject.file("secrets.properties").exists()) {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "org.rfcx.guardian.guardian"
         minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 32
-        versionName "1.2.0"
+        targetSdkVersion 31
+        versionCode 35
+        versionName "1.2.1"
         resConfigs "en"
         setProperty("archivesBaseName", "guardian-$versionName")
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]
@@ -43,6 +43,7 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    namespace 'org.rfcx.guardian.guardian'
 }
 
 dependencies {

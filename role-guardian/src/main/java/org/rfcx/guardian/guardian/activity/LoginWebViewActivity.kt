@@ -115,7 +115,7 @@ class LoginWebViewActivity : Activity() {
                         finish()
                     }
                 }
-                Log.d("LoginWebViewActivity", credentials.idToken)
+                Log.d("LoginWebViewActivity", credentials.idToken.toString())
             } else {
                 Log.d("LoginWebViewActivity", "post failed")
                 Toast.makeText(this, "code is incorrect.", Toast.LENGTH_LONG).show()

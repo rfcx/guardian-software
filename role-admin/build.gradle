@@ -7,14 +7,14 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "org.rfcx.guardian.admin"
         minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 35
-        versionName "1.2.0"
+        targetSdkVersion 31
+        versionCode 37
+        versionName "1.2.1"
         resConfigs "en"
         setProperty("archivesBaseName", "admin-$versionName")
 
@@ -31,6 +31,7 @@ android {
             renderscriptDebuggable false
         }
     }
+    namespace 'org.rfcx.guardian.admin'
 }
 
 dependencies {
