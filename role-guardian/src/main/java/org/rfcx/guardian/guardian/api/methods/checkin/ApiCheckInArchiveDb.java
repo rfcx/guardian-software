@@ -22,7 +22,7 @@ public class ApiCheckInArchiveDb {
     static final String C_FILESIZE = "filesize";
     static final String C_FILEPATH = "filepath";
     static final String C_MISSING = "missing";
-    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{ "1.1.9" }; // "0.6.43"
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{ "1.1.9", "1.2.0" }; // "0.6.43"
     private static final String[] ALL_COLUMNS = new String[]{C_ARCHIVED_AT, C_ARCHIVE_BEGINS_AT, C_ARCHIVE_ENDS_AT, C_RECORD_COUNT, C_DURATION_SETTING, C_SKIP_SETTING, C_FILESIZE, C_FILEPATH, C_MISSING};
     public final DbArchive dbArchive;
     private int VERSION = 1;
