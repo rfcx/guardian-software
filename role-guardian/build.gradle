@@ -19,7 +19,7 @@ android {
         applicationId "org.rfcx.guardian.guardian"
         minSdkVersion 19
         targetSdkVersion 31
-        versionCode 35
+        versionCode 37
         versionName "1.2.1"
         resConfigs "en"
         setProperty("archivesBaseName", "guardian-$versionName")

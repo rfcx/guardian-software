@@ -121,11 +121,13 @@ public class ApiPingJsonUtils {
             }
         }
 
-        if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm")) {
-            String swmDiagnostic = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values",
-                    "swm_diagnostic", app.getResolver()));
-            if (swmDiagnostic.length() > 0) {
-                jsonObj.put("swm", swmDiagnostic);
+        if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+            if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "swm")) {
+                String swmDiagnostic = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values",
+                        "swm_diagnostic", app.getResolver()));
+                if (swmDiagnostic.length() > 0) {
+                    jsonObj.put("swm", swmDiagnostic);
+                }
             }
         }
 
