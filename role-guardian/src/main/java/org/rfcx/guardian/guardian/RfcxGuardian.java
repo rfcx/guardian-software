@@ -234,10 +234,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         // Change from old rabbitMQ server to new one
         String currentURL = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_HOST);
         if (!currentURL.contains("staging")) {
-            rfcxPrefs.setPref(RfcxPrefs.Pref.API_MQTT_HOST, "rabbit.rfcx.org");
+            setSharedPref(RfcxPrefs.Pref.API_MQTT_HOST, "rabbit.rfcx.org");
             RfcxPrefs.writeToGuardianRoleTxtFile(this, logTag, "keystore_passphrase", BuildConfig.SSL_PASSPHRASE_PROD, true);
         } else {
-            rfcxPrefs.setPref(RfcxPrefs.Pref.API_MQTT_HOST, "staging-rabbit.rfcx.org");
+            setSharedPref(RfcxPrefs.Pref.API_MQTT_HOST, "staging-rabbit.rfcx.org");
             RfcxPrefs.writeToGuardianRoleTxtFile(this, logTag, "keystore_passphrase", BuildConfig.SSL_PASSPHRASE_STAGING, true);
         }
     }
